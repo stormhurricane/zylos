@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Kalendereinsehen">
+   <children>
+      <Button layoutX="515.0" layoutY="45.0" mnemonicParsing="false" onAction="#changeToStartseite" text="Startseite" />
+      <DatePicker fx:id="DatumAuswahl" layoutX="224.0" layoutY="58.0" />
+      <ListView fx:id="TermineAnzeigen" layoutX="137.0" layoutY="163.0" prefHeight="200.0" prefWidth="347.0" />
+      <Button fx:id="TermineEinsehen" layoutX="244.0" layoutY="102.0" mnemonicParsing="false" onAction="#TermineAnzeigen" text="Termine Anzeigen" />
+      <Label fx:id="fehlerTermin" layoutX="137.0" layoutY="136.0" text="Keine Termine" visible="false" />
+      <Label fx:id="fehlerDatum" layoutX="300.0" layoutY="136.0" text="Bitte wählen Sie eine Datum aus" visible="false"/>
+   </children>
+</AnchorPane>

@@ -1,0 +1,109 @@
+package gruppei.backend.controller;
+
+
+import gruppei.backend.controller.communication.VeranstaltungsWrapper;
+import gruppei.backend.database.Lernkarte;
+import gruppei.backend.database.LernkartenThema;
+import gruppei.backend.database.ProjektgruppenNachricht;
+import gruppei.backend.database.ToDos;
+import gruppei.backend.service.LehrveranstaltungsService;
+import gruppei.backend.service.LernkartenService;
+import gruppei.backend.service.LernkartenThemaService;
+import gruppei.backend.service.ProjektgruppeService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping(path="/api/v1/lehrveranstaltung")
+public class LehrveranstaltungsController {
+
+    @Autowired
+    LehrveranstaltungsService lehrveranstaltungsService;
+
+    @Autowired
+    ProjektgruppeService projektgruppeService;
+
+    @Autowired
+    LernkartenThemaService lernkartenThemaService;
+
+    @Autowired
+    LernkartenService lernkartenService;
+
+    @PostMapping(path="/create/{id}")
+    public boolean erstelleLehrveranstaltung(@PathVariable("id") int lehrenderID,
+                                            @RequestBody VeranstaltungsWrapper lehrveranstaltung) {
+        return lehrveranstaltungsService.erstelleLehrveranstaltung(lehrenderID, lehrveranstaltung);
+    }
+
+    @GetMapping(path="/find/{id}", produces = "application/json")
+    public VeranstaltungsWrapper findeLehrveranstaltungMitID(@PathVariable("id") int id) {
+        return lehrveranstaltungsService.findeLehrveranstaltung(id);
+    }
+
+    @PostMapping(path="/find", consumes = "application/json", produces = "application/json")
+    public VeranstaltungsWrapper findeLehrveranstaltungMitTitel(@RequestBody Map<String, String> suchDaten) {
+        return lehrveranstaltungsService.findeLehrveranstaltung(suchDaten);
+    }
+
+    @GetMapping(path= "/all")
+    public List<VeranstaltungsWrapper> zeigeAlleLehrveranstaltungen(){
+        return lehrveranstaltungsService.erzeugeLehrveranstaltungsListe();
+    }
+
+    @GetMapping(path="/chat/{id}")
+    public List<ProjektgruppenNachricht> zeigeGruppenChat(@PathVariable("id") int pgId){
+        return projektgruppeService.zeigeGruppenchat(pgId);
+    }
+
+    @PostMapping(path=("/chat/post"))
+    public List<ProjektgruppenNachricht> sendeNachricht(@RequestBody ProjektgruppenNachricht nachricht){
+        return projektgruppeService.sendeNachricht(nachricht);
+    }
+
+    @GetMapping(path="/todo/{id}")
+    public List<ToDos> zeigeToDoListe(@PathVariable("id") int pgId){
+        return projektgruppeService.zeigeToDoListe(pgId);
+    }
+
+    @PostMapping(path="/todo/add")
+    public boolean neuesToDo(@RequestBody ToDos neuesToDo) {
+        return projektgruppeService.fuegeToDoHinzu(neuesToDo);
+    }
+
+
+    @PutMapping(path="/todo/done")
+    public boolean hakeToDoAb(@RequestBody int id){
+        return projektgruppeService.hakeToDoAb(id);
+    }
+
+    @PutMapping(path="/todo/change/{id}")
+    public boolean aendereVerantwortlichen(@PathVariable("id") int todoId,
+                                           @RequestBody int verantwortlichenId){
+        return projektgruppeService.aendereVerantwortung(todoId, verantwortlichenId);
+    }
+
+    @PostMapping(path="/lernkartenThema/{id}")
+    public int lernkartenThemaErstellen(@PathVariable("id") int lvId,
+                                        @RequestBody String beschreibung){
+        return lernkartenThemaService.LernkartenThemaErstellen(lvId, beschreibung);
+    }
+
+    @GetMapping(path="/lernkartenThemaListe/{id}")
+    public List<LernkartenThema> zeigeLernkartenThemaListe(@PathVariable("id") int lvId){
+        return lernkartenThemaService.ListeAllerLernkartenThemen(lvId);
+    }
+
+    @PostMapping(path="/lernkarte")
+    public boolean erstelleLernkarte(@RequestBody Lernkarte lernkarte) {
+        return lernkartenService.LernkarteErstellen(lernkarte);
+    }
+
+    @GetMapping(path="/lernkarten/{id}")
+    public List<Lernkarte> zeigeLernkartenEinesThemas(@PathVariable("id") int lernkartenThemaId) {
+        return lernkartenService.ListeLernkartenEinesThemas(lernkartenThemaId);
+    }
+
+}

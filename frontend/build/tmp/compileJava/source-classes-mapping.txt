@@ -1,0 +1,175 @@
+datenklassen/Reminder.java
+ datenklassen.Reminder
+ datenklassen.Reminder$FormEnum
+datenklassen/ToDos.java
+ datenklassen.ToDos
+MaterialLVanzeigen.java
+ MaterialLVanzeigen
+Kalendereinsehen.java
+ Kalendereinsehen
+LernkarteAnsehen.java
+ LernkarteAnsehen
+Terminremindererstellen.java
+ Terminremindererstellen
+QuizFragenAnlegen.java
+ QuizFragenAnlegen
+LernkarteListe.java
+ LernkarteListe
+Reminderpopup.java
+ Reminderpopup
+ToDoListe.java
+ ToDoListe
+Controller/LehrenderEndpoint.java
+ Controller.LehrenderEndpoint
+datenklassen/Literatur.java
+ datenklassen.Literatur
+Controller/Communication/FreundschaftsAnfrage.java
+ Controller.Communication.FreundschaftsAnfrage
+datenklassen/Lehrveranstaltung.java
+ datenklassen.Lehrveranstaltung
+ datenklassen.Lehrveranstaltung$typEnum
+ datenklassen.Lehrveranstaltung$zeitEnum
+datenklassen/Projektgruppe.java
+ datenklassen.Projektgruppe
+Controller/Communication/ChatWrapper.java
+ Controller.Communication.ChatWrapper
+datenklassen/ArbeitsThema.java
+ datenklassen.ArbeitsThema
+ProjektgruppeNachrichtSchreiben.java
+ ProjektgruppeNachrichtSchreiben
+Controller/Communication/NutzerWrapper.java
+ Controller.Communication.NutzerWrapper
+MeineLehrveranstaltungen.java
+ MeineLehrveranstaltungen
+Launch.java
+ Launch
+NachrichtenListe.java
+ NachrichtenListe
+PreRegistration.java
+ PreRegistration
+RegistrationLehrender.java
+ RegistrationLehrender
+datenklassen/Test.java
+ datenklassen.Test
+ datenklassen.Test$testArtEnum
+QuizListe.java
+ QuizListe
+ProjektgruppenUebersicht.java
+ ProjektgruppenUebersicht
+Controller/Communication/VeranstaltungsWrapper.java
+ Controller.Communication.VeranstaltungsWrapper
+datenklassen/Feedback.java
+ datenklassen.Feedback
+StudentLogin.java
+ StudentLogin
+RegistrationStudent.java
+ RegistrationStudent
+ZweiFaktorLogin.java
+ ZweiFaktorLogin
+datenklassen/LernkartenThema.java
+ datenklassen.LernkartenThema
+QuizFeedback.java
+ QuizFeedback
+Services/LehrenderService.java
+ Services.LehrenderService
+datenklassen/Nutzer.java
+ datenklassen.Nutzer
+LaunchSeite.java
+ LaunchSeite
+ProjektgruppeAnlegen.java
+ ProjektgruppeAnlegen
+datenklassen/ChatNachricht.java
+ datenklassen.ChatNachricht
+NachrichtSchreiben.java
+ NachrichtSchreiben
+Controller/Communication/QuizWrapper.java
+ Controller.Communication.QuizWrapper
+ErfolgreicherZwischenbildschirm.java
+ ErfolgreicherZwischenbildschirm
+ProfilBearbeitenStudent.java
+ ProfilBearbeitenStudent
+Teilnehmerhinzufuegen.java
+ Teilnehmerhinzufuegen
+QuizStatistik.java
+ QuizStatistik
+datenklassen/Lehrender.java
+ datenklassen.Lehrender
+DatumEinstellen.java
+ DatumEinstellen
+FileClass.java
+ FileClass
+datenklassen/Chat.java
+ datenklassen.Chat
+QuizSpielen.java
+ QuizSpielen
+Freundschafsanfragen.java
+ Freundschafsanfragen
+datenklassen/Lernkarte.java
+ datenklassen.Lernkarte
+Startseite.java
+ Startseite
+ Startseite$1
+LernkarteErstellen.java
+ LernkarteErstellen
+BewertungSpielen.java
+ BewertungSpielen
+datenklassen/BewertungsFeedback.java
+ datenklassen.BewertungsFeedback
+datenklassen/Student.java
+ datenklassen.Student
+Controller/Communication/StatistikWrapper.java
+ Controller.Communication.StatistikWrapper
+Teilnehmerliste.java
+ Teilnehmerliste
+OberController.java
+ OberController
+datenklassen/LehrveranstaltungsMaterial.java
+ datenklassen.LehrveranstaltungsMaterial
+ThemenangebotErstellen.java
+ ThemenangebotErstellen
+datenklassen/Frage.java
+ datenklassen.Frage
+Controller/StudentEndpoint.java
+ Controller.StudentEndpoint
+ChatListe.java
+ ChatListe
+Services/NutzerService.java
+ Services.NutzerService
+BewertungFragenAnlegen.java
+ BewertungFragenAnlegen
+LehrveranstaltungSuchen.java
+ LehrveranstaltungSuchen
+Controller/NutzerEndpoint.java
+ Controller.NutzerEndpoint
+datenklassen/Termin.java
+ datenklassen.Termin
+ToDoErstellen.java
+ ToDoErstellen
+ProfilStudent.java
+ ProfilStudent
+QuizAnlegen.java
+ QuizAnlegen
+Freundesliste.java
+ Freundesliste
+Services/StudentService.java
+ Services.StudentService
+LehrveranstaltungAnlegen.java
+ LehrveranstaltungAnlegen
+datenklassen/ProjektgruppenNachricht.java
+ datenklassen.ProjektgruppenNachricht
+AlleLehrveranstaltungen.java
+ AlleLehrveranstaltungen
+ProfilBearbeitenLehrender.java
+ ProfilBearbeitenLehrender
+Client/RetrofitClient.java
+ Client.RetrofitClient
+ProjektgruppenChat.java
+ ProjektgruppenChat
+LehrveranstaltungUebersicht.java
+ LehrveranstaltungUebersicht
+BewertungsStatistik.java
+ BewertungsStatistik
+Themenangebot.java
+ Themenangebot
+ProfilLehrender.java
+ ProfilLehrender

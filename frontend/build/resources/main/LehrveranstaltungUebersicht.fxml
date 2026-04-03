@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="LehrveranstaltungUebersicht">
+   <children>
+      <Button fx:id = "Materialhinzufuegen"layoutX="87.0" layoutY="123.0" mnemonicParsing="false" text="Materialien hinzufügen" />
+      <Button fx:id = "Material"layoutX="87.0" layoutY="85.0" mnemonicParsing="false" text="Materialien" />
+      <Button fx:id = "Teilnehmerliste"layoutX="87.0" layoutY="175.0" mnemonicParsing="false" text="Teilnehmerliste" />
+      <Button fx:id = "Teilnehemer hinzufuegen"layoutX="87.0" layoutY="214.0" mnemonicParsing="false" text="Teilnehmer hinzufügen" />
+   </children>
+</AnchorPane>

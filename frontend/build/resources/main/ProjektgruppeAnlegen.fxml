@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ProjektgruppeAnlegen">
+    <children>
+        <Text layoutX="93.0" layoutY="120.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Titel" />
+        <Text layoutX="94.0" layoutY="301.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Veranstaltung" />
+        <Text layoutX="94.0" layoutY="184.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Jahr" />
+        <Text layoutX="232.0" layoutY="56.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Projektgruppe Anlegen" />
+        <TextField fx:id="Titel" layoutX="219.0" layoutY="103.0" />
+        <TextField fx:id="Jahr" layoutX="219.0" layoutY="167.0" />
+        <Button layoutX="264.0" layoutY="330.0" mnemonicParsing="false" onAction="#anlegen" text="Anlegen" />
+        <Label fx:id="FehlerManuell" layoutX="168.0" layoutY="362.0" text="Die Lehrveranstaltung konnte nicht angelegt werden" visible="false" />
+        <Text layoutX="94.0" layoutY="243.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Semester" />
+        <ChoiceBox fx:id="Semester" layoutX="218.0" layoutY="226.0" prefWidth="150.0" />
+        <Button layoutX="520.0" layoutY="12.0" mnemonicParsing="false" onAction="#changeToStartseite" text="Startseite" />
+        <Label fx:id="ErfolgManuell" layoutX="42.0" layoutY="334.0" text="Die Lehrveranstaltung wurde angelegt" visible="false" />
+      <Text layoutX="221.0" layoutY="301.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Projektgruppe" />
+    </children>
+</AnchorPane>

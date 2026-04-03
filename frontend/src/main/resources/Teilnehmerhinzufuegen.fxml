@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Teilnehmerhinzufuegen">
+   <children>
+      <ChoiceBox fx:id="choiceBox" layoutX="134.0" layoutY="85.0" prefWidth="150.0" />
+      <ListView fx:id="ListeNutzer" layoutX="300.0" layoutY="86.0" prefHeight="200.0" prefWidth="200.0" />
+      <Button layoutX="508.0" layoutY="85.0" mnemonicParsing="false" onAction="#studentHinzufuegen" text="Hinzufügen" />
+      <TextField fx:id="Benutzername" layoutX="135.0" layoutY="128.0" />
+      <Button layoutX="520.0" layoutY="12.0" mnemonicParsing="false" onAction="#startseiteLV" text="Startseite" />
+      <Button layoutX="135.0" layoutY="219.0" mnemonicParsing="false" onAction="#studentSuchen" text="Suchen" />
+      <Label fx:id="Hinzufuegen" layoutX="300.0" layoutY="310.0" prefHeight="17.0" prefWidth="289.0" />
+      <TextField fx:id="Nachname" layoutX="135.0" layoutY="174.0" />
+      <Text layoutX="29.0" layoutY="137.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Vorname oder Matrikelnummer" wrappingWidth="89.0" />
+      <Text layoutX="52.0" layoutY="191.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Nachname" wrappingWidth="66.0" />
+   </children>
+</AnchorPane>

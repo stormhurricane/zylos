@@ -1,0 +1,29 @@
+Anleitung
+
+0. Vorbereitung
+-Um die jar auszuführen, benötigen Sie Java Amazon Coretto 8. Der download erfolgt über folgenden Link: https://corretto.aws/downloads/latest/amazon-corretto-8-x64-windows-jdk.msi
+-Führen Sie die heruntergeladene Datei aus und folgen Sie den Anweisungen des Installers
+-Nach erfolgreicher Installation klicken Sie unten links auf die Windows-Suchleiste und geben "env" ein
+-Klicken Sie auf "Systemumgebungsvariablen bearbeiten"
+-Klicken Sie auf "Umgebungsvariablen"
+-Scrollen Sie im Fenster "Systemvariablen" zu "JAVA_HOME" wählen diese Zeile aus und drücken Sie auf "Bearbeiten"
+-Geben Sie im Feld "Wert der Variablen" den Pfad zur benötigten Javaversion an; in den meisten Fällen: C:\Program Files\Amazon Corretto\jdk1.8.0_282
+-Drücken Sie auf "OK"
+-Scrollen Sie im Fenster "Systemvariablen" zu "Path" wählen diese Zeile aus und drücken Sie auf "Bearbeiten"
+-Wenn keine JDK vorhanden ist, drücken Sie auf "Neu" und geben Pfad zur "bin" der Javaversion ein. Falls schon vorhanden, wählen Sie die Zeile mit der JDK aus,
+ drücken sie auf "Bearbeiten" und geben den Pfad zur "bin" der Javaversion an; In den meisten Fällen: C:\Program Files\Amazon Corretto\jdk1.8.0_282\bin
+-Drücken Sie auf "OK"
+-Schließen sie das Fenster "Umgebungsvariablen", indem Sie auf "OK" drücken
+-Schließen sie das Fenster "Systemeigenschaften", indem Sie auf "Übernehmen" drücken
+
+1. Server
+- Um den Server zu starten, haben wir eine gefüllte Datenbank
+ bereitgestellt. Diese ist unter ./backend/ zu finden. 
+- Sollten Sie eine leere Datenbank bevorzugen, löschen Sie die Datenbank vor dem Start des Servers.
+- Zum Ausführen führen Sie einen rechts-klick auf backend-v3.01-SNAPSHOT aus und klicken auf öffnen.
+ 	-> Achten sie jedoch, dass Port 8080 bereits auf ihrem PC frei ist
+- Danach ist der Server aktiv und Sie müssen nichts weiter erledigen.
+-Zum Schließen des Backends beenden Sie den Prozess im Taskmanager
+
+2. UI
+- Starten durch rechtsklick auf frontend-1.0-SNAPSHOT und öffnen.
