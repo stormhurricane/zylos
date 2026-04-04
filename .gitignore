@@ -1,0 +1,62 @@
+# Gradle
+.gradle/
+build/
+bin/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VS Code
+.vscode/
+
+# NetBeans
+nbproject/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# Compiled class files
+*.class
+
+# JAR files (generated in build/libs/)
+*.jar
+
+# Application properties (if sensitive, but typically not)
+# application.properties
+
+# Database files (if using embedded DB)
+*.db
+*.sqlite
+
+# Node.js (if applicable, but this is Java)
+node_modules/
+npm-debug.log*
+
+# Maven (if mixed, but this is Gradle)
+target/
+
+# Other
+out/
