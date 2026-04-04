@@ -25,14 +25,14 @@ datenklassen/Literatur.java
  datenklassen.Literatur
 Controller/Communication/FreundschaftsAnfrage.java
  Controller.Communication.FreundschaftsAnfrage
+Controller/Communication/ChatWrapper.java
+ Controller.Communication.ChatWrapper
 datenklassen/Lehrveranstaltung.java
  datenklassen.Lehrveranstaltung
  datenklassen.Lehrveranstaltung$typEnum
  datenklassen.Lehrveranstaltung$zeitEnum
 datenklassen/Projektgruppe.java
  datenklassen.Projektgruppe
-Controller/Communication/ChatWrapper.java
- Controller.Communication.ChatWrapper
 datenklassen/ArbeitsThema.java
  datenklassen.ArbeitsThema
 ProjektgruppeNachrichtSchreiben.java
@@ -43,10 +43,10 @@ MeineLehrveranstaltungen.java
  MeineLehrveranstaltungen
 Launch.java
  Launch
-NachrichtenListe.java
- NachrichtenListe
 PreRegistration.java
  PreRegistration
+LehrveranstaltungUebersicht.java
+ LehrveranstaltungUebersicht
 RegistrationLehrender.java
  RegistrationLehrender
 datenklassen/Test.java
@@ -74,22 +74,22 @@ Services/LehrenderService.java
  Services.LehrenderService
 datenklassen/Nutzer.java
  datenklassen.Nutzer
-LaunchSeite.java
- LaunchSeite
 ProjektgruppeAnlegen.java
  ProjektgruppeAnlegen
+LaunchSeite.java
+ LaunchSeite
 datenklassen/ChatNachricht.java
  datenklassen.ChatNachricht
 NachrichtSchreiben.java
  NachrichtSchreiben
 Controller/Communication/QuizWrapper.java
  Controller.Communication.QuizWrapper
+ProfilLehrender.java
+ ProfilLehrender
 ErfolgreicherZwischenbildschirm.java
  ErfolgreicherZwischenbildschirm
 ProfilBearbeitenStudent.java
  ProfilBearbeitenStudent
-Teilnehmerhinzufuegen.java
- Teilnehmerhinzufuegen
 QuizStatistik.java
  QuizStatistik
 datenklassen/Lehrender.java
@@ -119,8 +119,8 @@ datenklassen/Student.java
  datenklassen.Student
 Controller/Communication/StatistikWrapper.java
  Controller.Communication.StatistikWrapper
-Teilnehmerliste.java
- Teilnehmerliste
+BewertungsStatistik.java
+ BewertungsStatistik
 OberController.java
  OberController
 datenklassen/LehrveranstaltungsMaterial.java
@@ -137,8 +137,8 @@ Services/NutzerService.java
  Services.NutzerService
 BewertungFragenAnlegen.java
  BewertungFragenAnlegen
-LehrveranstaltungSuchen.java
- LehrveranstaltungSuchen
+Themenangebot.java
+ Themenangebot
 Controller/NutzerEndpoint.java
  Controller.NutzerEndpoint
 datenklassen/Termin.java
@@ -161,15 +161,15 @@ AlleLehrveranstaltungen.java
  AlleLehrveranstaltungen
 ProfilBearbeitenLehrender.java
  ProfilBearbeitenLehrender
-Client/RetrofitClient.java
- Client.RetrofitClient
 ProjektgruppenChat.java
  ProjektgruppenChat
-LehrveranstaltungUebersicht.java
- LehrveranstaltungUebersicht
-BewertungsStatistik.java
- BewertungsStatistik
-Themenangebot.java
- Themenangebot
-ProfilLehrender.java
- ProfilLehrender
+Client/RetrofitClient.java
+ Client.RetrofitClient
+NachrichtenListe.java
+ NachrichtenListe
+Teilnehmerliste.java
+ Teilnehmerliste
+Teilnehmerhinzufuegen.java
+ Teilnehmerhinzufuegen
+LehrveranstaltungSuchen.java
+ LehrveranstaltungSuchen
