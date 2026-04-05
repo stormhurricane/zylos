@@ -1,0 +1,60 @@
+package com.zylos.backend.database;
+
+import com.sun.istack.NotNull;
+
+import javax.persistence.*;
+
+@Entity
+@Table(name = "CHATNACHRICHT")
+public class ChatNachricht {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @NotNull
+    @Column
+    private long id;
+
+    private int chatId;
+
+    private String sender;
+
+    private String inhalt;
+
+    public ChatNachricht(int chatId, String sender, String inhalt) {
+        this.chatId = chatId;
+        this.sender = sender;
+        this.inhalt = inhalt;
+    }
+
+    public ChatNachricht() {
+
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public int getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(int chatId) {
+        this.chatId = chatId;
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+
+    public String getInhalt() {
+        return inhalt;
+    }
+
+    public void setInhalt(String inhalt) {
+        this.inhalt = inhalt;
+    }
+}
