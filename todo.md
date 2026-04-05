@@ -9,9 +9,12 @@ Dieses TODO-Dokument beschreibt die Schritte zur Migration des Projekts:
 **Priorität:** Zuerst den aktuellen Stand sichern und lauffähig machen, bevor migriert wird.
 
 ## 1. Aktuellen Stand analysieren und lauffähig machen
-- [ ] Gradle-Build testen: `./gradlew clean build` im backend/ und frontend/
-- [ ] JARs ausführen: backend-v3.01-SNAPSHOT.jar (Port 8080) und frontend-1.0-SNAPSHOT.jar
-- [ ] Datenbank prüfen: H2-Datenbank in backend/ (falls gefüllt, behalten; sonst leer starten)
+- [X] Gradle-Build testen: `./gradlew clean build` im backend/ und frontend/
+- [X] JARs ausführen: backend-v3.01-SNAPSHOT.jar (Port 8080) und frontend-1.0-SNAPSHOT.jar
+- [X] Datenbank prüfen: H2-Datenbank in backend/ (falls gefüllt, behalten; sonst leer starten) → Leer starten (keine DB-Dateien vorhanden)
+- [X] Lokale MySQL-Datenbank einrichten: Docker-Container für MySQL starten (für realistischere Tests)
+- [X] Backend-Dockerfile erstellen: Single-Stage Build für Spring Boot
+- [X] docker-compose.yml erstellen: Backend + MySQL als Services
 - [ ] Abhängigkeiten dokumentieren: Alle Gradle-Dependencies aus build.gradle extrahieren
 - [ ] Tests laufen lassen: `./gradlew test` – alle grün?
 - [ ] API-Endpunkte identifizieren: Welche REST-APIs gibt es? (z.B. via Logs oder Code-Review)

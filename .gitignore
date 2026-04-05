@@ -60,3 +60,7 @@ target/
 
 # Other
 out/
+
+# Databases
+*.mv.db
+*.trace.db
