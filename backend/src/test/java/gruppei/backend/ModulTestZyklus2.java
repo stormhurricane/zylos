@@ -11,26 +11,11 @@ import gruppei.backend.repository.ChatNachrichtRepository;
 import gruppei.backend.repository.ChatRepository;
 import gruppei.backend.repository.ProjektgruppenNachrichtRepository;
 import gruppei.backend.service.ChatNachrichtService;
-import org.assertj.core.api.Assert;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.platform.runner.JUnitPlatform;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runner.RunWith;
-import org.junit.runners.model.Statement;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +28,6 @@ import static org.mockito.Mockito.verify;
 //Quelle
 //https://www.baeldung.com/java-spring-mockito-mock-mockbean
 
-//@ExtendWith(MockitoExtension.class)
-@RunWith(SpringRunner.class)
 @SpringBootTest
 public class ModulTestZyklus2 {
 

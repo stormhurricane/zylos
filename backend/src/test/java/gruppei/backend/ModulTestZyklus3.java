@@ -9,25 +9,19 @@ import gruppei.backend.repository.*;
 import gruppei.backend.service.ChatNachrichtService;
 import gruppei.backend.service.StatistikService;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
 
 //Quelle
 //https://www.baeldung.com/java-spring-mockito-mock-mockbean
 
-//@ExtendWith(MockitoExtension.class)
-@RunWith(SpringRunner.class)
 @SpringBootTest
 public class ModulTestZyklus3 {
 
