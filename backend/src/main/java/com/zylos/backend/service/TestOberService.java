@@ -9,6 +9,7 @@ import com.zylos.backend.database.Feedback;
 import com.zylos.backend.database.Frage;
 import com.zylos.backend.database.Lehrveranstaltung;
 import com.zylos.backend.database.Test;
+import com.zylos.backend.model.dto.CreateTestAttemptRequest;
 
 import java.util.List;
 import java.util.Locale;
@@ -56,8 +57,8 @@ public class TestOberService {
         return feedbackService.findeAlleFeedbacksMitVersuchsId(versuchId);
     }
 
-    public int legeVersuchAn(Map<String, Integer> versuch) {
-       return versuchService.erstelleVersuch(versuch);
+    public int createTestAttempt(CreateTestAttemptRequest testAttemptRequest) {
+       return versuchService.createAttempt(testAttemptRequest);
     }
 
     public boolean pruefeVersuch(int versuchId) {

@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.zylos.backend.database.Feedback;
+import com.zylos.backend.model.dto.CreateTestAttemptRequest;
 import com.zylos.backend.database.Frage;
 import com.zylos.backend.database.Versuch;
 import com.zylos.backend.repository.VersuchRepository;
@@ -30,9 +31,8 @@ public class VersuchService {
         this.testService = testService;
     }
 
-    //Key 1 "nutzerId", Key 2 "testId"
-    public int erstelleVersuch(Map<String, Integer> versuchMap) {
-        Versuch versuch = new Versuch(versuchMap.get("nutzerId"), versuchMap.get("testId"), false);
+    public int createTestAttempt(CreateTestAttemptRequest testAttemptRequest) {
+        Versuch versuch = new Versuch(testAttemptRequest.nutzerId(), testAttemptRequest.testId(), false);
         Versuch savedVersuch = versuchRepository.save(versuch);
         return savedVersuch.getId();
     }
