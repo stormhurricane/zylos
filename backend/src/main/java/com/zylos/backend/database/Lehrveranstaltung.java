@@ -1,9 +1,8 @@
 package com.zylos.backend.database;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sun.istack.NotNull;
-
-import javax.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.*;
 
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Entity

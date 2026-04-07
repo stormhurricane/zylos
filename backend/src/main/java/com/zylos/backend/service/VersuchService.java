@@ -1,6 +1,6 @@
 package com.zylos.backend.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.zylos.backend.database.Feedback;
@@ -14,29 +14,27 @@ import java.util.Map;
 @Service
 public class VersuchService {
 
-    @Autowired
-    VersuchRepository versuchRepository;
+    private final VersuchRepository versuchRepository;
+    private final FrageService frageService;
+    private final FeedbackService feedbackService;
+    private final TestService testService;
 
-    @Autowired
-    FrageService frageService;
-
-    @Autowired
-    FeedbackService feedbackService;
-
-    @Autowired
-    TestService testService;
+    public VersuchService(
+            VersuchRepository versuchRepository,
+            FrageService frageService,
+            @Lazy FeedbackService feedbackService,
+            @Lazy TestService testService) {
+        this.versuchRepository = versuchRepository;
+        this.frageService = frageService;
+        this.feedbackService = feedbackService;
+        this.testService = testService;
+    }
 
     //Key 1 "nutzerId", Key 2 "testId"
     public int erstelleVersuch(Map<String, Integer> versuchMap) {
-        versuchRepository.save(new Versuch(versuchMap.get("nutzerId"), versuchMap.get("testId"),false));
-        List<Versuch> moeglicheIds = versuchRepository.findAllByNutzerIdAndTestId(versuchMap.get("nutzerId"), versuchMap.get("testId"));
-        int id = 0;
-        for(Versuch versuch: moeglicheIds){
-            if(versuch.getId() > id){
-                id = versuch.getId();
-            }
-        }
-        return id;
+        Versuch versuch = new Versuch(versuchMap.get("nutzerId"), versuchMap.get("testId"), false);
+        Versuch savedVersuch = versuchRepository.save(versuch);
+        return savedVersuch.getId();
     }
 
     public boolean bestimmeBestandenBeiVersuch(int versuchId) {

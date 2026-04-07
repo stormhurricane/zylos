@@ -1,6 +1,6 @@
 package com.zylos.backend.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.zylos.backend.controller.communication.NutzerWrapper;
@@ -15,17 +15,21 @@ import java.util.Optional;
 @Service
 public class TeilnehmerService {
 
-    @Autowired
-    LehrveranstaltungsService lehrveranstaltungsService;
+    private final LehrveranstaltungsService lehrveranstaltungsService;
+    private final NutzerService nutzerService;
+    private final TeilnehmerRepository teilnehmerRepository;
+    private final ReminderService reminderService;
 
-    @Autowired
-    NutzerService nutzerService;
-
-    @Autowired
-    TeilnehmerRepository teilnehmerRepository;
-
-    @Autowired
-    ReminderService reminderService;
+    public TeilnehmerService(
+            @Lazy LehrveranstaltungsService lehrveranstaltungsService,
+            NutzerService nutzerService,
+            TeilnehmerRepository teilnehmerRepository,
+            @Lazy ReminderService reminderService) {
+        this.lehrveranstaltungsService = lehrveranstaltungsService;
+        this.nutzerService = nutzerService;
+        this.teilnehmerRepository = teilnehmerRepository;
+        this.reminderService = reminderService;
+    }
 
     public List<VeranstaltungsWrapper> erstelleTeilnahmeListeEinesNutzers(int nutzerId) {
         List<Teilnehmer> teilnehmerliste = teilnehmerRepository.findAll();

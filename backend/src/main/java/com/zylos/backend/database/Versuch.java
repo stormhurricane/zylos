@@ -1,9 +1,8 @@
 package com.zylos.backend.database;
 
 
-import com.sun.istack.NotNull;
-
-import javax.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "vERSUCH")

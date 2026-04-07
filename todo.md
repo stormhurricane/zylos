@@ -2,11 +2,11 @@
 
 ## Überblick
 Dieses TODO-Dokument beschreibt die Schritte zur Migration des Projekts:
-- Backend: Gradle → Maven, Refactor, Verbesserungen
+- Backend: Gradle → Maven (Java 21), Spring Boot 3 Migration
 - Frontend: JavaFX → JavaScript (SPA)
 - Dockerization für beide Teile
 
-**Priorität:** Zuerst den aktuellen Stand sichern und lauffähig machen, bevor migriert wird.
+**Status:** Phase 1 & 2 erfolgreich abgeschlossen. Fokus liegt nun auf Architektur & Refactoring.
 
 ## 1. Aktuellen Stand analysieren und lauffähig machen
 - [X] Gradle-Build testen: `./gradlew clean build` im backend/ und frontend/
@@ -15,24 +15,38 @@ Dieses TODO-Dokument beschreibt die Schritte zur Migration des Projekts:
 - [X] Lokale MySQL-Datenbank einrichten: Docker-Container für MySQL starten (für realistischere Tests)
 - [X] Backend-Dockerfile erstellen: Single-Stage Build für Spring Boot
 - [X] docker-compose.yml erstellen: Backend + MySQL als Services
-- [ ] Abhängigkeiten dokumentieren: Alle Gradle-Dependencies aus build.gradle extrahieren
-- [ ] Tests laufen lassen: `./gradlew test` – alle grün?
-- [ ] API-Endpunkte identifizieren: Welche REST-APIs gibt es? (z.B. via Logs oder Code-Review)
+- [X] Abhängigkeiten dokumentieren: Alle Gradle-Dependencies aus build.gradle extrahieren
+- [X] Tests laufen lassen: `./gradlew test` – alle grün?
+- [X] API-Endpunkte identifizieren: Welche REST-APIs gibt es? (z.B. via Logs oder Code-Review)
 
 **Warum zuerst?** Sicherstellen, dass das Projekt funktioniert, bevor Änderungen. Vermeidet "Broken Window"-Effekt.
 
-## 2. Maven-Migration für Backend
-- [ ] pom.xml erstellen: Basierend auf build.gradle (Spring Boot 2.4.5, Java 8, Dependencies: web, jdbc, h2, jpa, mail, etc.)
-- [ ] Verzeichnisstruktur anpassen: src/main/java, src/test/java, etc.
-- [ ] Build testen: `mvn clean compile`, `mvn test`, `mvn package`
-- [ ] JAR laufen lassen: `java -jar target/backend-3.01.jar`
-- [ ] Profile einrichten: dev, prod, test (application.properties anpassen)
+## 2. Maven-Migration & Java 21 Upgrade (Backend)
+- [X] pom.xml erstellen: Umstellung auf **Java 21** und **Spring Boot 3.2.x**
+- [X] MySQL-Dependency: Wechsel von `mysql-connector-java` zu `com.mysql:mysql-connector-j`
+- [X] **Jakarta EE Namespace Migration**:
+    - [X] Suchen & Ersetzen: `javax.persistence.*` -> `jakarta.persistence.*`
+    - [X] Suchen & Ersetzen: `javax.validation.*` -> `jakarta.validation.*`
+    - [X] Suchen & Ersetzen: `javax.servlet.*` -> `jakarta.servlet.*`
+    - [X] Mail-Versand: `javax.mail.*` -> `jakarta.mail.*`
+- [X] Dependencies aufräumen: Manuelle `javax.mail` und `activation` entfernen (jetzt in Starter enthalten)
+- [X] **Gradle-Altlasten entfernen**: build.gradle, gradlew und build/ Ordner löschen
+- [X] Verzeichnisstruktur anpassen: src/main/java, src/test/java, etc.
+- [X] **Umgebung prüfen**: Sicherstellen, dass `mvn -version` Java 21 nutzt
+- [X] **Jakarta EE Namespace Migration**: Abgeschlossen (javax -> jakarta)
+- [X] **Circular Reference beheben**: `TeilnehmerService` auf Constructor Injection mit `@Lazy` umgestellt
+- [X] Build testen: `mvn clean compile` (Erfolgreich), `mvn test` (JUnit 5 sicherstellen)
+- [X] Build testen: `mvn clean package` (JAR-Erstellung in /target)
+- [X] JAR laufen lassen: `java -jar target/backend-v3.01-SNAPSHOT.jar` (Konfiguration auf localhost angepasst)
+- [X] **Datenbank-Anbindung**: MySQL Docker-Container angebunden
+- [X] **Umgebungs-Trennung**: Gelöst via src/test/resources und Docker-Env-Overrides
 
-## 3. OpenAPI/Swagger einrichten
-- [ ] Dependency hinzufügen: springdoc-openapi (Maven)
-- [ ] API-Dokumentation: Endpunkte annotieren (@Operation, @ApiResponse)
-- [ ] Swagger-UI aktivieren: /swagger-ui.html
-- [ ] openapi.yaml exportieren: Für Frontend-Entwicklung
+## 3. API-Stabilisierung (Der "Vertrag")
+- [ ] **Java 21 Records**: Erstelle Records als DTOs für alle `Map`-basierten Endpunkte
+- [ ] **SpringDoc**: Dependency `springdoc-openapi-starter-webmvc-ui` hinzufügen
+- [ ] **Swagger-UI**: API unter `/swagger-ui.html` verifizieren
+- [ ] **Contract-Check**: Alle Endpunkte aus `API-Endpoints.md` prüfen
+
 
 ## 4. H2-Testdaten und Tests verbessern
 - [ ] Test-Konfiguration: src/test/resources/application.properties (H2 in-memory)
@@ -42,8 +56,10 @@ Dieses TODO-Dokument beschreibt die Schritte zur Migration des Projekts:
 
 ## 5. Backend-Refactor und Verbesserungen
 - [ ] Layered Architecture: Controller → Service → Repository
-- [ ] DTOs einführen: Request/Response-Objekte statt Maps
+- [ ] Restliche DTOs einführen: Konsistente Datenmodelle für alle Endpunkte
 - [ ] Exception Handling: Global @ControllerAdvice
+- [ ] Spring Security: Falls vorhanden, auf Lambda-basierte Konfiguration (Security 6) umstellen
+- [ ] Tests an neue Architektur anpassen: Mockito (Version 5+) für neue Service-Layer
 - [ ] Security: JWT oder Session-Management
 - [ ] Monitoring: Spring Actuator (health, metrics)
 
@@ -55,7 +71,7 @@ Dieses TODO-Dokument beschreibt die Schritte zur Migration des Projekts:
 - [ ] UI/UX: Web-native Design (nicht 1:1 JavaFX)
 
 ## 7. Dockerization
-- [ ] Backend-Dockerfile: Multistage (Maven build + JRE run)
+- [ ] Backend-Dockerfile: Multistage (Maven build + **JRE 21** run)
 - [ ] Frontend-Dockerfile: Node build + NGINX serve
 - [ ] docker-compose.yml: Services für backend, frontend, db (H2 oder Postgres)
 - [ ] Test: `docker compose up` und API/UI checken

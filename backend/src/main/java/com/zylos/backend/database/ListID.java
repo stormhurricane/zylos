@@ -1,6 +1,6 @@
 package com.zylos.backend.database;
 
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 
 
