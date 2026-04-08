@@ -3,6 +3,7 @@ package com.zylos.backend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.zylos.backend.model.dto.CreateEvaluationFeedbackRequest;
 import com.zylos.backend.database.BewertungsFeedback;
 import com.zylos.backend.database.Frage;
 import com.zylos.backend.database.Versuch;
@@ -12,23 +13,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class BewertungsFeedbackService {
+public class EvaluationFeedbackService {
 
     @Autowired
     BewertungsFeedbackRepository bewertungsFeedbackRepository;
 
     @Autowired
-    VersuchService versuchService;
+    AttemptService attemptService;
 
-    public boolean erstelleFeedbackFürEinenVersuch(List<BewertungsFeedback> BewertungsFeedbacks) {
-        for (BewertungsFeedback bewertungsFeedback : BewertungsFeedbacks) {
-            bewertungsFeedbackRepository.save(bewertungsFeedback);
+    public boolean createEvaluationFeedbackForAttempt(List<CreateEvaluationFeedbackRequest> feedbackRequests) {
+        for (CreateEvaluationFeedbackRequest request : feedbackRequests) {
+            BewertungsFeedback feedback = new BewertungsFeedback(
+                request.attemptId(),
+                request.questionId(),
+                request.givenAnswerIsCorrect(),
+                request.selectedAnswer()
+            );
+            bewertungsFeedbackRepository.save(feedback);
         }
         return true;
     }
 
     public List<BewertungsFeedback> gibAlleBewertungsfeedbacksEinesTests(int testId){
-        List<Versuch> versuchListe = versuchService.findeAlleVersucheMitTestId(testId);
+        List<Versuch> versuchListe = attemptService.findeAlleVersucheMitTestId(testId);
         List<BewertungsFeedback> bewertungsFeedbackListe = new ArrayList<>();
         for(Versuch versuch: versuchListe){
             bewertungsFeedbackListe.addAll(bewertungsFeedbackRepository.findAllByVersuchId(versuch.getId()));

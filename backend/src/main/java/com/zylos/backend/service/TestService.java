@@ -5,8 +5,10 @@ import org.springframework.stereotype.Service;
 
 import com.zylos.backend.controller.communication.NutzerWrapper;
 import com.zylos.backend.controller.communication.QuizWrapper;
+import com.zylos.backend.model.dto.QuestionResponse;
 import com.zylos.backend.database.Frage;
 import com.zylos.backend.database.Test;
+import com.zylos.backend.model.dto.CreateCourseEvaluationRequest;
 import com.zylos.backend.repository.TestRepository;
 
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ public class TestService {
     TeilnehmerService teilnehmerService;
 
     @Autowired
-    FrageService frageService;
+    QuestionService questionService;
 
     public boolean erstelleTest(QuizWrapper quizWrapper) {
         if (testRepository.findByLvIdAndName(quizWrapper.getLvId(), quizWrapper.getName()) != null) {
@@ -32,7 +34,7 @@ public class TestService {
         test.setTestArt(Test.testArtEnum.QUIZ);
         testRepository.save(test);
         int testId = testRepository.findByLvIdAndName(quizWrapper.getLvId(), quizWrapper.getName()).getId();
-        return frageService.erstelleFrage(testId, quizWrapper.getFragen());
+        return questionService.createQuestions(testId, quizWrapper.getFragen());
     }
 
     public List<Test> zeigeTestlisteAn(int lvId){
@@ -52,21 +54,21 @@ public class TestService {
         return teilnehmerIdsEinesTests;
     }
 
-    public boolean erstelleBewertung(QuizWrapper quizWrapper) {
-        Test test = new Test(quizWrapper.getLvId(), quizWrapper.getName());
+    public boolean createCourseEvaluation(CreateCourseEvaluationRequest request) {
+        Test test = new Test(request.courseId(), request.name());
         test.setTestArt(Test.testArtEnum.BEWERTUNG);
         testRepository.save(test);
-        int testId = testRepository.findByLvIdAndName(quizWrapper.getLvId(), quizWrapper.getName()).getId();
-        return frageService.erstelleFrage(testId, quizWrapper.getFragen());
+        int testId = testRepository.findByLvIdAndName(request.courseId(), request.name()).getId();
+        return questionService.createQuestions(testId, request.questions());
     }
 
-    public List<Frage> zeigeBewertungsFragenEinerLv(int lvID) {
+    public List<QuestionResponse> getCourseEvaluationQuestions(int lvID) {
         int testId = testRepository.findTestByLvIdAndTestArt(lvID, Test.testArtEnum.BEWERTUNG).getId();
-        return frageService.zeigeBewertungsFragenEinerLv(testId);
+        return questionService.getEvaluationQuestionsForCourse(testId);
     }
 
-    public int zeigeBewertungsIdAn(int lvId) {
-        int testId = testRepository.findTestByLvIdAndTestArt(lvId, Test.testArtEnum.BEWERTUNG).getId();
+    public int getEvaluationIdByCourseId(int courseId) {
+        int testId = testRepository.findTestByLvIdAndTestArt(courseId, Test.testArtEnum.BEWERTUNG).getId();
         return testId;
     }
 }

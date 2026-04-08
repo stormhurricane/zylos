@@ -22,13 +22,13 @@ public class TestOberService {
     TestService testService;
 
     @Autowired
-    FrageService frageService;
+    QuestionService questionService;
 
     @Autowired
     FeedbackService feedbackService;
 
     @Autowired
-    VersuchService versuchService;
+    AttemptService attemptService;
 
     @Autowired
     StatistikService statistikService;
@@ -42,7 +42,7 @@ public class TestOberService {
     }
 
     public List<Frage> zeigeAlleFragenEinesTests(int testId) {
-        return frageService.findeAlleFragenMitTestId(testId);
+        return questionService.findeAlleFragenMitTestId(testId);
     }
 
     public boolean legeFeedbackAn(Feedback feedback) {
@@ -58,11 +58,11 @@ public class TestOberService {
     }
 
     public int createTestAttempt(CreateTestAttemptRequest testAttemptRequest) {
-       return versuchService.createTestAttempt(testAttemptRequest);
+       return attemptService.createTestAttempt(testAttemptRequest);
     }
 
     public boolean pruefeVersuch(int versuchId) {
-       return versuchService.bestimmeBestandenBeiVersuch(versuchId);
+       return attemptService.bestimmeBestandenBeiVersuch(versuchId);
     }
 
     public StatistikWrapper zeigeStatistikEinesTests(int testId) {
@@ -70,7 +70,7 @@ public class TestOberService {
     }
 
     public Frage findeFrageNameMitId(int frageId) {
-        return frageService.findeFrageNameMitId(frageId);
+        return questionService.findeFrageNameMitId(frageId);
     }
 
     public boolean erzwingeBestehenspruefung(Map<String, String> semesterDaten) {

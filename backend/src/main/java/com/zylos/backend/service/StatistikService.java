@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 public class StatistikService {
 
     @Autowired
-    VersuchService versuchService;
+    AttemptService attemptService;
 
     @Autowired
     FeedbackService feedbackService;
@@ -29,7 +29,7 @@ public class StatistikService {
     TeilnehmerService teilnehmerService;
 
     @Autowired
-    FrageService frageService;
+    QuestionService questionService;
 
     @Autowired
     LehrveranstaltungsService lehrveranstaltungsService;
@@ -54,7 +54,7 @@ public class StatistikService {
     }
 
     public double bestimmeBestehensquote(int testId) {
-        List<Versuch> listeAllerVersuche = versuchService.findeAlleVersucheMitTestId(testId);
+        List<Versuch> listeAllerVersuche = attemptService.findeAlleVersucheMitTestId(testId);
         List<Integer> teilgenommeneStudentenIds = this.bestimmeTeilgenommeneStudenten(testId);
 
         double gesamteNutzer = teilgenommeneStudentenIds.stream().count();
@@ -72,7 +72,7 @@ public class StatistikService {
 
     public Map<Integer, Integer> bestimmteVersucheProTeilnehmer(int testId) {
         Map<Integer, Integer> versucheProTeilnehmer = new HashMap<>();
-        List<Versuch> listeAllerVersuche = versuchService.findeAlleVersucheMitTestId(testId);
+        List<Versuch> listeAllerVersuche = attemptService.findeAlleVersucheMitTestId(testId);
         List<Integer> teilgenommeneStudentenIds = this.bestimmeTeilgenommeneStudenten(testId);
 
         for(Integer studentID: teilgenommeneStudentenIds) {
@@ -89,7 +89,7 @@ public class StatistikService {
 
     public Map<Integer, Integer> bestimmeAnzahlKorrekterAntwortenEinerFrage(int testId) {
         Map<Integer, Integer> anzahlKorrekterAntwortenProFrage = new HashMap<>();
-        List<Frage> frageList = frageService.findeAlleFragenMitTestId(testId);
+        List<Frage> frageList = questionService.findeAlleFragenMitTestId(testId);
         for(Frage frage: frageList) {
             List<Feedback> feedbackList = feedbackService.findeAlleFeedbacksMitFrageId(frage.getId());
             int anzahlKorrekterAntworten = 0;
@@ -109,7 +109,7 @@ public class StatistikService {
     }
 
     public List<Integer> bestimmeTeilgenommeneStudenten(int testId) {
-        List<Versuch> listeAllerVersuche = versuchService.findeAlleVersucheMitTestId(testId);
+        List<Versuch> listeAllerVersuche = attemptService.findeAlleVersucheMitTestId(testId);
         List<Integer> teilgenommeneStudentenIds = new ArrayList<>();
 
         for(Versuch versuch: listeAllerVersuche){
@@ -185,7 +185,7 @@ public class StatistikService {
         int bestandeneTests = 0;
 
         for (Test test : testsDerLV) {
-            List<Versuch> bestandeneVersuche = versuchService.findeBestandeneVersuche(studentenId, test.getId());
+            List<Versuch> bestandeneVersuche = attemptService.findeBestandeneVersuche(studentenId, test.getId());
             if (bestandeneVersuche.size() > 0 ) {
                 bestandeneTests++;
             }
@@ -209,7 +209,7 @@ public class StatistikService {
         int teilgenommeneTests = 0;
 
         for (Test test: testsDerLV) {
-            if (versuchService.pruefeVersuchsExistenz(studentenId, test.getId())) {
+            if (attemptService.pruefeVersuchsExistenz(studentenId, test.getId())) {
                 teilgenommeneTests++;
             }
         }
@@ -224,7 +224,7 @@ public class StatistikService {
     // Die Liste ist wie folgt aufgebaut: Die Liste enthält für jede Frage einen Array aus 5 Elementen: 0. Element FrageId 1-4. Element: Anzahl Antworten A-D
     public List<int[]> erstelleBewertungsstatistik(int testId, int bestanden){
         List<BewertungsFeedback> bewertungsFeedbackListe = this.filtereAlleBewertungsfeedbacks(testId, bestanden);
-        List<Frage> alleFragenEinesTests = frageService.findeAlleFragenMitTestId(testId);
+        List<Frage> alleFragenEinesTests = questionService.findeAlleFragenMitTestId(testId);
         List<int[]> bewertungsStatistik = new ArrayList<>();
 
         for(int i = 0; i < alleFragenEinesTests.size(); i++){
@@ -257,7 +257,7 @@ public class StatistikService {
         int lvId = testService.zeigeTestAn(testId).getLvId();
         List<Integer> studentenIds = new ArrayList<>();
         for (BewertungsFeedback bewertungsFeedback : bewertungsFeedbackListe) {
-            int studentenId = versuchService.gibVersuchMitVersuchId(bewertungsFeedback.getVersuchId()).getNutzerId();
+            int studentenId = attemptService.gibVersuchMitVersuchId(bewertungsFeedback.getVersuchId()).getNutzerId();
             if (!studentenIds.contains(studentenId)) {
                 studentenIds.add(studentenId);
             }
@@ -281,7 +281,7 @@ public class StatistikService {
         }
         bewertungsFeedbackListe.clear();
         for (int studentenId : studentenIds) {
-            bewertungsFeedbackListe.addAll(feedbackService.gibAlleBewertungsfeedbacksFuerVersuchsId(versuchService.gibVersuchMitNutzerIdUndTestId(studentenId, testId).getId()));
+            bewertungsFeedbackListe.addAll(feedbackService.gibAlleBewertungsfeedbacksFuerVersuchsId(attemptService.gibVersuchMitNutzerIdUndTestId(studentenId, testId).getId()));
         }
         return bewertungsFeedbackListe;
     }
