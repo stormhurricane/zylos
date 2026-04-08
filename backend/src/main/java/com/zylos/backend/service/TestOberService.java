@@ -58,7 +58,7 @@ public class TestOberService {
     }
 
     public int createTestAttempt(CreateTestAttemptRequest testAttemptRequest) {
-       return versuchService.createAttempt(testAttemptRequest);
+       return versuchService.createTestAttempt(testAttemptRequest);
     }
 
     public boolean pruefeVersuch(int versuchId) {

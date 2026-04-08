@@ -32,7 +32,7 @@ public class VersuchService {
     }
 
     public int createTestAttempt(CreateTestAttemptRequest testAttemptRequest) {
-        Versuch versuch = new Versuch(testAttemptRequest.nutzerId(), testAttemptRequest.testId(), false);
+        Versuch versuch = new Versuch(testAttemptRequest.userId(), testAttemptRequest.testId(), false);
         Versuch savedVersuch = versuchRepository.save(versuch);
         return savedVersuch.getId();
     }
