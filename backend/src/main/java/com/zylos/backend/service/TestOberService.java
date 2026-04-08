@@ -31,7 +31,7 @@ public class TestOberService {
     AttemptService attemptService;
 
     @Autowired
-    StatistikService statistikService;
+    StatisticService statisticService;
 
     public boolean legeQuizAn(QuizWrapper quizWrapper) {
         return testService.erstelleTest(quizWrapper);
@@ -66,7 +66,7 @@ public class TestOberService {
     }
 
     public StatistikWrapper zeigeStatistikEinesTests(int testId) {
-        return statistikService.erstelleStatistik(testId);
+        return statisticService.erstelleStatistik(testId);
     }
 
     public Frage findeFrageNameMitId(int frageId) {
@@ -74,7 +74,7 @@ public class TestOberService {
     }
 
     public boolean erzwingeBestehenspruefung(Map<String, String> semesterDaten) {
-        statistikService.pruefeBestehenNachSemesterende(Lehrveranstaltung.zeitEnum
+        statisticService.pruefeBestehenNachSemesterende(Lehrveranstaltung.zeitEnum
                         .valueOf(semesterDaten.get("semesterZeit").toUpperCase()),
                 semesterDaten.get("semesterJahr"));
         return true;

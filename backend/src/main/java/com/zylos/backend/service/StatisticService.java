@@ -8,13 +8,14 @@ import org.springframework.stereotype.Service;
 import com.zylos.backend.controller.communication.NutzerWrapper;
 import com.zylos.backend.controller.communication.StatistikWrapper;
 import com.zylos.backend.database.*;
+import com.zylos.backend.model.dto.EvaluationStatisticResponse;
 
 import java.time.Year;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Service
-public class StatistikService {
+public class StatisticService {
 
     @Autowired
     AttemptService attemptService;
@@ -199,7 +200,7 @@ public class StatistikService {
         }
     }
     
-    public boolean pruefeTeilnahmeEinesStudenten(int lvId, int studentenId) {
+    public boolean checkStudentParticipation(int lvId, int studentenId) {
         List<Test> testsDerLV = testService.zeigeTestlisteAn(lvId);
         int anzahlDerTests = testsDerLV.size();
 
@@ -222,21 +223,22 @@ public class StatistikService {
         }
     }
     // Die Liste ist wie folgt aufgebaut: Die Liste enthält für jede Frage einen Array aus 5 Elementen: 0. Element FrageId 1-4. Element: Anzahl Antworten A-D
-    public List<int[]> erstelleBewertungsstatistik(int testId, int bestanden){
-        List<BewertungsFeedback> bewertungsFeedbackListe = this.filtereAlleBewertungsfeedbacks(testId, bestanden);
+    public List<EvaluationStatisticResponse> getEvaluationStatistics(int testId, int filterStatus){
+        List<BewertungsFeedback> bewertungsFeedbackListe = this.filtereAlleBewertungsfeedbacks(testId, filterStatus);
         List<Frage> alleFragenEinesTests = questionService.findeAlleFragenMitTestId(testId);
-        List<int[]> bewertungsStatistik = new ArrayList<>();
+        List<EvaluationStatisticResponse> statistics = new ArrayList<>();
 
-        for(int i = 0; i < alleFragenEinesTests.size(); i++){
-            int frageId = alleFragenEinesTests.get(i).getId();
-            bewertungsStatistik.add(new int[5]);
-            bewertungsStatistik.get(i)[0] = frageId;
-            bewertungsStatistik.get(i)[1] = this.bestimmeAnzahlEinerAntwortEinerBewertungsfrage(frageId, 'A', bewertungsFeedbackListe);
-            bewertungsStatistik.get(i)[2] = this.bestimmeAnzahlEinerAntwortEinerBewertungsfrage(frageId, 'B', bewertungsFeedbackListe);
-            bewertungsStatistik.get(i)[3] = this.bestimmeAnzahlEinerAntwortEinerBewertungsfrage(frageId, 'C', bewertungsFeedbackListe);
-            bewertungsStatistik.get(i)[4] = this.bestimmeAnzahlEinerAntwortEinerBewertungsfrage(frageId, 'D', bewertungsFeedbackListe);
+        for (Frage frage : alleFragenEinesTests) {
+            int frageId = frage.getId();
+            statistics.add(new EvaluationStatisticResponse(
+                frageId,
+                this.bestimmeAnzahlEinerAntwortEinerBewertungsfrage(frageId, 'A', bewertungsFeedbackListe),
+                this.bestimmeAnzahlEinerAntwortEinerBewertungsfrage(frageId, 'B', bewertungsFeedbackListe),
+                this.bestimmeAnzahlEinerAntwortEinerBewertungsfrage(frageId, 'C', bewertungsFeedbackListe),
+                this.bestimmeAnzahlEinerAntwortEinerBewertungsfrage(frageId, 'D', bewertungsFeedbackListe)
+            ));
         }
-        return bewertungsStatistik;
+        return statistics;
     }
 
     public int bestimmeAnzahlEinerAntwortEinerBewertungsfrage(int frageId, char antwort, List<BewertungsFeedback> bewertungsFeedbackListe){
