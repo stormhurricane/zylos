@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.zylos.backend.controller.communication.VeranstaltungsWrapper;
+import com.zylos.backend.model.dto.CreateAppointmentRequest;
+import com.zylos.backend.model.dto.TerminResponse;
 import com.zylos.backend.database.Termin;
 import com.zylos.backend.repository.TerminRepository;
 
@@ -23,12 +25,13 @@ public class TerminService {
     TeilnehmerService teilnehmerService;
 
     //wir unterstellen dass die Kombi aus lvId, zeitpunkt und betreff unique ist
-    public int legeTerminAn(Termin termin) {
+    public int legeTerminAn(CreateAppointmentRequest request) {
+        Termin termin = new Termin(request.courseId(), request.year(), request.month(), request.day(), request.time(), request.subject());
         Termin termin1 = terminRepository.save(termin);
         return termin1.getId();
     }
 
-    public List<Termin> terminListeEinesNutzers (int nutzerId, Map<String, Integer> dateMap) {
+    public List<TerminResponse> terminListeEinesNutzers (int nutzerId, Map<String, Integer> dateMap) {
         List<VeranstaltungsWrapper> veranstaltungsWrappers = teilnehmerService.erstelleTeilnahmeListeEinesNutzers(nutzerId);
         List<Integer> lvIds = new ArrayList<>();
         for(VeranstaltungsWrapper veranstaltungsWrapper : veranstaltungsWrappers) {
@@ -53,11 +56,16 @@ public class TerminService {
                 return t1.compareTo(t2);
             }
         });
-        return terminList;
+        
+        return terminList.stream()
+            .map(t -> new TerminResponse(t.getId(), t.getlvId(), t.getJahr(), t.getMonat(), t.getTag(), t.getUhrzeit(), t.getBetreff()))
+            .toList();
     }
 
-    public Termin findeTerminMitId(int id){
-       return terminRepository.findById(id);
+    public TerminResponse findeTerminMitId(int id){
+       Termin t = terminRepository.findById(id);
+       if (t == null) return null;
+       return new TerminResponse(t.getId(), t.getlvId(), t.getJahr(), t.getMonat(), t.getTag(), t.getUhrzeit(), t.getBetreff());
     }
 
     public List<Termin> findeTermineEinerLv(int lvId) {
