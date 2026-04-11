@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.zylos.backend.controller.communication.VeranstaltungsWrapper;
 import com.zylos.backend.database.*;
+import com.zylos.backend.model.dto.CourseSearchRequest;
 import com.zylos.backend.repository.LehrveranstaltungsRepository;
 
 import java.util.*;
@@ -109,11 +110,11 @@ public class LehrveranstaltungsService {
         return null;
     }
 
-    public VeranstaltungsWrapper findeLehrveranstaltung(Map<String, String> suchDaten) {
-        String titel = suchDaten.get("titel");
-        String semesterZeit = suchDaten.get("semesterZeit").toUpperCase();
-        String semesterJahr = suchDaten.get("semesterJahr");
-        String typ = suchDaten.get("typ");
+    public VeranstaltungsWrapper findeLehrveranstaltung(CourseSearchRequest request) {
+        String titel = request.title();
+        String semesterZeit = request.semesterTime().toUpperCase();
+        String semesterJahr = request.semesterYear();
+        String typ = request.type();
         Lehrveranstaltung.zeitEnum zE = Lehrveranstaltung.zeitEnum.valueOf(semesterZeit);
         if(typ != null) {
             typ = typ.toUpperCase();
