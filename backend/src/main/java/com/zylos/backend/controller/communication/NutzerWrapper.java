@@ -2,23 +2,23 @@ package com.zylos.backend.controller.communication;
 
 import com.zylos.backend.database.Lehrender;
 import com.zylos.backend.database.Nutzer;
-import com.zylos.backend.database.Student;
+import com.zylos.backend.database.Student_old;
 
 public class NutzerWrapper {
 
-    private Student moeglicherStudent;
+    private Student_old moeglicherStudent;
     private Lehrender moeglicherLehrender;
 
     public NutzerWrapper(Nutzer nutzer){
-        if (nutzer instanceof Student) {
-            this.moeglicherStudent = (Student) nutzer;
+        if (nutzer instanceof Student_old) {
+            this.moeglicherStudent = (Student_old) nutzer;
         }
         else if (nutzer instanceof Lehrender) {
             this.moeglicherLehrender = (Lehrender) nutzer;
         }
     }
 
-    public Student getMoeglicherStudent() {
+    public Student_old getMoeglicherStudent() {
         return moeglicherStudent;
     }
 

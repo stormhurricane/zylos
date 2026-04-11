@@ -129,13 +129,13 @@ public class StatisticService {
 
         for (Lehrveranstaltung lv : zuPruefendeLV) {
 
-            List<Student> teilnehmerDerLV = teilnehmerService.erstelleStudentenListeEinerLV(lv.getLehrveranstaltungsID());
+            List<Student_old> teilnehmerDerLV = teilnehmerService.erstelleStudentenListeEinerLV(lv.getLehrveranstaltungsID());
 
             if (teilnehmerDerLV.size() == 0) {
                 continue;
             }
 
-            for (Student teilnehmer : teilnehmerDerLV) {
+            for (Student_old teilnehmer : teilnehmerDerLV) {
 
                 int nutzerId = teilnehmer.getId();
                 boolean bestanden = this.pruefeBestehenEinesStudenten(nutzerId, lv.getLehrveranstaltungsID());

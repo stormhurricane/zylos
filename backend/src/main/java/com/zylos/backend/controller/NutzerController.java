@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import com.zylos.backend.controller.communication.NutzerWrapper;
 import com.zylos.backend.database.Lehrender;
 import com.zylos.backend.database.Nutzer;
-import com.zylos.backend.database.Student;
+import com.zylos.backend.database.Student_old;
 import com.zylos.backend.service.NutzerService;
 
 import java.util.List;
@@ -42,7 +42,7 @@ public class NutzerController {
     }
 
     @PostMapping(path="/register", params = "nutzer=student")
-    public boolean registriereStudent(@RequestBody Student student){
+    public boolean registriereStudent(@RequestBody Student_old student){
         return nutzerService.registriereStudent(student);
     }
 

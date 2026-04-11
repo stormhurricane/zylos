@@ -100,9 +100,9 @@ public class TeilnehmerService {
         else {return false;}
     }
 
-    public List<Student> erstelleStudentenListeEinerLV(int lvId) {
+    public List<Student_old> erstelleStudentenListeEinerLV(int lvId) {
         List<NutzerWrapper> teilnehmerListe = this.erstelleTeilnehmerListeEinerLV(lvId);
-        List<Student> studenten = new ArrayList<>();
+        List<Student_old> studenten = new ArrayList<>();
 
         for (NutzerWrapper teilnehmer : teilnehmerListe) {
             if (teilnehmer.getMoeglicherStudent() != null) {

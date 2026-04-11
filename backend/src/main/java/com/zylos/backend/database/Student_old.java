@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "Student")
-public class Student extends Nutzer{
+public class Student_old extends Nutzer{
 
     private int matrikelnr;
 
@@ -15,18 +15,18 @@ public class Student extends Nutzer{
     private String studienfach;
 
 
-    public Student() {
+    public Student_old() {
 
     }
 
-    public Student(String vorname, String nachname, String email, String adresse,
+    public Student_old(String vorname, String nachname, String email, String adresse,
                    String passwort,String profilbild, int matrikelnr, String studienfach) {
         super(vorname, nachname, email, adresse, passwort, profilbild);
         this.matrikelnr = matrikelnr;
         this.studienfach = studienfach;
     }
 
-    public Student(String vorname, String nachname, String email,
+    public Student_old(String vorname, String nachname, String email,
                    String adresse, String passwort,String profilbild, String studienfach) {
         super(vorname, nachname, email, adresse, passwort, profilbild);
         this.studienfach = studienfach;
