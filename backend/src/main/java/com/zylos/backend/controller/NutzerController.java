@@ -19,12 +19,6 @@ public class NutzerController {
     @Autowired
     NutzerService nutzerService;
 
-    @PutMapping(path="/update/{id}")
-    public boolean aendereProfilDaten(@PathVariable("id") int id,
-                                      @RequestBody Map<String, String> changeData) {
-        return nutzerService.aendereProfil(id, changeData);
-    }
-
     @PostMapping(path="/findStudent", consumes = "application/json", produces = "application/json")
     public List<Integer> findeStudentIds(@RequestBody Map<String, String> suchDaten){
         return nutzerService.findeStudenten(suchDaten);
@@ -34,16 +28,6 @@ public class NutzerController {
     @PostMapping(path="/login", consumes = "application/json", produces = "application/json")
     public int[] login(@RequestBody Map<String, String> loginDaten){
         return nutzerService.versucheLogin(loginDaten);
-    }
-
-    @PostMapping(path="/register", params = "nutzer=lehrender")
-    public boolean registriereLehrender(@RequestBody Lehrender lehrender) {
-        return nutzerService.registriereLehrender(lehrender);
-    }
-
-    @PostMapping(path="/register", params = "nutzer=student")
-    public boolean registriereStudent(@RequestBody Student_old student){
-        return nutzerService.registriereStudent(student);
     }
 
     @GetMapping(path="/view/{id}", produces = "application/json")

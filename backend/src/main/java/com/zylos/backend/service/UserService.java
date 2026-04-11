@@ -58,7 +58,16 @@ public class UserService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        Optional<Student> studentOpt = studentRepository.findByEmail(request.email());
+        String identifier = request.identifier();
+
+        // 1. Versuch: Student via Matrikelnummer
+        Optional<Student> studentOpt = studentRepository.findByMatriculationNumber(identifier);
+
+        // 2. Versuch: Student via Email (falls 1. nicht erfolgreich)
+        if (studentOpt.isEmpty()) {
+            studentOpt = studentRepository.findByEmail(identifier);
+        }
+
         if (studentOpt.isPresent()) {
             Student student = studentOpt.get();
             if (passwordEncoder.matches(request.password(), student.getPassword())) {
@@ -67,7 +76,8 @@ public class UserService {
             }
         }
 
-        Optional<Teacher> teacherOpt = teacherRepository.findByEmail(request.email());
+        // 3. Versuch: Lehrender via Email
+        Optional<Teacher> teacherOpt = teacherRepository.findByEmail(identifier);
         if (teacherOpt.isPresent()) {
             Teacher teacher = teacherOpt.get();
             if (passwordEncoder.matches(request.password(), teacher.getPassword())) {

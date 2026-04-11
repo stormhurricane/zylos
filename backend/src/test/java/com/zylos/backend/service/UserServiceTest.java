@@ -1,5 +1,7 @@
 package com.zylos.backend.service;
 
+import com.zylos.backend.model.dto.AuthResponse;
+import com.zylos.backend.model.dto.LoginRequest;
 import com.zylos.backend.model.dto.ProfileResponse;
 import com.zylos.backend.model.dto.StudentRegistrationRequest;
 import com.zylos.backend.model.entity.Student;
@@ -119,5 +121,29 @@ class UserServiceTest {
         // When & Then
         assertThrows(IllegalStateException.class, () -> userService.registerStudent(request));
         verify(studentRepository, never()).save(any());
+    }
+
+    @Test
+    void login_WithMatriculationNumber_ShouldReturnAuthResponse() {
+        // Given
+        String matNr = "1234567";
+        LoginRequest loginRequest = new LoginRequest(matNr, "password123");
+        Student student = new Student("Max", "Mustermann", "max@test.de", "Address", "hashedPassword", null, matNr, "IT");
+
+        when(studentRepository.findByMatriculationNumber(matNr)).thenReturn(Optional.of(student));
+        when(passwordEncoder.matches("password123", "hashedPassword")).thenReturn(true);
+        when(jwtService.generateToken(anyString(), anyMap())).thenReturn("fake-jwt-token");
+
+        // When
+        AuthResponse response = userService.login(loginRequest);
+
+        // Then
+        assertEquals("STUDENT", response.role());
+        assertEquals("fake-jwt-token", response.accessToken());
+        assertEquals("Max", response.firstName());
+        
+        // Verifizieren, dass der Service zuerst das Repository für Matrikelnummern nutzt
+        verify(studentRepository).findByMatriculationNumber(matNr);
+        verify(studentRepository, never()).findByEmail(anyString());
     }
 }

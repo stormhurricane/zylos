@@ -28,19 +28,6 @@ public class NutzerService {
     @Autowired
     ZFAService zfaService;
 
-    public boolean aendereProfil(int id, Map<String, String> changeData) {
-        Nutzer zuAendernderNutzer = this.findeNutzer(id);
-        if (zuAendernderNutzer == null) {return false;}
-
-        if (zuAendernderNutzer instanceof Student_old) {
-            return studentService.aendereStudent((Student_old) zuAendernderNutzer, changeData);
-        }
-        else if (zuAendernderNutzer instanceof  Lehrender) {
-            return lehrenderService.aendereLehrender((Lehrender) zuAendernderNutzer, changeData);
-        }
-        return false;
-    }
-
     //Unabsichtlich sortiert, erst Studenten, dann Lehrende
     public List<Nutzer> erzeugeNutzerListe() {
         List<Nutzer> nutzerListe = new LinkedList<>();
@@ -87,37 +74,12 @@ public class NutzerService {
         return studentList;
     }
 
-    public boolean registriereLehrender(Lehrender lehrender){
-        boolean bereitsGenutzteEmail = this.ueberpruefeEmail(lehrender.getEmail());
-        if (bereitsGenutzteEmail) {
-            return false;
-        }
-        else {
-            return lehrenderService.registriereLehrender(lehrender);
-        }
-    }
-
-    public boolean registriereStudent(Student_old student) {
-        boolean bereitsGenutzteEmail = this.ueberpruefeEmail(student.getEmail());
-        if (bereitsGenutzteEmail) {
-            return false;
-        }
-        else {
-            return studentService.registriereStudent(student);
-        }
-    }
-
-    private boolean ueberpruefeEmail(String email) {
-        Student_old registrierterStudent = studentService.ueberpruefeEmail(email);
-        Lehrender registrierterLehrender = lehrenderService.ueberpruefeEmail(email);
-        return (registrierterStudent != null || registrierterLehrender != null);
-    }
 
     //Erste Zahl steht für nutzerID, -1 bei Fehlschlag
     //Zweite Zahl ist Rolle mit -1 = Lehrender, 1 = Student, 0 = Fehlschlag
     public int[] versucheLogin(Map<String, String> loginDaten) {
         if (loginDaten.containsKey("matrikelnummer")) {
-            Student_old einloggenderStudent = studentService.login(Integer.parseInt(loginDaten.get("matrikelnummer")), loginDaten.get("passwort"));
+            Student_old einloggenderStudent = null;
             if (einloggenderStudent != null) {
                 this.starte2FA(einloggenderStudent);
                 return new int[] {einloggenderStudent.getId(), 1};
@@ -125,12 +87,12 @@ public class NutzerService {
         }
 
         else {
-            Student_old einloggenderStudent = studentService.login(loginDaten.get("email"), loginDaten.get("passwort"));
+            Student_old einloggenderStudent = null;
             if (einloggenderStudent != null) {
                 this.starte2FA(einloggenderStudent);
                 return new int[] {einloggenderStudent.getId(), 1};
             }
-            Lehrender einloggenderLehrender = lehrenderService.login(loginDaten.get("email"), loginDaten.get("passwort"));
+            Lehrender einloggenderLehrender = null;
             if (einloggenderLehrender != null) {
                 this.starte2FA(einloggenderLehrender);
                 return new int[] {einloggenderLehrender.getId(), -1};

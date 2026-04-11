@@ -17,32 +17,8 @@ public class StudentService {
     @Autowired
     StudentRepository studentRepository;
 
-    //Anhand der vorhandenen, vereinbarten Keys werden mögliche Änderungen durchgeführt
-    public boolean aendereStudent(Student_old student, Map<String, String> changeData) {
-        if (changeData.isEmpty()) return true;
-        if (changeData.containsKey("adresse")) {
-            student.setAdresse(changeData.get("adresse"));
-        }
-        if (changeData.containsKey("profilbild")) {
-            student.setProfilbild(changeData.get("profilbild"));
-        }
-        if (changeData.containsKey("passwort")) {
-            student.setPasswort(changeData.get("passwort"));
-        }
-        if (changeData.containsKey("studienfach")) {
-            student.setStudienfach(changeData.get("studienfach"));
-        }
-
-        // studentRepository.save(student);
-        return true;
-    }
 
     public Student_old findeStudent(int id) {
-        // Optional<Student> student = studentRepository.findById(id);
-        // if (student.isPresent()) {
-        //     return student.get();
-        // }
-        // else { return null;}
         return null;
     }
 
@@ -76,38 +52,6 @@ public class StudentService {
 
     public List<Student_old> gibAlleStudenten() {
         // return studentRepository.findAll();
-        return null;
-    }
-
-
-    public Student_old login(int matrikelnummer, String passwort) {
-        // Student einloggenderStudent = studentRepository.findStudentByMatrikelnr(matrikelnummer);
-        // if (einloggenderStudent != null) {
-        //     if (einloggenderStudent.getPasswort().equals(passwort)) {
-        //         return einloggenderStudent;
-        //     }
-        // }
-        return null;
-    }
-
-    public Student_old login(String email, String passwort) {
-        // Student einloggenderStudent = studentRepository.findStudentByEmail(email);
-        // if (einloggenderStudent != null) {
-        //     if (einloggenderStudent.getPasswort().equals(passwort)) {
-        //         return einloggenderStudent;
-        //     }
-        // }
-        return null;
-    }
-
-    public boolean registriereStudent(Student_old student) {
-            // student.setMatrikelnr(this.generiereMatrikelNr());
-            // studentRepository.save(student);
-            return true;
-    }
-
-    public Student_old ueberpruefeEmail(String email) {
-        // return studentRepository.findStudentByEmail(email);
         return null;
     }
 

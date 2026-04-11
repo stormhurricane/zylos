@@ -3,6 +3,7 @@ package com.zylos.backend.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zylos.backend.model.dto.LoginRequest;
 import com.zylos.backend.model.dto.StudentRegistrationRequest;
+import com.zylos.backend.model.entity.Student;
 import com.zylos.backend.repository.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,5 +71,33 @@ class UserControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("max@uni.de"))
                 .andExpect(jsonPath("$.firstName").value("Max"));
+    }
+
+    @Test
+    void loginWithMatriculationNumberTest() throws Exception {
+        // 1. Registrierung
+        StudentRegistrationRequest regRequest = new StudentRegistrationRequest(
+                "Erika", "Musterfrau", "securePass", "erika@uni.de",
+                null, "Musterstraße 2", "Physik"
+        );
+
+        mockMvc.perform(post("/api/users/register/student")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(regRequest)))
+                .andExpect(status().isCreated());
+
+        // 2. Wir müssen die generierte Matrikelnummer aus der DB holen
+        Student student = studentRepository.findByEmail("erika@uni.de")
+                .orElseThrow();
+        String matNr = student.getMatriculationNumber();
+
+        // 3. Login mit Matrikelnummer statt Email
+        LoginRequest loginRequest = new LoginRequest(matNr, "securePass");
+
+        mockMvc.perform(post("/api/users/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.role").value("STUDENT"));
     }
 }
