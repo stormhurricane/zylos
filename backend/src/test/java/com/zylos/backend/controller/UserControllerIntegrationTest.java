@@ -100,4 +100,40 @@ class UserControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.role").value("STUDENT"));
     }
+
+    @Test
+    void searchUsersEndpointTest() throws Exception {
+        // 1. Nutzer anlegen
+        StudentRegistrationRequest regRequest = new StudentRegistrationRequest(
+                "Bob", "Builder", "pass", "bob@uni.de",
+                null, "Bauplatz 7", "Architektur"
+        );
+        mockMvc.perform(post("/api/users/register/student")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(regRequest)));
+
+        // Login um Token zu erhalten (Suche ist geschützt)
+        LoginRequest loginRequest = new LoginRequest("bob@uni.de", "pass");
+        String response = mockMvc.perform(post("/api/users/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginRequest)))
+                .andReturn().getResponse().getContentAsString();
+        String token = objectMapper.readTree(response).get("accessToken").asText();
+
+        // 2. Suche via 'q' Parameter
+        mockMvc.perform(get("/api/users/search")
+                .header("Authorization", "Bearer " + token)
+                .param("q", "Builder"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].firstName").value("Bob"))
+                .andExpect(jsonPath("$[0].privateAddress").isEmpty()); // Maskierung prüfen
+
+        // 3. Öffentliches Profil via ID prüfen
+        Student student = studentRepository.findByEmail("bob@uni.de").orElseThrow();
+        mockMvc.perform(get("/api/users/" + student.getId())
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName").value("Bob"))
+                .andExpect(jsonPath("$.privateAddress").isEmpty()); // Maskierung prüfen
+    }
 }

@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -43,7 +45,17 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<ProfileResponse> getProfile() {
-        return ResponseEntity.ok(userService.getUserProfile(userService.getCurrentUserId()));
+        return ResponseEntity.ok(userService.getUserProfile(userService.getCurrentUserId(), true));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProfileResponse> getPublicProfile(@PathVariable("id") int id) {
+        return ResponseEntity.ok(userService.getUserProfile(id, false));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ProfileResponse>> searchUsers(@RequestParam("q") String q) {
+        return ResponseEntity.ok(userService.searchUsers(q));
     }
 
     @PutMapping("/me")

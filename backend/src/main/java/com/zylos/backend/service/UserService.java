@@ -17,6 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,16 +27,19 @@ public class UserService {
 
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
     @Autowired
     public UserService(StudentRepository studentRepository, 
                        TeacherRepository teacherRepository, 
+                       UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService) {
         this.studentRepository = studentRepository;
         this.teacherRepository = teacherRepository;
+        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
@@ -134,33 +139,40 @@ public class UserService {
         return true;
     }
 
-    public ProfileResponse getUserProfile(int userId) {
-        User user = findUserById(userId)
+    public ProfileResponse getUserProfile(int userId, boolean isFullProfile) {
+        return findUserById(userId)
+                .map(user -> convertToResponse(user, isFullProfile))
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
+
+    public List<ProfileResponse> searchUsers(String searchTerm) {
+        List<ProfileResponse> results = new ArrayList<>();
+
+        studentRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchTerm, searchTerm)
+                .forEach(s -> results.add(convertToResponse(s, false)));
+
+        teacherRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchTerm, searchTerm)
+                .forEach(t -> results.add(convertToResponse(t, false)));
+
+        return results;
+    }
+
+    private ProfileResponse convertToResponse(User user, boolean includeSensitiveData) {
+        String address = includeSensitiveData ? user.getPrivateAddress() : null;
 
         if (user instanceof Student s) {
             return new ProfileResponse(
-                    s.getFirstName(),
-                    s.getLastName(),
-                    s.getEmail(),
-                    s.getPrivateAddress(),
-                    s.getProfilePicture(),
-                    s.getMatriculationNumber(),
-                    s.getStudySubject(),
-                    null,
-                    null
+                    s.getId(),
+                    s.getFirstName(), s.getLastName(), s.getEmail(), address,
+                    s.getProfilePicture(), s.getMatriculationNumber(), s.getStudySubject(),
+                    null, null
             );
         } else if (user instanceof Teacher t) {
             return new ProfileResponse(
-                    t.getFirstName(),
-                    t.getLastName(),
-                    t.getEmail(),
-                    t.getPrivateAddress(),
-                    t.getProfilePicture(),
-                    null,
-                    null,
-                    t.getResearchArea(),
-                    t.getChair()
+                    t.getId(),
+                    t.getFirstName(), t.getLastName(), t.getEmail(), address,
+                    t.getProfilePicture(), null, null,
+                    t.getResearchArea(), t.getChair()
             );
         }
         throw new IllegalStateException("Unknown user type");
@@ -192,14 +204,10 @@ public class UserService {
     }
 
     private Optional<? extends User> findUserById(int id) {
-        Optional<Student> student = studentRepository.findById(id);
-        if (student.isPresent()) return student;
-        return teacherRepository.findById(id);
+        return userRepository.findById(id);
     }
 
     private Optional<? extends User> findUserByEmail(String email) {
-        Optional<Student> student = studentRepository.findByEmail(email);
-        if (student.isPresent()) return student;
-        return teacherRepository.findByEmail(email);
+        return userRepository.findByEmail(email);
     }
 }
