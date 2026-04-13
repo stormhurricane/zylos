@@ -3,8 +3,8 @@ package com.zylos.backend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.zylos.backend.controller.communication.FreundschaftsAnfrage;
-import com.zylos.backend.controller.communication.NutzerWrapper;
+import com.zylos.backend.model.dto.FriendshipDecisionRequest;
+import com.zylos.backend.model.dto.NutzerResponse;
 import com.zylos.backend.service.FreundschaftService;
 
 import java.util.List;
@@ -13,12 +13,14 @@ import java.util.List;
 @RequestMapping(path="api/v2/friends")
 public class FreundschaftController {
 
+    // TODO methoden in NutzerController integrieren, im sinne /users/{id}/friends
+
     @Autowired
     FreundschaftService freundschaftService;
 
     @GetMapping(path="/show/{id}")
-    public List<NutzerWrapper> zeigeFreundeEinesNutzer(@PathVariable("id") int nutzerId) {
-        return freundschaftService.findeFreundeEinesNutzers(nutzerId);
+    public List<NutzerResponse> showFriendsOfUser(@PathVariable("id") int userId) {
+        return freundschaftService.showFriendsOfUser(userId);
     }
 
     //true, falls bereits oder nun Freunde, sonst false
@@ -29,14 +31,13 @@ public class FreundschaftController {
     }
 
     @PostMapping(path="/respond")
-    public boolean bearbeiteFreundschaftsAnfrage(@RequestBody FreundschaftsAnfrage anfrage) {
-        return freundschaftService.schliesseFreundschaft(anfrage.getZuBearbeitendeAnfrage(),
-                anfrage.isWirdAngenommen());
+    public boolean bearbeiteFreundschaftsAnfrage(@RequestBody FriendshipDecisionRequest request) {
+        return freundschaftService.schliesseFreundschaft(request.userIds(), request.accepted());
     }
     
 
     @GetMapping(path="/openRequests/{id}")
-    public List<NutzerWrapper> zeigeneOffeneAnfragen(@PathVariable("id") int nutzerId) {
-        return freundschaftService.zeigeneOffeneAnfragen(nutzerId);
+    public List<NutzerResponse> showOpenFriendRequests(@PathVariable("id") int userId) {
+        return freundschaftService.showOpenFriendRequests(userId);
     }
 }

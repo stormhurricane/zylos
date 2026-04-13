@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.zylos.backend.database.Lehrender;
 import com.zylos.backend.database.Nutzer;
-import com.zylos.backend.database.Student;
+import com.zylos.backend.database.Student_old;
 import com.zylos.backend.database.Teilnehmer;
 
 import java.util.ArrayList;
@@ -28,19 +28,6 @@ public class NutzerService {
     @Autowired
     ZFAService zfaService;
 
-    public boolean aendereProfil(int id, Map<String, String> changeData) {
-        Nutzer zuAendernderNutzer = this.findeNutzer(id);
-        if (zuAendernderNutzer == null) {return false;}
-
-        if (zuAendernderNutzer instanceof Student) {
-            return studentService.aendereStudent((Student) zuAendernderNutzer, changeData);
-        }
-        else if (zuAendernderNutzer instanceof  Lehrender) {
-            return lehrenderService.aendereLehrender((Lehrender) zuAendernderNutzer, changeData);
-        }
-        return false;
-    }
-
     //Unabsichtlich sortiert, erst Studenten, dann Lehrende
     public List<Nutzer> erzeugeNutzerListe() {
         List<Nutzer> nutzerListe = new LinkedList<>();
@@ -57,7 +44,7 @@ public class NutzerService {
             if (moeglicherLehrender != null) teilnehmer.add(moeglicherLehrender);
         }
         for (Teilnehmer teilnahme : teilnahmen) {
-            Student moeglicherStudent = studentService.findeStudent(teilnahme.getId().getNutzer_id());
+            Student_old moeglicherStudent = studentService.findeStudent(teilnahme.getId().getNutzer_id());
             if (moeglicherStudent != null) teilnehmer.add(moeglicherStudent);
         }
         return teilnehmer;
@@ -65,7 +52,7 @@ public class NutzerService {
 
     //Beide Services durchsuchen, da Tabellen getrennt sind
     public Nutzer findeNutzer(int id) {
-        Student moeglicherStudent = studentService.findeStudent(id);
+        Student_old moeglicherStudent = studentService.findeStudent(id);
         if (moeglicherStudent != null) {return moeglicherStudent;}
         Lehrender moeglicherLehrender = lehrenderService.findeLehrender(id);
         if (moeglicherLehrender != null) {return moeglicherLehrender;}
@@ -78,7 +65,7 @@ public class NutzerService {
             int matrikelnummer = Integer.parseInt(suchDaten.get("matrikelnummer"));
             studentList.add(studentService.findeStudentMitMatrikelnummer(matrikelnummer).getId());
         } else {
-            for(Student student : studentService.gibAlleStudenten()){
+            for(Student_old student : studentService.gibAlleStudenten()){
                 if(student.getVorname().equals(suchDaten.get("vorname")) && student.getNachname().equals(suchDaten.get("nachname"))){
                     studentList.add(student.getId());
                 }
@@ -87,37 +74,12 @@ public class NutzerService {
         return studentList;
     }
 
-    public boolean registriereLehrender(Lehrender lehrender){
-        boolean bereitsGenutzteEmail = this.ueberpruefeEmail(lehrender.getEmail());
-        if (bereitsGenutzteEmail) {
-            return false;
-        }
-        else {
-            return lehrenderService.registriereLehrender(lehrender);
-        }
-    }
-
-    public boolean registriereStudent(Student student) {
-        boolean bereitsGenutzteEmail = this.ueberpruefeEmail(student.getEmail());
-        if (bereitsGenutzteEmail) {
-            return false;
-        }
-        else {
-            return studentService.registriereStudent(student);
-        }
-    }
-
-    private boolean ueberpruefeEmail(String email) {
-        Student registrierterStudent = studentService.ueberpruefeEmail(email);
-        Lehrender registrierterLehrender = lehrenderService.ueberpruefeEmail(email);
-        return (registrierterStudent != null || registrierterLehrender != null);
-    }
 
     //Erste Zahl steht für nutzerID, -1 bei Fehlschlag
     //Zweite Zahl ist Rolle mit -1 = Lehrender, 1 = Student, 0 = Fehlschlag
     public int[] versucheLogin(Map<String, String> loginDaten) {
         if (loginDaten.containsKey("matrikelnummer")) {
-            Student einloggenderStudent = studentService.login(Integer.parseInt(loginDaten.get("matrikelnummer")), loginDaten.get("passwort"));
+            Student_old einloggenderStudent = null;
             if (einloggenderStudent != null) {
                 this.starte2FA(einloggenderStudent);
                 return new int[] {einloggenderStudent.getId(), 1};
@@ -125,12 +87,12 @@ public class NutzerService {
         }
 
         else {
-            Student einloggenderStudent = studentService.login(loginDaten.get("email"), loginDaten.get("passwort"));
+            Student_old einloggenderStudent = null;
             if (einloggenderStudent != null) {
                 this.starte2FA(einloggenderStudent);
                 return new int[] {einloggenderStudent.getId(), 1};
             }
-            Lehrender einloggenderLehrender = lehrenderService.login(loginDaten.get("email"), loginDaten.get("passwort"));
+            Lehrender einloggenderLehrender = null;
             if (einloggenderLehrender != null) {
                 this.starte2FA(einloggenderLehrender);
                 return new int[] {einloggenderLehrender.getId(), -1};

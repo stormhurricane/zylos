@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import com.zylos.backend.controller.communication.NutzerWrapper;
 import com.zylos.backend.database.Lehrender;
 import com.zylos.backend.database.Nutzer;
-import com.zylos.backend.database.Student;
+import com.zylos.backend.database.Student_old;
 import com.zylos.backend.service.NutzerService;
 
 import java.util.List;
@@ -19,12 +19,6 @@ public class NutzerController {
     @Autowired
     NutzerService nutzerService;
 
-    @PutMapping(path="/update/{id}")
-    public boolean aendereProfilDaten(@PathVariable("id") int id,
-                                      @RequestBody Map<String, String> changeData) {
-        return nutzerService.aendereProfil(id, changeData);
-    }
-
     @PostMapping(path="/findStudent", consumes = "application/json", produces = "application/json")
     public List<Integer> findeStudentIds(@RequestBody Map<String, String> suchDaten){
         return nutzerService.findeStudenten(suchDaten);
@@ -34,16 +28,6 @@ public class NutzerController {
     @PostMapping(path="/login", consumes = "application/json", produces = "application/json")
     public int[] login(@RequestBody Map<String, String> loginDaten){
         return nutzerService.versucheLogin(loginDaten);
-    }
-
-    @PostMapping(path="/register", params = "nutzer=lehrender")
-    public boolean registriereLehrender(@RequestBody Lehrender lehrender) {
-        return nutzerService.registriereLehrender(lehrender);
-    }
-
-    @PostMapping(path="/register", params = "nutzer=student")
-    public boolean registriereStudent(@RequestBody Student student){
-        return nutzerService.registriereStudent(student);
     }
 
     @GetMapping(path="/view/{id}", produces = "application/json")

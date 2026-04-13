@@ -8,6 +8,7 @@ import com.zylos.backend.controller.communication.StatistikWrapper;
 import com.zylos.backend.database.Feedback;
 import com.zylos.backend.database.Frage;
 import com.zylos.backend.database.Test;
+import com.zylos.backend.model.dto.CreateTestAttemptRequest;
 import com.zylos.backend.service.*;
 
 import java.util.List;
@@ -56,8 +57,8 @@ public class QuizController {
     }
 
     @PostMapping(path="/versuch")
-    public int legeVersuchAn(@RequestBody Map<String, Integer> versuch) {
-        return testOberService.legeVersuchAn(versuch);
+    public int createTestAttempt(@RequestBody CreateTestAttemptRequest testAttemptRequest) {
+        return testOberService.createTestAttempt(testAttemptRequest);
     }
 
     @PutMapping(path="/pruefeVersuch/")

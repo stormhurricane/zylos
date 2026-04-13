@@ -15,11 +15,11 @@ public class FeedbackService {
     @Autowired
     FeedbackRepository feedbackRepository;
 
-    @Autowired
-    FrageService frageService;
+    // @Autowired
+    // QuestionService questionService;
 
     @Autowired
-    BewertungsFeedbackService bewertungsFeedbackService;
+    EvaluationFeedbackService evaluationFeedbackService;
 
     public List<Feedback> findeAlleFeedbacksMitVersuchsId(int versuchId) {
        return feedbackRepository.findAllByVersuchId(versuchId);
@@ -44,14 +44,14 @@ public class FeedbackService {
     }
 
     public List<BewertungsFeedback> gibAlleBewertungsfeedbacksEinesTests(int testId){
-       return bewertungsFeedbackService.gibAlleBewertungsfeedbacksEinesTests(testId);
+       return evaluationFeedbackService.gibAlleBewertungsfeedbacksEinesTests(testId);
     }
 
     public List<BewertungsFeedback> gibAlleBewertungsfeedbacksFuerEineFrage(int frageId){
-        return bewertungsFeedbackService.gibAlleBewertungsfeedbacksFuerEineFrage(frageId);
+        return evaluationFeedbackService.gibAlleBewertungsfeedbacksFuerEineFrage(frageId);
     }
 
     public List<BewertungsFeedback> gibAlleBewertungsfeedbacksFuerVersuchsId(int versuchId){
-        return bewertungsFeedbackService.gibAlleBewertungsfeedbacksFuerVersuchsId(versuchId);
+        return evaluationFeedbackService.gibAlleBewertungsfeedbacksFuerVersuchsId(versuchId);
     }
 }

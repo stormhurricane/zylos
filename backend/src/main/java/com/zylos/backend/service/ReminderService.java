@@ -6,6 +6,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.zylos.backend.model.dto.CreateReminderRequest;
+import com.zylos.backend.model.dto.TerminResponse;
 import com.zylos.backend.controller.communication.NutzerWrapper;
 import com.zylos.backend.database.Nutzer;
 import com.zylos.backend.database.Reminder;
@@ -38,10 +40,11 @@ public class ReminderService {
     @Autowired
     EmailService emailService;
 
-    public boolean legeReminderFuerAlleNutzerDerLvAn(Reminder reminder){
-        List<NutzerWrapper> listeAllerTeilnehmerEinerLV = teilnehmerService.erstelleTeilnehmerListeEinerLV(terminService.findeTerminMitId(reminder.getTerminId()).getlvId());
+    public boolean legeReminderFuerAlleNutzerDerLvAn(CreateReminderRequest request){
+        // .courseId() statt .getlvId(), da TerminResponse nun ein Record mit englischen Feldern ist
+        List<NutzerWrapper> listeAllerTeilnehmerEinerLV = teilnehmerService.erstelleTeilnehmerListeEinerLV(terminService.findeTerminMitId(request.appointmentId()).courseId());
         for(NutzerWrapper nw : listeAllerTeilnehmerEinerLV){
-            Reminder zuSpeichernderReminder = new Reminder(reminder.getTerminId(), reminder.getJahr(), reminder.getMonat(), reminder.getTag(), reminder.getUhrzeit(), reminder.getForm());
+            Reminder zuSpeichernderReminder = new Reminder(request.appointmentId(), request.year(), request.month(), request.day(), request.time(), request.form());
             if(nw.getMoeglicherStudent() != null){
                 zuSpeichernderReminder.setNutzerId(nw.getMoeglicherStudent().getId());
             } else {
@@ -87,11 +90,11 @@ public class ReminderService {
             );
 
             for (Reminder reminder : alleEmailReminder) {
-                Termin referenzierterTermin = terminService.findeTerminMitId(reminder.getTerminId());
+                TerminResponse referenzierterTermin = terminService.findeTerminMitId(reminder.getTerminId());
                 Nutzer nutzer = nutzerService.findeNutzer(reminder.getNutzerId());
-                emailService.generiereReminderEmail(nutzer.getVorname(), nutzer.getNachname(), nutzer.getEmail(), referenzierterTermin.getBetreff(),
-                        LocalDate.of(Integer.parseInt(referenzierterTermin.getJahr()), Integer.parseInt(referenzierterTermin.getMonat()),
-                                Integer.parseInt(referenzierterTermin.getTag())), referenzierterTermin.getUhrzeit());
+                emailService.generiereReminderEmail(nutzer.getVorname(), nutzer.getNachname(), nutzer.getEmail(), referenzierterTermin.subject(),
+                        LocalDate.of(Integer.parseInt(referenzierterTermin.year()), Integer.parseInt(referenzierterTermin.month()),
+                                Integer.parseInt(referenzierterTermin.day())), referenzierterTermin.time());
                 reminderRepository.delete(reminder);
                 try {
                     //Thread nach jeder Email schlafen schicken, da sonst ein Error vom Mail-Sender kommt.

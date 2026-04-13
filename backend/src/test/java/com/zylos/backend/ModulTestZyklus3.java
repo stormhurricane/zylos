@@ -6,14 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import com.zylos.backend.controller.BewertungsController;
+import com.zylos.backend.controller.CourseEvaluationController;
 import com.zylos.backend.controller.LehrveranstaltungsController;
 import com.zylos.backend.controller.PrivateChatController;
+import com.zylos.backend.model.dto.EvaluationStatisticResponse;
 import com.zylos.backend.controller.communication.ChatWrapper;
 import com.zylos.backend.database.*;
 import com.zylos.backend.repository.*;
 import com.zylos.backend.service.ChatNachrichtService;
-import com.zylos.backend.service.StatistikService;
+import com.zylos.backend.service.StatisticService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +40,10 @@ public class ModulTestZyklus3 {
     FrageRepository frageRepository;
 
     @Autowired
-    BewertungsController bewertungsController;
+    CourseEvaluationController courseEvaluationController;
 
     @Autowired
-    StatistikService statistikService;
+    StatisticService statisticService;
 
 
 
@@ -106,14 +107,14 @@ public class ModulTestZyklus3 {
 
         //When
         // 1 = bestandene
-        List<int[]> resultat = bewertungsController.erstelleBewertungsStatistik(1, 1);
+        List<EvaluationStatisticResponse> resultat = courseEvaluationController.getEvaluationStatistics(1, 1);
 
         //Then
         assertEquals(1, resultat.size());
-        assertEquals(1, resultat.get(0)[1]);
-        assertEquals(0, resultat.get(0)[2]);
-        assertEquals(0, resultat.get(0)[3]);
-        assertEquals(0, resultat.get(0)[4]);
+        assertEquals(1, resultat.get(0).countA());
+        assertEquals(0, resultat.get(0).countB());
+        assertEquals(0, resultat.get(0).countC());
+        assertEquals(0, resultat.get(0).countD());
 
 
     }
@@ -177,14 +178,14 @@ public class ModulTestZyklus3 {
 
         //When
         // 1 = bestandene
-        List<int[]> resultat = bewertungsController.erstelleBewertungsStatistik(1, -1);
+        List<EvaluationStatisticResponse> resultat = courseEvaluationController.getEvaluationStatistics(1, -1);
 
         //Then
         assertEquals(1, resultat.size());
-        assertEquals(0, resultat.get(0)[1]);
-        assertEquals(0, resultat.get(0)[2]);
-        assertEquals(1, resultat.get(0)[3]);
-        assertEquals(0, resultat.get(0)[4]);
+        assertEquals(0, resultat.get(0).countA());
+        assertEquals(0, resultat.get(0).countB());
+        assertEquals(1, resultat.get(0).countC());
+        assertEquals(0, resultat.get(0).countD());
 
 
     }
@@ -201,8 +202,8 @@ public class ModulTestZyklus3 {
         bewertungen.add(bewertung3);
 
         //When
-        int resultatA = statistikService.bestimmeAnzahlEinerAntwortEinerBewertungsfrage(1, 'A', bewertungen);
-        int resultatC = statistikService.bestimmeAnzahlEinerAntwortEinerBewertungsfrage(2, 'C', bewertungen);
+        int resultatA = statisticService.bestimmeAnzahlEinerAntwortEinerBewertungsfrage(1, 'A', bewertungen);
+        int resultatC = statisticService.bestimmeAnzahlEinerAntwortEinerBewertungsfrage(2, 'C', bewertungen);
 
         //Then
         assertEquals(1, resultatA);

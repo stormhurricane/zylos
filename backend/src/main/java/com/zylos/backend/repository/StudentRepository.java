@@ -1,17 +1,22 @@
 package com.zylos.backend.repository;
 
+import com.zylos.backend.model.entity.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import com.zylos.backend.database.Student;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Integer> {
+    boolean existsByEmail(String email);
+    
+    Optional<Student> findByEmail(String email);
 
-    Student findStudentByEmail(String email);
+    Optional<Student> findByMatriculationNumber(String matriculationNumber);
 
-    Student findStudentByMatrikelnr(int matrikelnr);
+    List<Student> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstName, String lastName);
 
-    Student findStudentByVornameAndNachname(String vorname, String nachname);
-
+    @Query("SELECT MAX(s.matriculationNumber) FROM Student s")
+    Optional<String> findMaxMatriculationNumber();
 }

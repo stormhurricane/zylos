@@ -9,6 +9,7 @@ import com.zylos.backend.database.Feedback;
 import com.zylos.backend.database.Frage;
 import com.zylos.backend.database.Lehrveranstaltung;
 import com.zylos.backend.database.Test;
+import com.zylos.backend.model.dto.CreateTestAttemptRequest;
 
 import java.util.List;
 import java.util.Locale;
@@ -21,16 +22,16 @@ public class TestOberService {
     TestService testService;
 
     @Autowired
-    FrageService frageService;
+    QuestionService questionService;
 
     @Autowired
     FeedbackService feedbackService;
 
     @Autowired
-    VersuchService versuchService;
+    AttemptService attemptService;
 
     @Autowired
-    StatistikService statistikService;
+    StatisticService statisticService;
 
     public boolean legeQuizAn(QuizWrapper quizWrapper) {
         return testService.erstelleTest(quizWrapper);
@@ -41,7 +42,7 @@ public class TestOberService {
     }
 
     public List<Frage> zeigeAlleFragenEinesTests(int testId) {
-        return frageService.findeAlleFragenMitTestId(testId);
+        return questionService.findeAlleFragenMitTestId(testId);
     }
 
     public boolean legeFeedbackAn(Feedback feedback) {
@@ -56,24 +57,24 @@ public class TestOberService {
         return feedbackService.findeAlleFeedbacksMitVersuchsId(versuchId);
     }
 
-    public int legeVersuchAn(Map<String, Integer> versuch) {
-       return versuchService.erstelleVersuch(versuch);
+    public int createTestAttempt(CreateTestAttemptRequest testAttemptRequest) {
+       return attemptService.createTestAttempt(testAttemptRequest);
     }
 
     public boolean pruefeVersuch(int versuchId) {
-       return versuchService.bestimmeBestandenBeiVersuch(versuchId);
+       return attemptService.bestimmeBestandenBeiVersuch(versuchId);
     }
 
     public StatistikWrapper zeigeStatistikEinesTests(int testId) {
-        return statistikService.erstelleStatistik(testId);
+        return statisticService.erstelleStatistik(testId);
     }
 
     public Frage findeFrageNameMitId(int frageId) {
-        return frageService.findeFrageNameMitId(frageId);
+        return questionService.findeFrageNameMitId(frageId);
     }
 
     public boolean erzwingeBestehenspruefung(Map<String, String> semesterDaten) {
-        statistikService.pruefeBestehenNachSemesterende(Lehrveranstaltung.zeitEnum
+        statisticService.pruefeBestehenNachSemesterende(Lehrveranstaltung.zeitEnum
                         .valueOf(semesterDaten.get("semesterZeit").toUpperCase()),
                 semesterDaten.get("semesterJahr"));
         return true;

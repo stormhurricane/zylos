@@ -31,6 +31,7 @@ Dieses TODO-Dokument beschreibt die Schritte zur Migration des Projekts:
     - [X] Mail-Versand: `javax.mail.*` -> `jakarta.mail.*`
 - [X] Dependencies aufräumen: Manuelle `javax.mail` und `activation` entfernen (jetzt in Starter enthalten)
 - [X] **Gradle-Altlasten entfernen**: build.gradle, gradlew und build/ Ordner löschen
+- [X] **Datenbank-Cleanup**: Unnötige `data.sql` (Billionaires-Beispiel) entfernen oder ersetzen
 - [X] Verzeichnisstruktur anpassen: src/main/java, src/test/java, etc.
 - [X] **Umgebung prüfen**: Sicherstellen, dass `mvn -version` Java 21 nutzt
 - [X] **Jakarta EE Namespace Migration**: Abgeschlossen (javax -> jakarta)
