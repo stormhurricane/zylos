@@ -6,6 +6,7 @@ import com.zylos.backend.model.dto.ProfileResponse;
 import com.zylos.backend.model.dto.StudentRegistrationRequest;
 import com.zylos.backend.model.entity.Student;
 import com.zylos.backend.repository.StudentRepository;
+import com.zylos.backend.repository.UserRepository;
 import com.zylos.backend.repository.TeacherRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
+    @Mock
+    private UserRepository userRepository;
     @Mock
     private StudentRepository studentRepository;
     @Mock
@@ -154,7 +157,7 @@ class UserServiceTest {
         // Given
         int userId = 1;
         Student student = new Student("Max", "Mustermann", "max@test.de", "Musterweg 5", "pass", null, "1234567", "IT");
-        when(studentRepository.findById(userId)).thenReturn(Optional.of(student));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(student));
 
         // When
         ProfileResponse response = userService.getUserProfile(userId, true);
@@ -169,7 +172,7 @@ class UserServiceTest {
         // Given
         int userId = 1;
         Student student = new Student("Max", "Mustermann", "max@test.de", "Musterweg 5", "pass", null, "1234567", "IT");
-        when(studentRepository.findById(userId)).thenReturn(Optional.of(student));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(student));
 
         // When
         ProfileResponse response = userService.getUserProfile(userId, false);

@@ -9,6 +9,7 @@ import com.zylos.backend.model.dto.TeacherRegistrationRequest;
 import com.zylos.backend.model.entity.Student;
 import com.zylos.backend.model.entity.Teacher;
 import com.zylos.backend.model.entity.User;
+import com.zylos.backend.repository.UserRepository;
 import com.zylos.backend.repository.StudentRepository;
 import com.zylos.backend.repository.TeacherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
