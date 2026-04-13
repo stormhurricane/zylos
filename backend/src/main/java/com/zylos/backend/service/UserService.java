@@ -122,7 +122,7 @@ public class UserService {
         User user = userOpt.get();
         
         // Update common fields
-        if (request.password() != null) user.setPassword(passwordEncoder.encode(request.password()));
+        if (request.password() != null && !request.password().isBlank()) user.setPassword(passwordEncoder.encode(request.password()));
         if (request.privateAddress() != null) user.setPrivateAddress(request.privateAddress());
         if (request.profilePicture() != null) user.setProfilePicture(request.profilePicture());
 

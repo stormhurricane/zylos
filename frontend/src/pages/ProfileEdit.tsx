@@ -5,7 +5,16 @@ import { ProfileResponse, ProfileUpdateRequest } from '../api/types';
 import { Navbar } from '../components/Navbar';
 
 export const ProfileEdit = () => {
-    const [formData, setFormData] = useState<ProfileUpdateRequest & { firstName?: string, lastName?: string }>({});
+    const [formData, setFormData] = useState<ProfileUpdateRequest & { firstName?: string, lastName?: string }>({
+        password: '',
+        privateAddress: '',
+        profilePicture: '',
+        chair: '',
+        researchArea: '',
+        studySubject: '',
+        firstName: '',
+        lastName: ''
+    });
     const [isStudent, setIsStudent] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -53,7 +62,9 @@ export const ProfileEdit = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await api.put('/users/me', formData);
+            // Filter out display-only fields before sending to API
+            const { firstName, lastName, ...updateData } = formData;
+            await api.put('/users/me', updateData);
             navigate('/profile');
         } catch (err) {
             setError('Update fehlgeschlagen.');
