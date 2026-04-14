@@ -186,6 +186,7 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found in context"));
     }
 
+    // TODO refactor: possible restructuring for userRepository to avoid duplicate email checks across student and teacher repositories
     private void validateEmailUniqueness(String email) {
         if (studentRepository.existsByEmail(email) || teacherRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email already in use");

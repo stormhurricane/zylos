@@ -1,0 +1,76 @@
+package com.zylos.backend.controller;
+
+import com.zylos.backend.model.dto.CourseRequest;
+import com.zylos.backend.model.dto.CourseResponse;
+import com.zylos.backend.model.dto.MaterialResponse;
+import com.zylos.backend.model.entity.CourseMaterial;
+import com.zylos.backend.service.CourseService;
+import com.zylos.backend.service.CourseMaterialService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/courses")
+public class CourseController {
+
+    private final CourseService courseService;
+    private final CourseMaterialService materialService;
+
+
+    public CourseController(CourseService courseService, CourseMaterialService materialService) {
+        this.courseService = courseService;
+        this.materialService = materialService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<CourseResponse>> getAllCourses() {
+        return ResponseEntity.ok(courseService.getAllCourses());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<CourseResponse>> search(@RequestParam String title) {
+        return ResponseEntity.ok(courseService.searchByTitle(title));
+    }
+
+    @PostMapping
+    @PreAuthorize("hasRole('INSTRUCTOR')")
+    public ResponseEntity<CourseResponse> create(@Valid @RequestBody CourseRequest request) {
+        return ResponseEntity.ok(courseService.createCourse(request));
+    }
+
+    @PostMapping("/import")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
+    public ResponseEntity<List<CourseResponse>> importCsv(@RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(courseService.importFromCsv(file));
+    }
+
+     @GetMapping("/{id}/materials")
+    public ResponseEntity<List<MaterialResponse>> getMaterials(@PathVariable Long id) {
+        return ResponseEntity.ok(materialService.getMaterialsByCourse(id));
+    }
+
+    @PostMapping("/{id}/materials")
+    @PreAuthorize("hasRole('INSTRUCTOR')") // Stellt sicher, dass nur Lehrende hochladen können
+    public ResponseEntity<MaterialResponse> uploadMaterial(
+            @PathVariable Long id,
+            @RequestParam("title") String title,
+            @RequestParam("file") MultipartFile file) throws IOException {
+        return ResponseEntity.ok(materialService.uploadMaterial(id, title, file));
+    }
+
+    @GetMapping("/materials/{materialId}/download")
+    public ResponseEntity<byte[]> downloadMaterial(@PathVariable Long materialId) {
+        CourseMaterial material = materialService.getMaterialEntity(materialId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + material.getFileName() + "\"")
+                .header(HttpHeaders.CONTENT_TYPE, material.getContentType())
+                .body(material.getData());
+    }
+}
