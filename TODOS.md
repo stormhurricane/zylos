@@ -88,6 +88,7 @@ Dieses TODO-Dokument beschreibt die Schritte zur Migration des Projekts:
 - [ ] CI/CD einrichten: GitHub Actions oder ähnlich (build, test, deploy)
 - [ ] Dokumentation: README.md erweitern mit Setup, API-Docs
 - [ ] Testsuite vollständig: >80% Coverage
+- [ ] **Linting & Code Style**: Konfiguration von ESLint/Prettier (Frontend) und Checkstyle (Backend)
 - [ ] Deployment: Container in Cloud (z.B. Heroku, AWS)
 
 ## Notizen
