@@ -5,7 +5,10 @@ import com.zylos.backend.model.dto.CourseRequest;
 import com.zylos.backend.model.entity.Course;
 import com.zylos.backend.model.entity.CourseType;
 import com.zylos.backend.model.entity.SemesterTerm;
+import com.zylos.backend.model.entity.Teacher;
 import com.zylos.backend.repository.CourseRepository;
+import com.zylos.backend.repository.TeacherRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,8 +36,21 @@ class CourseControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private TeacherRepository teacherRepository;
+
+    @BeforeEach
+    void setup() {
+        courseRepository.deleteAll();
+        teacherRepository.deleteAll();
+
+        // Erstelle einen Lehrenden, der als "aktueller Nutzer" im Test fungiert
+        Teacher teacher = new Teacher("Test", "Instructor", "instructor@test.com", "Address", "password", null, "Research", "Chair");
+        teacherRepository.save(teacher);
+    }
+
     @Test
-    @WithMockUser(roles = "INSTRUCTOR")
+    @WithMockUser(username = "instructor@test.com", roles = "INSTRUCTOR")
     void shouldCreateCourseAndUploadMaterial() throws Exception {
         // 1. Create Course
         CourseRequest request = new CourseRequest("Integration Test Course", CourseType.LECTURE, SemesterTerm.WINTER, "2024/25");

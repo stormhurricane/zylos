@@ -20,18 +20,24 @@ import java.util.stream.Collectors;
 public class CourseService {
 
     private final CourseRepository courseRepository;
+    private final EnrollmentService enrollmentService;
 
-    public CourseService(CourseRepository courseRepository) {
+    public CourseService(CourseRepository courseRepository, EnrollmentService enrollmentService) {
         this.courseRepository = courseRepository;
+        this.enrollmentService = enrollmentService;
     }
 
     @Transactional
-    public CourseResponse createCourse(CourseRequest request) {
+    public CourseResponse createCourse(CourseRequest request, int creatorId) {
         if (courseRepository.findByTitle(request.title()).isPresent()) {
             throw new RuntimeException("Course with title '" + request.title() + "' already exists.");
         }
         Course course = new Course(request.title(), request.type(), request.term(), request.academicYear());
         Course savedCourse = courseRepository.save(course);
+        
+        // Creator automatically enrolled
+        enrollmentService.enrollUser(savedCourse.getId(), creatorId);
+        
         return mapToResponse(savedCourse);
     }
 
@@ -48,7 +54,7 @@ public class CourseService {
     }
 
     @Transactional
-    public List<CourseResponse> importFromCsv(MultipartFile file) {
+    public List<CourseResponse> importFromCsv(MultipartFile file, int creatorId) {
         List<CourseResponse> results = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
@@ -66,7 +72,7 @@ public class CourseService {
                         data[3].trim()
                     );
                     try {
-                        results.add(createCourse(request));
+                        results.add(createCourse(request, creatorId));
                     } catch (Exception e) {
                         // Skip duplicates or errors in CSV, but continue processing
                     }

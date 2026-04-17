@@ -4,9 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.zylos.backend.controller.communication.NutzerWrapper;
-import com.zylos.backend.database.Lehrender;
 import com.zylos.backend.database.Nutzer;
-import com.zylos.backend.database.Student_old;
 import com.zylos.backend.service.NutzerService;
 
 import java.util.List;
@@ -14,6 +12,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(path="api/v1/nutzer")
+@Deprecated(since = "2026-04", forRemoval = true)
 public class NutzerController {
 
     @Autowired

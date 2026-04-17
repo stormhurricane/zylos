@@ -16,7 +16,6 @@ import com.zylos.backend.service.LernkartenThemaService;
 import com.zylos.backend.service.ProjektgruppeService;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(path="/api/v1/lehrveranstaltung")

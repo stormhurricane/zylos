@@ -15,18 +15,20 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class CourseServiceTest {
 
     private CourseRepository courseRepository;
+    private EnrollmentService enrollmentService;
     private CourseService courseService;
 
     @BeforeEach
     void setUp() {
         courseRepository = Mockito.mock(CourseRepository.class);
-        courseService = new CourseService(courseRepository);
+        enrollmentService = Mockito.mock(EnrollmentService.class);
+        courseService = new CourseService(courseRepository, enrollmentService);
     }
 
     @Test
@@ -41,12 +43,13 @@ class CourseServiceTest {
         });
 
         // Act
-        CourseResponse response = courseService.createCourse(request);
+        CourseResponse response = courseService.createCourse(request, 1);
 
         // Assert
         assertNotNull(response.id());
         assertEquals("Software Engineering", response.title());
         verify(courseRepository, times(1)).save(any(Course.class));
+        verify(enrollmentService, times(1)).enrollUser(eq(1L), eq(1));
     }
 
     @Test
@@ -56,7 +59,7 @@ class CourseServiceTest {
         when(courseRepository.findByTitle(anyString())).thenReturn(Optional.of(new Course()));
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> courseService.createCourse(request));
+        assertThrows(RuntimeException.class, () -> courseService.createCourse(request, 1));
     }
 
     @Test
@@ -73,7 +76,7 @@ class CourseServiceTest {
         });
 
         // Act
-        List<CourseResponse> imported = courseService.importFromCsv(file);
+        List<CourseResponse> imported = courseService.importFromCsv(file, 1);
 
         // Assert
         assertEquals(2, imported.size());
@@ -87,7 +90,7 @@ class CourseServiceTest {
         MockMultipartFile file = new MockMultipartFile("file", "empty.csv", "text/csv", "".getBytes());
 
         // Act
-        List<CourseResponse> imported = courseService.importFromCsv(file);
+        List<CourseResponse> imported = courseService.importFromCsv(file, 1);
 
         // Assert
         assertTrue(imported.isEmpty());

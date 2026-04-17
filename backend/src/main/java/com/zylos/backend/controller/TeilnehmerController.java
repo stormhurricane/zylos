@@ -5,8 +5,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.zylos.backend.controller.communication.NutzerWrapper;
 import com.zylos.backend.controller.communication.VeranstaltungsWrapper;
-import com.zylos.backend.model.dto.CheckTeilnahmeRequest;
-import com.zylos.backend.model.dto.TeilnahmeRequest;
 import com.zylos.backend.model.dto.TeilnahmeRequest;
 import com.zylos.backend.service.TeilnehmerService;
 

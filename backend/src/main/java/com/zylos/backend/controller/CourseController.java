@@ -5,6 +5,7 @@ import com.zylos.backend.model.dto.CourseResponse;
 import com.zylos.backend.model.dto.MaterialResponse;
 import com.zylos.backend.model.entity.CourseMaterial;
 import com.zylos.backend.service.CourseService;
+import com.zylos.backend.service.UserService;
 import com.zylos.backend.service.CourseMaterialService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
@@ -22,11 +23,13 @@ public class CourseController {
 
     private final CourseService courseService;
     private final CourseMaterialService materialService;
+    private final UserService userService;
 
 
-    public CourseController(CourseService courseService, CourseMaterialService materialService) {
+    public CourseController(CourseService courseService, CourseMaterialService materialService, UserService userService) {
         this.courseService = courseService;
         this.materialService = materialService;
+        this.userService = userService;
     }
 
     @GetMapping
@@ -42,13 +45,15 @@ public class CourseController {
     @PostMapping
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<CourseResponse> create(@Valid @RequestBody CourseRequest request) {
-        return ResponseEntity.ok(courseService.createCourse(request));
+        int currentUserId = userService.getCurrentUserId();
+        return ResponseEntity.ok(courseService.createCourse(request, currentUserId));
     }
 
     @PostMapping("/import")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<List<CourseResponse>> importCsv(@RequestParam("file") MultipartFile file) {
-        return ResponseEntity.ok(courseService.importFromCsv(file));
+        int currentUserId = userService.getCurrentUserId();
+        return ResponseEntity.ok(courseService.importFromCsv(file, currentUserId));
     }
 
      @GetMapping("/{id}/materials")
