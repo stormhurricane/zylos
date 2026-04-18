@@ -12,7 +12,6 @@ import com.zylos.backend.model.dto.EvaluationStatisticResponse;
 
 import java.time.Year;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 public class StatisticService {
@@ -44,7 +43,6 @@ public class StatisticService {
 
         double teilgenommeneNutzer = teilgenommeneStudentenIds.stream().count();
         double gesamteNutzer = 0;
-        List<Integer> alleStudentenIdsDerLVdesTests = new ArrayList<>();
         List<NutzerWrapper> listeAllerTeilnehmerDerZugehoerigenLV = teilnehmerService.erstelleTeilnehmerListeEinerLV(testService.zeigeTestAn(testId).getLvId());
         for(NutzerWrapper nw: listeAllerTeilnehmerDerZugehoerigenLV){
             if(nw.getMoeglicherStudent() != null){

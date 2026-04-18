@@ -3,11 +3,9 @@ package com.zylos.backend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.zylos.backend.database.BewertungsFeedback;
 import com.zylos.backend.model.dto.CreateEvaluationFeedbackRequest;
 import com.zylos.backend.model.dto.QuestionResponse;
 import com.zylos.backend.model.dto.EvaluationStatisticResponse;
-import com.zylos.backend.database.Frage;
 import com.zylos.backend.model.dto.CreateEvaluationAttemptRequest;
 import com.zylos.backend.model.dto.CreateCourseEvaluationRequest;
 import com.zylos.backend.service.*;

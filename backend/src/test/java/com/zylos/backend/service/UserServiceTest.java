@@ -8,7 +8,6 @@ import com.zylos.backend.model.entity.Student;
 import com.zylos.backend.repository.StudentRepository;
 import com.zylos.backend.repository.UserRepository;
 import com.zylos.backend.repository.TeacherRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -19,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;

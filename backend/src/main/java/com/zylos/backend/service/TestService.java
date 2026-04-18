@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import com.zylos.backend.controller.communication.NutzerWrapper;
 import com.zylos.backend.controller.communication.QuizWrapper;
 import com.zylos.backend.model.dto.QuestionResponse;
-import com.zylos.backend.database.Frage;
 import com.zylos.backend.database.Test;
 import com.zylos.backend.model.dto.CreateCourseEvaluationRequest;
 import com.zylos.backend.repository.TestRepository;
