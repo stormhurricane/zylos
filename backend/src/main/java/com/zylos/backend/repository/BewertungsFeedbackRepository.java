@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.zylos.backend.database.BewertungsFeedback;
-import com.zylos.backend.database.Lehrender;
 
 import java.util.List;
 

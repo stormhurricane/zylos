@@ -24,38 +24,6 @@ public class LehrveranstaltungsService {
     @Autowired
     LehrveranstaltungsRepository lehrveranstaltungsRepository;
 
-    public boolean erstelleLehrveranstaltung(int lehrenderid, VeranstaltungsWrapper veranstaltung) {
-        Lehrveranstaltung lv;
-        if (veranstaltung.getProjektgruppe() != null) {
-            lv = veranstaltung.getProjektgruppe();
-        } else {
-            lv = veranstaltung.getLehrveranstaltung();
-        }
-
-        if (!bestimmeKorrekteJahreseingabe(lv.getSemesterJahr())) {
-            return false;
-        }
-
-        boolean bereitsErstellteLV = this.ueberpruefeLehrveranstaltung(lv.getTitel(),
-                lv.getSemesterZeit(), lv.getSemesterJahr(), lv.getTyp());
-
-        if (bereitsErstellteLV) {
-            return false;
-        }
-        else {
-            // durch Save wird Objekt zurückgegeben. Zwischengespeichert, um im nächsten Schritt
-            // die ID für anlegen der teilnehmer liste zu nutzen
-            int neueId;
-            if (veranstaltung.getProjektgruppe() != null) {
-                neueId = projektgruppeService.erstelleProjektgruppe((Projektgruppe) lv).getLehrveranstaltungsID();
-            } else {
-                neueId = lehrveranstaltungsRepository.save(lv).getLehrveranstaltungsID();
-            }
-            teilnehmerService.fuegeTeilnehmerHinzu(lehrenderid, neueId);
-            return true;
-        }
-    }
-
     public List<VeranstaltungsWrapper> erzeugeLehrveranstaltungsListe() {
         List<Lehrveranstaltung> lehrveranstaltungsListe;
         lehrveranstaltungsListe = lehrveranstaltungsRepository.findAll();
@@ -96,20 +64,7 @@ public class LehrveranstaltungsService {
         return veranstaltungen;
     }
 
-    public VeranstaltungsWrapper findeLehrveranstaltung(int id) {
-        Lehrveranstaltung lv = lehrveranstaltungsRepository.findLehrveranstaltungByLehrveranstaltungsID(id);
-        if (lv != null) {
-            return new VeranstaltungsWrapper(lv);
-        }
-        else {
-            Projektgruppe pg = projektgruppeService.findeProjektGruppe(id);
-            if (pg != null ) {
-                return new VeranstaltungsWrapper(pg);
-            }
-        }
-        return null;
-    }
-
+ 
     public VeranstaltungsWrapper findeLehrveranstaltung(CourseSearchRequest request) {
         String titel = request.title();
         String semesterZeit = request.semesterTime().toUpperCase();
@@ -134,22 +89,6 @@ public class LehrveranstaltungsService {
                 return new VeranstaltungsWrapper(pg);
             }
             return null;
-        }
-    }
-
-
-    public boolean ueberpruefeLehrveranstaltung(String titel, Lehrveranstaltung.zeitEnum semesterZeit,
-                                                String semesterJahr, Lehrveranstaltung.typEnum typ) {
-        if (typ == null) {
-            Projektgruppe erstellteProjektgruppe = projektgruppeService.findeProjektGruppe(
-                    titel, semesterZeit, semesterJahr);
-            return (erstellteProjektgruppe != null) ;
-        }
-        else {
-            Lehrveranstaltung erstelleLehrveranstaltung = lehrveranstaltungsRepository
-                    .findLehrveranstaltungByTitelAndSemesterZeitAndSemesterJahrAndTyp(titel, semesterZeit,
-                            semesterJahr, typ);
-            return (erstelleLehrveranstaltung != null);
         }
     }
 

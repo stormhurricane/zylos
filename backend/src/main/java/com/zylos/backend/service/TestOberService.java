@@ -12,7 +12,6 @@ import com.zylos.backend.database.Test;
 import com.zylos.backend.model.dto.CreateTestAttemptRequest;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 @Service

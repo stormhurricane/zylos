@@ -16,8 +16,8 @@ import com.zylos.backend.service.LernkartenThemaService;
 import com.zylos.backend.service.ProjektgruppeService;
 
 import java.util.List;
-import java.util.Map;
 
+@Deprecated(since = "2024-06", forRemoval = true)
 @RestController
 @RequestMapping(path="/api/v1/lehrveranstaltung")
 public class LehrveranstaltungsController {
@@ -34,29 +34,10 @@ public class LehrveranstaltungsController {
     @Autowired
     LernkartenService lernkartenService;
 
-    // TODO: VeranstaltungsWrapper durch CourseRequest ersetzen
-    @PostMapping(path="/create/{id}")
-    public boolean erstelleLehrveranstaltung(@PathVariable("id") int lehrenderID,
-                                            @RequestBody VeranstaltungsWrapper lehrveranstaltung) {
-        return lehrveranstaltungsService.erstelleLehrveranstaltung(lehrenderID, lehrveranstaltung);
-    }
-
-    // TODO: Rückgabetyp auf CourseResponse ändern
-    @GetMapping(path="/find/{id}", produces = "application/json")
-    public VeranstaltungsWrapper findeLehrveranstaltungMitID(@PathVariable("id") int id) {
-        return lehrveranstaltungsService.findeLehrveranstaltung(id);
-    }
-
     // TODO: Map<String, String> durch CourseSearchRequest ersetzen, Rückgabe CourseResponse
     @PostMapping(path="/find", consumes = "application/json", produces = "application/json")
     public VeranstaltungsWrapper findeLehrveranstaltungMitTitel(@RequestBody CourseSearchRequest suchDaten) {
         return lehrveranstaltungsService.findeLehrveranstaltung(suchDaten);
-    }
-
-    // TODO: Rückgabetyp auf List<CourseResponse> ändern
-    @GetMapping(path= "/all")
-    public List<VeranstaltungsWrapper> zeigeAlleLehrveranstaltungen(){
-        return lehrveranstaltungsService.erzeugeLehrveranstaltungsListe();
     }
 
     // --- TODO: Auslagern in ProjektgruppeController ---

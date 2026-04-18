@@ -2,7 +2,7 @@ name: Continuous Integration
 
 on:
   push:
-    branches: [ main, "**" ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -25,7 +25,7 @@ jobs:
         run: npm run lint || echo "No lint script found"
         working-directory: ./frontend
       - name: Run Tests
-        run: npm test || echo "No test script found"
+        run: npm test
         working-directory: ./frontend
 
   backend-ci:

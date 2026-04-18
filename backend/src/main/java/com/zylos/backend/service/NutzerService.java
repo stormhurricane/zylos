@@ -59,24 +59,9 @@ public class NutzerService {
         return null;
     }
 
-    public List<Integer> findeStudenten(Map<String, String> suchDaten) {
-        List<Integer> studentList = new ArrayList<>();
-        if(suchDaten.get("matrikelnummer") != null){
-            int matrikelnummer = Integer.parseInt(suchDaten.get("matrikelnummer"));
-            studentList.add(studentService.findeStudentMitMatrikelnummer(matrikelnummer).getId());
-        } else {
-            for(Student_old student : studentService.gibAlleStudenten()){
-                if(student.getVorname().equals(suchDaten.get("vorname")) && student.getNachname().equals(suchDaten.get("nachname"))){
-                    studentList.add(student.getId());
-                }
-            }
-        }
-        return studentList;
-    }
-
-
     //Erste Zahl steht für nutzerID, -1 bei Fehlschlag
     //Zweite Zahl ist Rolle mit -1 = Lehrender, 1 = Student, 0 = Fehlschlag
+    @SuppressWarnings("unused")
     public int[] versucheLogin(Map<String, String> loginDaten) {
         if (loginDaten.containsKey("matrikelnummer")) {
             Student_old einloggenderStudent = null;

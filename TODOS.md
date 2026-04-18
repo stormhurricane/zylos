@@ -42,45 +42,53 @@ Dieses TODO-Dokument beschreibt die Schritte zur Migration des Projekts:
 - [X] **Datenbank-Anbindung**: MySQL Docker-Container angebunden
 - [X] **Umgebungs-Trennung**: Gelöst via src/test/resources und Docker-Env-Overrides
 
-## 3. API-Stabilisierung (Der "Vertrag")
-- [ ] **Java 21 Records**: Erstelle Records als DTOs für alle `Map`-basierten Endpunkte
+## 3. Architektur-Vorbereitung
+- [ ] **DTO-Standard**: Festlegen von Java 21 Records für konsistente API-Antworten (Weg von `Map<String, String>`)
 - [ ] **SpringDoc**: Dependency `springdoc-openapi-starter-webmvc-ui` hinzufügen
 - [ ] **Swagger-UI**: API unter `/swagger-ui.html` verifizieren
-- [ ] **Contract-Check**: Alle Endpunkte aus `API-Endpoints.md` prüfen
+- [X] **Frontend-Setup**: Basis-Projekt mit **Vite + React + TypeScript** aufsetzen
+- [ ] **Global Exception Handling**: `@ControllerAdvice` im Backend für saubere Fehler-Responses
 
+## 4. Vertikale Migration (Feature-Slices)
+*Vorgehen pro Modul: Backend Refactor (Service/Repo) → API/DTO Design → Frontend Integration*
 
-## 4. H2-Testdaten und Tests verbessern
+- [X] **Slice 1: Nutzerverwaltung & Auth**
+    - [X] Backend: Login-Logik von IDs auf JWT/Session umstellen
+    - [X] API: `/api/v1/nutzer/login` und `/register` stabilisieren
+    - [X] Frontend: Login-Seite und Registrierung
+- [ ] **Slice 2: Lehrveranstaltungen & Materialien**
+    - Backend: Suche und Kurslisten-Logik refactoren
+    - API: `GET /lehrveranstaltung/all` und `/view/{id}`
+    - Frontend: Dashboard und Kurs-Detailansicht
+- [ ] **Slice 3: Freundschaftssystem & Kommunikation**
+    - Backend: `FreundschaftService` aufräumen (Weg mit "dirty" Logik)
+    - API: V2 Endpunkte für Requests und Chat
+    - Frontend: Freundesliste und Messenger-UI
+- [ ] **Slice 4: Projektgruppen & Aufgaben**
+    - Backend: ToDo-Logik und Teilnehmerlisten
+    - API: V1 Endpunkte `/lehrveranstaltung/todo/*`
+    - Frontend: Gruppen-Ansicht mit Task-Board
+- [ ] **Slice 5: Lernsystem (Quiz & Kalender)**
+    - Backend: Quiz-Logik und Termin-Erinnerungen
+    - API: V2 Kalender und Quiz-Endpoints
+    - Frontend: Kalender-Widget und Quiz-Interface
+
+## 5. H2-Testdaten und Tests (begleitend)
 - [ ] Test-Konfiguration: src/test/resources/application.properties (H2 in-memory)
-- [ ] Schema und Daten: schema.sql und data.sql in test/resources
-- [ ] Integrationstests schreiben: @SpringBootTest mit Testdaten
-- [ ] Unit-Tests erweitern: Mockito für Services/Repos
+- [ ] Integrationstests: Pro Slice einen `@SpringBootTest` mit Testdaten
 
-## 5. Backend-Refactor und Verbesserungen
-- [ ] Layered Architecture: Controller → Service → Repository
-- [ ] Restliche DTOs einführen: Konsistente Datenmodelle für alle Endpunkte
-- [ ] Exception Handling: Global @ControllerAdvice
-- [ ] Spring Security: Falls vorhanden, auf Lambda-basierte Konfiguration (Security 6) umstellen
-- [ ] Tests an neue Architektur anpassen: Mockito (Version 5+) für neue Service-Layer
-- [ ] Security: JWT oder Session-Management
-- [ ] Monitoring: Spring Actuator (health, metrics)
-
-## 6. Frontend in JavaScript umschreiben
-- [ ] Framework wählen: React/Vue/Svelte + TypeScript
-- [ ] Scaffold erstellen: `npm create vite@latest frontend --template react-ts`
-- [ ] API-Integration: Axios/Fetch für Backend-APIs
-- [ ] Komponenten portieren: Schrittweise (Login, Kursliste, etc.)
-- [ ] UI/UX: Web-native Design (nicht 1:1 JavaFX)
-
-## 7. Dockerization
+## 6. Dockerization
 - [ ] Backend-Dockerfile: Multistage (Maven build + **JRE 21** run)
 - [ ] Frontend-Dockerfile: Node build + NGINX serve
 - [ ] docker-compose.yml: Services für backend, frontend, db (H2 oder Postgres)
+- [ ] **Environment-Config**: `.env` Dateien für Frontend-API-URL und Backend-DB-Secrets finalisieren
 - [ ] Test: `docker compose up` und API/UI checken
 
 ## 8. Finale Schritte
 - [ ] CI/CD einrichten: GitHub Actions oder ähnlich (build, test, deploy)
 - [ ] Dokumentation: README.md erweitern mit Setup, API-Docs
 - [ ] Testsuite vollständig: >80% Coverage
+- [ ] **Linting & Code Style**: Konfiguration von ESLint/Prettier (Frontend) und Checkstyle (Backend)
 - [ ] Deployment: Container in Cloud (z.B. Heroku, AWS)
 
 ## Notizen
@@ -89,4 +97,4 @@ Dieses TODO-Dokument beschreibt die Schritte zur Migration des Projekts:
 - **Zeitplan:** Schätze 4-6 Wochen für alles, je nach Komplexität.
 - **Abbruchpunkte:** Wenn Maven-Migration scheitert, Gradle behalten und nur refactoren.
 
-Aktualisiert: 3. April 2026
+Aktualisiert: 11. April 2026

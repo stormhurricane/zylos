@@ -4,7 +4,6 @@ package com.zylos.backend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.zylos.backend.database.ArbeitsThema;
 import com.zylos.backend.model.dto.TopicResponse;
 import com.zylos.backend.model.dto.CreateTopicRequest;
 import com.zylos.backend.service.TopicService;

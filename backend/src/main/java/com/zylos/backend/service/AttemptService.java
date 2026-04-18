@@ -10,7 +10,6 @@ import com.zylos.backend.database.Versuch;
 import com.zylos.backend.repository.VersuchRepository;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class AttemptService {

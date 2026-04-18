@@ -7,7 +7,6 @@ import com.zylos.backend.database.Lehrender;
 import com.zylos.backend.repository.LehrenderRepository;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service

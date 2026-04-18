@@ -30,10 +30,6 @@ public class ProjektgruppeService {
         return projektgruppeRepository.save(lv);
     }
 
-    public Projektgruppe findeProjektGruppe(int id) {
-        return projektgruppeRepository.findProjektgruppeByLehrveranstaltungsID(id);
-    }
-
     public List<ProjektgruppenNachricht> zeigeGruppenchat(int pgId) {
         return projektgruppenNachrichtService.zeigeAlleNachrichtenEinerProjektugruppe(pgId);
     }

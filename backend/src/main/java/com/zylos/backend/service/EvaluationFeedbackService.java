@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 
 import com.zylos.backend.model.dto.CreateEvaluationFeedbackRequest;
 import com.zylos.backend.database.BewertungsFeedback;
-import com.zylos.backend.database.Frage;
 import com.zylos.backend.database.Versuch;
 import com.zylos.backend.repository.BewertungsFeedbackRepository;
 
