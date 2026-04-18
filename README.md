@@ -1,6 +1,7 @@
 # Zylos - Projektmanagement & Lernplattform
 
 ![CI Status](https://github.com/stormhurricane/zylos/actions/workflows/ci.yml/badge.svg)
+![Code Coverage](https://codecov.io/gh/stormhurricane/zylos/branch/main/graph/badge.svg)
 
 Zylos ist eine moderne Fullstack-Webanwendung zur Organisation von Lehrveranstaltungen, Projektgruppen und Lernmaterialien. Das Projekt wird aktuell von einer JavaFX-Desktop-Anwendung zu einer zeitgemäßen Web-Architektur migriert.
 
