@@ -2,14 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { ProfileResponse } from '../api/types';
+import { courseApi, Course } from '../api/courseApi';
 import { Navbar } from '../components/Navbar';
+import { useAuth } from '../context/AuthContext';
 
 const DEFAULT_AVATAR = "https://ui-avatars.com/api/?background=4CAF50&color=fff&name=";
 
 export const Profile = () => {
     const { id } = useParams<{ id: string }>();
     const [profile, setProfile] = useState<ProfileResponse | null>(null);
+    const [courses, setCourses] = useState<Course[]>([]);
     const [loading, setLoading] = useState(true);
+    const { user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -28,10 +32,21 @@ export const Profile = () => {
         fetchProfile();
     }, [id]);
 
+    const currentUserId = user?.userId;
+
+    useEffect(() => {
+        const isOwn = !id || String(id) === String(currentUserId);
+        if (isOwn) { // Nur Kurse laden, wenn es das eigene Profil ist
+            courseApi.getMyCourses()
+                .then(res => setCourses(res.data))
+                .catch(err => console.error("Fehler beim Laden der Profil-Kurse", err));
+        }
+    }, [id, currentUserId]);
+
     if (loading) return <div style={{ padding: '20px' }}>Lädt...</div>;
     if (!profile) return <div style={{ padding: '20px' }}>Profil nicht gefunden.</div>;
 
-    const isOwnProfile = !id;
+    const isOwnProfile = !id || String(id) === String(currentUserId);
 
     return (
         <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-light)' }}>
@@ -98,6 +113,32 @@ export const Profile = () => {
                         </div>
                     </div>
                 </div>
+
+                {isOwnProfile && (
+                    <div className="auth-card" style={{ maxWidth: '100%', marginTop: '30px' }}>
+                        <h2 style={{ marginBottom: '20px', color: 'var(--color-primary)' }}>Meine Kurse</h2>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '15px' }}>
+                            {courses.length > 0 ? courses.map(course => (
+                                <div 
+                                    key={course.id} 
+                                    onClick={() => navigate(`/courses/${course.id}`)}
+                                    style={{ 
+                                        padding: '15px', 
+                                        border: '1px solid #eee', 
+                                        borderRadius: '8px', 
+                                        cursor: 'pointer',
+                                        backgroundColor: '#f9fafb'
+                                    }}
+                                >
+                                    <div style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>{course.title}</div>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{course.term} {course.academicYear}</div>
+                                </div>
+                            )) : (
+                                <p style={{ color: 'var(--text-muted)' }}>Du bist noch in keinen Kursen eingeschrieben.</p>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

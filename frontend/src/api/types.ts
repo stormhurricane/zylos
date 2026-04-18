@@ -2,6 +2,7 @@ export type UserRole = 'STUDENT' | 'TEACHER';
 
 export interface AuthResponse {
     accessToken: string;
+    userId: number;
     role: UserRole;
     firstName: string;
     lastName: string;

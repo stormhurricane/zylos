@@ -78,7 +78,7 @@ public class UserService {
             Student student = studentOpt.get();
             if (passwordEncoder.matches(request.password(), student.getPassword())) {
                 String token = jwtService.generateToken(student.getEmail(), Map.of("role", "STUDENT", "userId", student.getId()));
-                return new AuthResponse(token, "STUDENT", student.getFirstName(), student.getLastName());
+                return new AuthResponse(token, student.getId(), "STUDENT", student.getFirstName(), student.getLastName());
             }
         }
 
@@ -88,7 +88,7 @@ public class UserService {
             Teacher teacher = teacherOpt.get();
             if (passwordEncoder.matches(request.password(), teacher.getPassword())) {
                 String token = jwtService.generateToken(teacher.getEmail(), Map.of("role", "TEACHER", "userId", teacher.getId()));
-                return new AuthResponse(token, "TEACHER", teacher.getFirstName(), teacher.getLastName());
+                return new AuthResponse(token, teacher.getId(), "TEACHER", teacher.getFirstName(), teacher.getLastName());
             }
         }
 

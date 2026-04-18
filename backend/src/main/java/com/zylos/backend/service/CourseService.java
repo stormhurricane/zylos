@@ -5,6 +5,8 @@ import com.zylos.backend.model.dto.CourseResponse;
 import com.zylos.backend.model.entity.Course;
 import com.zylos.backend.model.entity.CourseType;
 import com.zylos.backend.model.entity.SemesterTerm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.zylos.backend.repository.CourseRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class CourseService {
 
+    private static final Logger logger = LoggerFactory.getLogger(CourseService.class);
     private final CourseRepository courseRepository;
     private final EnrollmentService enrollmentService;
 
@@ -39,6 +42,16 @@ public class CourseService {
         enrollmentService.enrollUser(savedCourse.getId(), creatorId);
         
         return mapToResponse(savedCourse);
+    }
+
+    public CourseResponse getCourseById(Long id) {
+        logger.info("Service: Fetching course details for ID: {}", id);
+        return courseRepository.findById(id)
+                .map(this::mapToResponse)
+                .orElseThrow(() -> {
+                    logger.error("Service: Course with ID {} not found in database", id);
+                    return new RuntimeException("Course not found");
+                });
     }
 
     public List<CourseResponse> getAllCourses() {

@@ -1,10 +1,14 @@
 package com.zylos.backend.controller;
 
 import com.zylos.backend.model.dto.CourseParticipantsResponse;
+import com.zylos.backend.model.dto.EnrollmentRequest;
 import com.zylos.backend.service.EnrollmentService;
 import com.zylos.backend.service.UserService;
 import com.zylos.backend.model.dto.CourseResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +17,7 @@ import java.util.List;
 @RequestMapping("/api/courses")
 public class EnrollmentController {
 
+    private static final Logger logger = LoggerFactory.getLogger(EnrollmentController.class);
     private final EnrollmentService enrollmentService;
     private final UserService userService;
 
@@ -35,8 +40,16 @@ public class EnrollmentController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{courseId}/participants")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
+    public ResponseEntity<Void> addParticipant(@PathVariable Long courseId, @RequestBody EnrollmentRequest request) {
+        enrollmentService.enrollUser(courseId, request.userId());
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/{courseId}/participants")
     public ResponseEntity<CourseParticipantsResponse> getParticipants(@PathVariable Long courseId) {
+        logger.info("Fetching participants for course ID: {}", courseId);
         return ResponseEntity.ok(enrollmentService.getCategorizedParticipants(courseId));
     }
 
