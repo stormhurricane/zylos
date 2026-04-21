@@ -60,8 +60,7 @@ public class UserController {
 
     @PutMapping("/me")
     public ResponseEntity<Void> updateProfile(@RequestBody ProfileUpdateRequest request) {
-        // Die ID wird hier nicht mehr vom Client geschickt, sondern 
-        // sicher vom Service aus dem SecurityContext ermittelt.
+        // User ID not sent by client, but securely determined by service from SecurityContext.
         int currentUserId = userService.getCurrentUserId();
         boolean updated = userService.updateProfile(currentUserId, request);
 

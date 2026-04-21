@@ -66,30 +66,16 @@ public class UserService {
     public AuthResponse login(LoginRequest request) {
         String identifier = request.identifier();
 
-        // 1. Versuch: Student via Matrikelnummer
-        Optional<Student> studentOpt = studentRepository.findByMatriculationNumber(identifier);
+        // Try finding as student by matriculation number, otherwise find any user by email
+        User user = studentRepository.findByMatriculationNumber(identifier)
+                .map(User.class::cast)
+                .orElseGet(() -> findUserByEmail(identifier).orElse(null));
 
-        // 2. Versuch: Student via Email (falls 1. nicht erfolgreich)
-        if (studentOpt.isEmpty()) {
-            studentOpt = studentRepository.findByEmail(identifier);
-        }
-
-        if (studentOpt.isPresent()) {
-            Student student = studentOpt.get();
-            if (passwordEncoder.matches(request.password(), student.getPassword())) {
-                String token = jwtService.generateToken(student.getEmail(), Map.of("role", "STUDENT", "userId", student.getId()));
-                return new AuthResponse(token, student.getId(), "STUDENT", student.getFirstName(), student.getLastName());
-            }
-        }
-
-        // 3. Versuch: Lehrender via Email
-        Optional<Teacher> teacherOpt = teacherRepository.findByEmail(identifier);
-        if (teacherOpt.isPresent()) {
-            Teacher teacher = teacherOpt.get();
-            if (passwordEncoder.matches(request.password(), teacher.getPassword())) {
-                String token = jwtService.generateToken(teacher.getEmail(), Map.of("role", "TEACHER", "userId", teacher.getId()));
-                return new AuthResponse(token, teacher.getId(), "TEACHER", teacher.getFirstName(), teacher.getLastName());
-            }
+        if (user != null && passwordEncoder.matches(request.password(), user.getPassword())) {
+            String role = (user instanceof Teacher) ? "TEACHER" : "STUDENT";
+            String token = jwtService.generateToken(user.getEmail(), Map.of("role", role, "userId", user.getId()));
+            
+            return new AuthResponse(token, user.getId(), role, user.getFirstName(), user.getLastName());
         }
 
         throw new IllegalArgumentException("Invalid email or password");
@@ -147,15 +133,10 @@ public class UserService {
     }
 
     public List<ProfileResponse> searchUsers(String searchTerm) {
-        List<ProfileResponse> results = new ArrayList<>();
-
-        studentRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchTerm, searchTerm)
-                .forEach(s -> results.add(convertToResponse(s, false)));
-
-        teacherRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchTerm, searchTerm)
-                .forEach(t -> results.add(convertToResponse(t, false)));
-
-        return results;
+        return userRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchTerm, searchTerm)
+                .stream()
+                .map(user -> convertToResponse(user, false))
+                .toList();
     }
 
     private ProfileResponse convertToResponse(User user, boolean includeSensitiveData) {
@@ -186,9 +167,8 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found in context"));
     }
 
-    // TODO refactor: possible restructuring for userRepository to avoid duplicate email checks across student and teacher repositories
     private void validateEmailUniqueness(String email) {
-        if (studentRepository.existsByEmail(email) || teacherRepository.existsByEmail(email)) {
+        if (findUserByEmail(email).isPresent()) {
             throw new IllegalArgumentException("Email already in use");
         }
     }

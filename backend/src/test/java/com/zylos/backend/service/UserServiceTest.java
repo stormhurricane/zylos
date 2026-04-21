@@ -5,6 +5,7 @@ import com.zylos.backend.model.dto.LoginRequest;
 import com.zylos.backend.model.dto.ProfileResponse;
 import com.zylos.backend.model.dto.StudentRegistrationRequest;
 import com.zylos.backend.model.entity.Student;
+import com.zylos.backend.model.entity.Teacher;
 import com.zylos.backend.repository.StudentRepository;
 import com.zylos.backend.repository.UserRepository;
 import com.zylos.backend.repository.TeacherRepository;
@@ -49,8 +50,6 @@ class UserServiceTest {
                 "Max", "Mustermann", "password", "max@test.de", null, "Address", "IT"
         );
         
-        when(studentRepository.existsByEmail(anyString())).thenReturn(false);
-        when(teacherRepository.existsByEmail(anyString())).thenReturn(false);
         when(studentRepository.findMaxMatriculationNumber()).thenReturn(Optional.of("1000005"));
         when(passwordEncoder.encode(anyString())).thenReturn("hashedPassword");
 
@@ -60,6 +59,7 @@ class UserServiceTest {
         // Then
         ArgumentCaptor<Student> studentCaptor = ArgumentCaptor.forClass(Student.class);
         verify(studentRepository).save(studentCaptor.capture());
+        verify(userRepository).findByEmail(request.email()); // Überprüfe den Aufruf für die E-Mail-Einzigartigkeit
         
         Student savedStudent = studentCaptor.getValue();
         assertEquals("1000006", savedStudent.getMatriculationNumber());
@@ -74,8 +74,6 @@ class UserServiceTest {
                 "Max", "Mustermann", "password", "max@test.de", null, "Address", "IT"
         );
 
-        when(studentRepository.existsByEmail(anyString())).thenReturn(false);
-        when(teacherRepository.existsByEmail(anyString())).thenReturn(false);
         // Simulieren einer leeren Tabelle
         when(studentRepository.findMaxMatriculationNumber()).thenReturn(Optional.empty());
         when(passwordEncoder.encode(anyString())).thenReturn("hashedPassword");
@@ -86,6 +84,7 @@ class UserServiceTest {
         // Then
         ArgumentCaptor<Student> studentCaptor = ArgumentCaptor.forClass(Student.class);
         verify(studentRepository).save(studentCaptor.capture());
+        verify(userRepository).findByEmail(request.email()); // Überprüfe den Aufruf für die E-Mail-Einzigartigkeit
         assertEquals("1000000", studentCaptor.getValue().getMatriculationNumber());
     }
 
@@ -96,11 +95,9 @@ class UserServiceTest {
                 "Max", "Mustermann", "password", "duplicate@test.de", null, "Address", "IT"
         );
 
-        // Email existiert bereits im TeacherRepository
-        when(studentRepository.existsByEmail("duplicate@test.de")).thenReturn(false);
-        when(teacherRepository.existsByEmail("duplicate@test.de")).thenReturn(true);
+        // Email existiert bereits
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(new Student()));
 
-        // When & Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             userService.registerStudent(request);
         });
@@ -116,8 +113,6 @@ class UserServiceTest {
                 "Max", "Mustermann", "password", "max@test.de", null, "Address", "IT"
         );
 
-        when(studentRepository.existsByEmail(anyString())).thenReturn(false);
-        when(teacherRepository.existsByEmail(anyString())).thenReturn(false);
         // Höchste Nummer ist am Limit
         when(studentRepository.findMaxMatriculationNumber()).thenReturn(Optional.of("9999999"));
 
@@ -133,7 +128,34 @@ class UserServiceTest {
         LoginRequest loginRequest = new LoginRequest(matNr, "password123");
         Student student = new Student("Max", "Mustermann", "max@test.de", "Address", "hashedPassword", null, matNr, "IT");
 
+        // Mocken des Aufrufs über Matrikelnummer
         when(studentRepository.findByMatriculationNumber(matNr)).thenReturn(Optional.of(student));
+        when(passwordEncoder.matches("password123", "hashedPassword")).thenReturn(true);
+        when(jwtService.generateToken(anyString(), anyMap())).thenReturn("fake-jwt-token");
+
+        // When
+        AuthResponse response = userService.login(loginRequest);
+        
+        // Then
+        assertEquals("STUDENT", response.role());
+        assertEquals("fake-jwt-token", response.accessToken());
+        assertEquals("Max", response.firstName());
+        
+        // Verifizieren, dass der Service zuerst das Repository für Matrikelnummern nutzt
+        verify(studentRepository).findByMatriculationNumber(matNr);
+        verify(userRepository, never()).findByEmail(anyString()); // Email-Suche sollte nicht stattfinden
+    }
+
+    @Test
+    void login_WithEmailForStudent_ShouldReturnAuthResponse() {
+        // Given
+        String email = "max@test.de";
+        LoginRequest loginRequest = new LoginRequest(email, "password123");
+        Student student = new Student("Max", "Mustermann", email, "Address", "hashedPassword", null, "1234567", "IT");
+
+        // Mocken der Email-Suche für Student
+        when(studentRepository.findByMatriculationNumber(email)).thenReturn(Optional.empty()); // Keine Matrikelnummer
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(student));
         when(passwordEncoder.matches("password123", "hashedPassword")).thenReturn(true);
         when(jwtService.generateToken(anyString(), anyMap())).thenReturn("fake-jwt-token");
 
@@ -144,9 +166,33 @@ class UserServiceTest {
         assertEquals("STUDENT", response.role());
         assertEquals("fake-jwt-token", response.accessToken());
         assertEquals("Max", response.firstName());
-        
-        // Verifizieren, dass der Service zuerst das Repository für Matrikelnummern nutzt
-        verify(studentRepository).findByMatriculationNumber(matNr);
+
+        verify(studentRepository).findByMatriculationNumber(email); // Muss versuchen als Matrikelnummer
+        verify(userRepository).findByEmail(email); // Muss dann als Email suchen
+    }
+
+    @Test
+    void login_WithEmailForTeacher_ShouldReturnAuthResponse() {
+        // Given
+        String email = "prof@test.de";
+        LoginRequest loginRequest = new LoginRequest(email, "password123");
+        Teacher teacher = new Teacher("Prof.", "Lehrer", email, "Address", "hashedPassword", null, "Research", "Chair");
+
+        // Mocken der Email-Suche für Teacher
+        when(studentRepository.findByMatriculationNumber(email)).thenReturn(Optional.empty()); // Keine Matrikelnummer
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(teacher));
+        when(passwordEncoder.matches("password123", "hashedPassword")).thenReturn(true);
+        when(jwtService.generateToken(anyString(), anyMap())).thenReturn("fake-jwt-token");
+
+        // When
+        AuthResponse response = userService.login(loginRequest);
+
+        // Then
+        assertEquals("TEACHER", response.role());
+        assertEquals("fake-jwt-token", response.accessToken());
+        assertEquals("Prof.", response.firstName());
+
+        verify(studentRepository).findByMatriculationNumber(email); // Muss versuchen als Matrikelnummer
         verify(studentRepository, never()).findByEmail(anyString());
     }
 
@@ -186,10 +232,8 @@ class UserServiceTest {
         String searchTerm = "Max";
         Student student = new Student("Max", "Mustermann", "max@test.de", "Geheimweg 1", "pass", null, "1234567", "IT");
         
-        when(studentRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchTerm, searchTerm))
+        when(userRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchTerm, searchTerm))
                 .thenReturn(List.of(student));
-        when(teacherRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchTerm, searchTerm))
-                .thenReturn(List.of());
 
         // When
         List<ProfileResponse> results = userService.searchUsers(searchTerm);
@@ -198,6 +242,6 @@ class UserServiceTest {
         assertEquals(1, results.size());
         assertEquals("Max", results.get(0).firstName());
         assertNull(results.get(0).privateAddress());
-        verify(studentRepository).findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchTerm, searchTerm);
+        verify(userRepository).findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchTerm, searchTerm);
     }
 }

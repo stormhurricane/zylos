@@ -1,4 +1,4 @@
-# Zylos - Projektmanagement & Lernplattform
+# Zylos - Lernplattform
 
 ![CI Status](https://github.com/stormhurricane/zylos/actions/workflows/ci.yml/badge.svg)
 ![Code Coverage](https://codecov.io/gh/stormhurricane/zylos/branch/main/graph/badge.svg)

@@ -23,7 +23,7 @@ import java.util.List;
 @RequestMapping("/api/courses")
 public class CourseController {
 
-    private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
+    // private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
     private final CourseService courseService;
     private final CourseMaterialService materialService;
     private final UserService userService;
@@ -42,7 +42,7 @@ public class CourseController {
 
     @GetMapping("/{id}")
     public ResponseEntity<CourseResponse> getCourseById(@PathVariable Long id) {
-        logger.info("Fetching details for course ID: {}", id);
+        // logger.info("Fetching details for course ID: {}", id);
         return ResponseEntity.ok(courseService.getCourseById(id));
     }
 
@@ -54,7 +54,7 @@ public class CourseController {
     @PostMapping
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<CourseResponse> create(@Valid @RequestBody CourseRequest request) {
-        logger.info("Received request to create course: {}", request.title());
+        // logger.info("Received request to create course: {}", request.title());
         int currentUserId = userService.getCurrentUserId();
         return ResponseEntity.ok(courseService.createCourse(request, currentUserId));
     }
@@ -68,7 +68,7 @@ public class CourseController {
 
      @GetMapping("/{id}/materials")
     public ResponseEntity<List<MaterialResponse>> getMaterials(@PathVariable Long id) {
-        logger.info("Fetching materials for course ID: {}", id);
+        // logger.info("Fetching materials for course ID: {}", id);
         return ResponseEntity.ok(materialService.getMaterialsByCourse(id));
     }
 
@@ -87,6 +87,7 @@ public class CourseController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + material.getFileName() + "\"")
                 .header(HttpHeaders.CONTENT_TYPE, material.getContentType())
+                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(material.getData().length))
                 .body(material.getData());
     }
 }

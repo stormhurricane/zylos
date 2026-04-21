@@ -76,8 +76,8 @@ public class ReminderService {
     }
 
 
-    @Scheduled(fixedDelay = 60000)
-    @Async
+    // @Scheduled(fixedDelay = 60000)
+    // @Async
     public void sucheFaelligeEmailReminder(){
         LocalDate currentDate = LocalDate.now();
         LocalTime currentTime = LocalTime.now();

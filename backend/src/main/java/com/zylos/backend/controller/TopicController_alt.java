@@ -6,18 +6,18 @@ import org.springframework.web.bind.annotation.*;
 
 import com.zylos.backend.model.dto.TopicResponse;
 import com.zylos.backend.model.dto.CreateTopicRequest;
-import com.zylos.backend.service.TopicService;
+import com.zylos.backend.service.TopicService_alt;
 
 import java.util.List;
 
 @RestController
 @RequestMapping(path="api/v3/topic") //TODO: path anpassen /api/topics
-public class TopicController {
+public class TopicController_alt {
 
-    private final TopicService topicService;
+    private final TopicService_alt topicService;
 
     @Autowired
-    public TopicController(TopicService topicService) {
+    public TopicController_alt(TopicService_alt topicService) {
         this.topicService = topicService;
     }
 

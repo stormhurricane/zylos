@@ -10,11 +10,11 @@ import com.zylos.backend.repository.ArbeitsThemaRepository;
 import java.util.List;
 
 @Service
-public class TopicService {
+public class TopicService_alt {
 
     private final ArbeitsThemaRepository topicRepository;
 
-    public TopicService(ArbeitsThemaRepository topicRepository) {
+    public TopicService_alt(ArbeitsThemaRepository topicRepository) {
         this.topicRepository = topicRepository;
     }
 
