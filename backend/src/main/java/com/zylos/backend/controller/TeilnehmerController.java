@@ -13,6 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(path="api/v1/teilnehmerliste")
+@Deprecated(since = "2026-04", forRemoval = true)
 public class TeilnehmerController {
 
     // Aufteilung: Teils für Erzeugen und Löschen von Teilnehmern, Abfragen in den Nutzer oder VeranstaltungsController

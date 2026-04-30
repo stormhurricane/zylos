@@ -49,7 +49,7 @@ public class EnrollmentController {
 
     @GetMapping("/{courseId}/participants")
     public ResponseEntity<CourseParticipantsResponse> getParticipants(@PathVariable Long courseId) {
-        logger.info("Fetching participants for course ID: {}", courseId);
+        // logger.info("Fetching participants for course ID: {}", courseId);
         return ResponseEntity.ok(enrollmentService.getCategorizedParticipants(courseId));
     }
 

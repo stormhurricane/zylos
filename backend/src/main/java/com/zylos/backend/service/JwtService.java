@@ -13,7 +13,7 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    // In production, load this from environment variables
+    //TODO:  In production, load this from environment variables
     private static final String SECRET = "your-very-secure-and-long-secret-key-for-doodle-project-2024";
     private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes());
     private final long expirationTime = 86400000; // 24 hours

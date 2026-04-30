@@ -87,6 +87,8 @@ public class CourseService {
                     try {
                         results.add(createCourse(request, creatorId));
                     } catch (Exception e) {
+                        // TODO: Log the error for this line, but continue processing the rest of the file
+                        // TODO/IDEA: Consider collecting errors in a list and returning them in the response, so the user knows which lines failed and why
                         // Skip duplicates or errors in CSV, but continue processing
                     }
                 }

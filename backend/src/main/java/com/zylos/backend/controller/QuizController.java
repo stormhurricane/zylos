@@ -16,6 +16,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(path="api/v2/quiz")
+@Deprecated(since = "2026-04", forRemoval = true)
 public class QuizController {
 
    @Autowired

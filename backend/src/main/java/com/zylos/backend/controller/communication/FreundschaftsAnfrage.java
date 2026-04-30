@@ -1,5 +1,6 @@
 package com.zylos.backend.controller.communication;
 
+@Deprecated(since = "2026-04", forRemoval = true)
 public class FreundschaftsAnfrage {
 
 

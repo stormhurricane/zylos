@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path="api/v2/privatechat")
+@Deprecated(since = "2026-04", forRemoval = true)
 public class PrivateChatController {
 
     @Autowired

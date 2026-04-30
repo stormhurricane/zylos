@@ -67,7 +67,7 @@ public class UserService {
         String identifier = request.identifier();
 
         // Try finding as student by matriculation number, otherwise find any user by email
-        User user = studentRepository.findByMatriculationNumber(identifier)
+        User user = findStudentByMatriculationNumber(identifier)
                 .map(User.class::cast)
                 .orElseGet(() -> findUserByEmail(identifier).orElse(null));
 
@@ -137,6 +137,10 @@ public class UserService {
                 .stream()
                 .map(user -> convertToResponse(user, false))
                 .toList();
+    }
+
+    public Optional<Student> findStudentByMatriculationNumber(String matriculationNumber) {
+        return studentRepository.findByMatriculationNumber(matriculationNumber);
     }
 
     private ProfileResponse convertToResponse(User user, boolean includeSensitiveData) {

@@ -13,6 +13,7 @@ import com.zylos.backend.service.*;
 import java.util.List;
 
 @RestController
+@Deprecated(since = "2026-04", forRemoval = true)
 @RequestMapping(path="api/v3/lvBewertung") // Todo : evtl. in api/courseEvaluation umbenennen
 public class CourseEvaluationController {
 

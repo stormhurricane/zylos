@@ -9,6 +9,7 @@ import com.zylos.backend.service.UserService;
 import com.zylos.backend.service.CourseMaterialService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ContentDisposition;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -77,15 +78,20 @@ public class CourseController {
     public ResponseEntity<MaterialResponse> uploadMaterial(
             @PathVariable Long id,
             @RequestParam("title") String title,
-            @RequestParam("file") MultipartFile file) throws IOException {
+            @RequestPart("file") MultipartFile file) throws IOException {
         return ResponseEntity.ok(materialService.uploadMaterial(id, title, file));
     }
 
     @GetMapping("/materials/{materialId}/download")
     public ResponseEntity<byte[]> downloadMaterial(@PathVariable Long materialId) {
         CourseMaterial material = materialService.getMaterialEntity(materialId);
+        
+        ContentDisposition contentDisposition = ContentDisposition.attachment()
+                .filename(material.getFileName())
+                .build();
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + material.getFileName() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
                 .header(HttpHeaders.CONTENT_TYPE, material.getContentType())
                 .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(material.getData().length))
                 .body(material.getData());

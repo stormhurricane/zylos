@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.zylos.backend.database.ChatNachricht;
 
+@Deprecated(since = "2026-04", forRemoval = true)
 public class ChatWrapper {
 
     private int chatId;

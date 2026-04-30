@@ -11,6 +11,7 @@ import com.zylos.backend.service.TopicService_alt;
 import java.util.List;
 
 @RestController
+@Deprecated(since = "2026-04", forRemoval = true)
 @RequestMapping(path="api/v3/topic") //TODO: path anpassen /api/topics
 public class TopicController_alt {
 

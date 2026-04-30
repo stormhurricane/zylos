@@ -1,7 +1,7 @@
 package com.zylos.backend.controller.communication;
 
 import java.util.Map;
-
+@Deprecated(since = "2026-04", forRemoval = true)
 public class StatistikWrapper {
 
     private double teilnahmequote;

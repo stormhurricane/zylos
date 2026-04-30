@@ -3,7 +3,7 @@ package com.zylos.backend.controller.communication;
 import java.util.List;
 
 import com.zylos.backend.database.Frage;
-
+@Deprecated(since = "2026-04", forRemoval = true)
 public class QuizWrapper {
 
     private int lvId;
