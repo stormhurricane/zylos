@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zylos.backend.model.dto.LoginRequest;
 import com.zylos.backend.model.dto.StudentRegistrationRequest;
 import com.zylos.backend.model.entity.Student;
-import com.zylos.backend.repository.StudentRepository;
 import com.zylos.backend.repository.UserRepository;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -23,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional // Ensures that each test runs in a transaction and rolls back changes
 class UserControllerIntegrationTest {
 
     @Autowired
@@ -66,8 +67,7 @@ class UserControllerIntegrationTest {
         String token = objectMapper.readTree(responseContent).get("accessToken").asText();
 
         // 3. Access Protected Resource (/me)
-        // Note: Currently getCurrentUserId() returns 0, so we expect the service to work with ID 0
-        // This test will help us verify the JWT Filter once it is implemented.
+        // Verifies that the JWT Filter correctly identifies the user from the token.
         mockMvc.perform(get("/api/users/me")
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -77,7 +77,7 @@ class UserControllerIntegrationTest {
 
     @Test
     void loginWithMatriculationNumberTest() throws Exception {
-        // 1. Registrierung
+        // 1. Registration
         StudentRegistrationRequest regRequest = new StudentRegistrationRequest(
                 "Erika", "Musterfrau", "securePass", "erika@uni.de",
                 null, "Musterstraße 2", "Physik"
@@ -88,13 +88,13 @@ class UserControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(regRequest)))
                 .andExpect(status().isCreated());
 
-        // 2. Wir müssen die generierte Matrikelnummer aus der DB holen
+        // 2. Get the generated matriculation number from the database
         Student student = userRepository.findByEmail("erika@uni.de")
                 .map(Student.class::cast)
                 .orElseThrow();
         String matNr = student.getMatriculationNumber();
 
-        // 3. Login mit Matrikelnummer statt Email
+        // 3. Login with matriculation number instead of email
         LoginRequest loginRequest = new LoginRequest(matNr, "securePass");
 
         mockMvc.perform(post("/api/users/login")
@@ -106,7 +106,7 @@ class UserControllerIntegrationTest {
 
     @Test
     void searchUsersEndpointTest() throws Exception {
-        // 1. Nutzer anlegen
+        // 1. Create user
         StudentRegistrationRequest regRequest = new StudentRegistrationRequest(
                 "Bob", "Builder", "pass", "bob@uni.de",
                 null, "Bauplatz 7", "Architektur"
@@ -115,7 +115,7 @@ class UserControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(regRequest)));
 
-        // Login um Token zu erhalten (Suche ist geschützt)
+        // Login to obtain token (search is protected)
         LoginRequest loginRequest = new LoginRequest("bob@uni.de", "pass");
         String response = mockMvc.perform(post("/api/users/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -123,20 +123,20 @@ class UserControllerIntegrationTest {
                 .andReturn().getResponse().getContentAsString();
         String token = objectMapper.readTree(response).get("accessToken").asText();
 
-        // 2. Suche via 'q' Parameter
+        // 2. Search via 'q' parameter
         mockMvc.perform(get("/api/users/search")
                 .header("Authorization", "Bearer " + token)
                 .param("q", "Builder"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].firstName").value("Bob"))
-                .andExpect(jsonPath("$[0].privateAddress").isEmpty()); // Maskierung prüfen
+                .andExpect(jsonPath("$[0].privateAddress").isEmpty()); // Verify masking
 
-        // 3. Öffentliches Profil via ID prüfen
+        // 3. Check public profile via ID
         Student student = userRepository.findByEmail("bob@uni.de").map(Student.class::cast).orElseThrow();
         mockMvc.perform(get("/api/users/" + student.getId())
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName").value("Bob"))
-                .andExpect(jsonPath("$.privateAddress").isEmpty()); // Maskierung prüfen
+                .andExpect(jsonPath("$.privateAddress").isEmpty()); // Verify masking
     }
 }

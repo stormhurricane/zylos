@@ -59,7 +59,7 @@ class UserServiceTest {
         // Then
         ArgumentCaptor<Student> studentCaptor = ArgumentCaptor.forClass(Student.class);
         verify(studentRepository).save(studentCaptor.capture());
-        verify(userRepository).findByEmail(request.email()); // Überprüfe den Aufruf für die E-Mail-Einzigartigkeit
+        verify(userRepository).findByEmail(request.email()); // Verify the call for email uniqueness
         
         Student savedStudent = studentCaptor.getValue();
         assertEquals("1000006", savedStudent.getMatriculationNumber());
@@ -84,7 +84,7 @@ class UserServiceTest {
         // Then
         ArgumentCaptor<Student> studentCaptor = ArgumentCaptor.forClass(Student.class);
         verify(studentRepository).save(studentCaptor.capture());
-        verify(userRepository).findByEmail(request.email()); // Überprüfe den Aufruf für die E-Mail-Einzigartigkeit
+        verify(userRepository).findByEmail(request.email()); // Verify the call for email uniqueness
         assertEquals("1000000", studentCaptor.getValue().getMatriculationNumber());
     }
 
@@ -95,7 +95,7 @@ class UserServiceTest {
                 "Max", "Mustermann", "password", "duplicate@test.de", null, "Address", "IT"
         );
 
-        // Email existiert bereits
+        // Email already exists
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(new Student()));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -113,7 +113,7 @@ class UserServiceTest {
                 "Max", "Mustermann", "password", "max@test.de", null, "Address", "IT"
         );
 
-        // Höchste Nummer ist am Limit
+        // Highest number is at the limit
         when(studentRepository.findMaxMatriculationNumber()).thenReturn(Optional.of("9999999"));
 
         // When & Then
@@ -128,22 +128,22 @@ class UserServiceTest {
         LoginRequest loginRequest = new LoginRequest(matNr, "password123");
         Student student = new Student("Max", "Mustermann", "max@test.de", "Address", "hashedPassword", null, matNr, "IT");
 
-        // Mocken des Aufrufs über Matrikelnummer
+        // Mocking the call via matriculation number
         when(studentRepository.findByMatriculationNumber(matNr)).thenReturn(Optional.of(student));
         when(passwordEncoder.matches("password123", "hashedPassword")).thenReturn(true);
         when(jwtService.generateToken(anyString(), anyMap())).thenReturn("fake-jwt-token");
 
         // When
         AuthResponse response = userService.login(loginRequest);
-        
+
         // Then
         assertEquals("STUDENT", response.role());
         assertEquals("fake-jwt-token", response.accessToken());
         assertEquals("Max", response.firstName());
-        
-        // Verifizieren, dass der Service zuerst das Repository für Matrikelnummern nutzt
+
+        // Verify that the service first uses the repository for matriculation numbers
         verify(studentRepository).findByMatriculationNumber(matNr);
-        verify(userRepository, never()).findByEmail(anyString()); // Email-Suche sollte nicht stattfinden
+        verify(userRepository, never()).findByEmail(anyString()); // Email search should not happen
     }
 
     @Test
@@ -153,8 +153,8 @@ class UserServiceTest {
         LoginRequest loginRequest = new LoginRequest(email, "password123");
         Student student = new Student("Max", "Mustermann", email, "Address", "hashedPassword", null, "1234567", "IT");
 
-        // Mocken der Email-Suche für Student
-        when(studentRepository.findByMatriculationNumber(email)).thenReturn(Optional.empty()); // Keine Matrikelnummer
+        // Mocking the email search for student
+        when(studentRepository.findByMatriculationNumber(email)).thenReturn(Optional.empty()); // No matriculation number
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(student));
         when(passwordEncoder.matches("password123", "hashedPassword")).thenReturn(true);
         when(jwtService.generateToken(anyString(), anyMap())).thenReturn("fake-jwt-token");
@@ -167,8 +167,8 @@ class UserServiceTest {
         assertEquals("fake-jwt-token", response.accessToken());
         assertEquals("Max", response.firstName());
 
-        verify(studentRepository).findByMatriculationNumber(email); // Muss versuchen als Matrikelnummer
-        verify(userRepository).findByEmail(email); // Muss dann als Email suchen
+        verify(studentRepository).findByMatriculationNumber(email); // Must try as matriculation number
+        verify(userRepository).findByEmail(email); // Must then search as email
     }
 
     @Test
@@ -178,8 +178,8 @@ class UserServiceTest {
         LoginRequest loginRequest = new LoginRequest(email, "password123");
         Teacher teacher = new Teacher("Prof.", "Lehrer", email, "Address", "hashedPassword", null, "Research", "Chair");
 
-        // Mocken der Email-Suche für Teacher
-        when(studentRepository.findByMatriculationNumber(email)).thenReturn(Optional.empty()); // Keine Matrikelnummer
+        // Mocking the email search for teacher
+        when(studentRepository.findByMatriculationNumber(email)).thenReturn(Optional.empty()); // No matriculation number
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(teacher));
         when(passwordEncoder.matches("password123", "hashedPassword")).thenReturn(true);
         when(jwtService.generateToken(anyString(), anyMap())).thenReturn("fake-jwt-token");
@@ -192,7 +192,7 @@ class UserServiceTest {
         assertEquals("fake-jwt-token", response.accessToken());
         assertEquals("Prof.", response.firstName());
 
-        verify(studentRepository).findByMatriculationNumber(email); // Muss versuchen als Matrikelnummer
+        verify(studentRepository).findByMatriculationNumber(email); // Must try as matriculation number
         verify(userRepository).findByEmail(email);
     }
 

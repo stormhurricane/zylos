@@ -44,7 +44,7 @@ class CourseControllerIntegrationTest {
         courseRepository.deleteAll();
         teacherRepository.deleteAll();
 
-        // Erstelle einen Lehrenden, der als "aktueller Nutzer" im Test fungiert
+        // Create a teacher to act as the "current user" in the test
         Teacher teacher = new Teacher("Test", "Instructor", "instructor@test.com", "Address", "password", null, "Research", "Chair");
         teacherRepository.save(teacher);
     }
