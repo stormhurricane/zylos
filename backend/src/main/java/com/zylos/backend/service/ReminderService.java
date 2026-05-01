@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Deprecated(since="2024-06", forRemoval=true)
 public class ReminderService {
 
     @Autowired

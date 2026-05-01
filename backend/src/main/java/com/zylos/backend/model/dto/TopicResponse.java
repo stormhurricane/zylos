@@ -6,6 +6,7 @@ import com.zylos.backend.database.ArbeitsThema;
 /**
  * DTO für die Rückgabe eines Arbeitsthemas.
  */
+@Deprecated(since = "2024-06", forRemoval = true)
 public record TopicResponse(
     int id,
     @JsonProperty("lehrendenId") int teacherId,

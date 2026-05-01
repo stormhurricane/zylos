@@ -6,6 +6,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "BEWERTUNGSFEEDBACK")
+@Deprecated(since = "2024-06", forRemoval = true)
 public class BewertungsFeedback extends Feedback {
 
     private char antwort;

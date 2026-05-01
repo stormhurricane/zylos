@@ -9,6 +9,7 @@ import com.zylos.backend.repository.ProjektgruppeRepository;
 import java.util.List;
 
 @Service
+@Deprecated(since="2024-06", forRemoval=true)
 public class ProjektgruppeService {
 
     @Autowired

@@ -2,9 +2,6 @@ package com.zylos.backend.model.dto;
 
 import com.zylos.backend.model.entity.User;
 
-/**
- * DTO for user information, replacing the old NutzerResponse.
- */
 public record UserResponse(
     int id,
     String firstName,

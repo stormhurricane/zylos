@@ -11,6 +11,7 @@ import com.zylos.backend.repository.ChatRepository;
 import java.util.List;
 
 @Service
+@Deprecated(since="2024-06", forRemoval=true)
 public class ChatService {
 
     @Autowired

@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
+@Deprecated(since="2024-06", forRemoval=true)
 public class EmailService {
 
     @Autowired

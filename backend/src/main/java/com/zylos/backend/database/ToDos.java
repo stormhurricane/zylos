@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "TODOS")
+@Deprecated(since = "2024-06", forRemoval = true)
 public class ToDos {
 
     @Id

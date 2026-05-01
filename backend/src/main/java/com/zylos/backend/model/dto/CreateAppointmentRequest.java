@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * DTO für die Erstellung eines neuen Termins.
  */
+@Deprecated(since = "2024-06", forRemoval = true)
 public record CreateAppointmentRequest(
     @JsonProperty("lvId") int courseId,
     @JsonProperty("jahr") String year,

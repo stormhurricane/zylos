@@ -6,6 +6,7 @@ import com.zylos.backend.database.Feedback;
 
 import java.util.List;
 
+@Deprecated(since = "2024-06", forRemoval = true)
 public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
 
     List<Feedback> findAllByVersuchId(int versuchId);

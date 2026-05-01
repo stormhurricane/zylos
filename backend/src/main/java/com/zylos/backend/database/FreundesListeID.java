@@ -4,6 +4,7 @@ import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 
 @Embeddable
+@Deprecated(since = "2024-06", forRemoval = true)
 public class FreundesListeID implements Serializable {
 
     private int nutzerId1;

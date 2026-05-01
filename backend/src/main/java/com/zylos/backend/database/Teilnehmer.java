@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "TEILNEHMERLISTE")
+@Deprecated(since = "2024-06", forRemoval = true)
 public class Teilnehmer {
 
     @EmbeddedId

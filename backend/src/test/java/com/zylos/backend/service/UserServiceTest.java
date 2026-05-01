@@ -193,7 +193,7 @@ class UserServiceTest {
         assertEquals("Prof.", response.firstName());
 
         verify(studentRepository).findByMatriculationNumber(email); // Muss versuchen als Matrikelnummer
-        verify(studentRepository, never()).findByEmail(anyString());
+        verify(userRepository).findByEmail(email);
     }
 
     @Test

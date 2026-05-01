@@ -22,8 +22,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiError> handleRuntimeException(RuntimeException ex) {
         logger.error("Unexpected runtime exception occurred: ", ex);
-        ApiError apiError = new ApiError(ex.getMessage(), null, LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+        return createResponse(ex.getMessage(), null, HttpStatus.BAD_REQUEST);
     }
 
     // Catches validation errors that occur due to @Valid
@@ -34,23 +33,25 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(error -> 
             errors.put(error.getField(), error.getDefaultMessage())
         );
-        ApiError apiError = new ApiError("Validation failed", errors, LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+        return createResponse("Validation failed", errors, HttpStatus.BAD_REQUEST);
     }
 
     // Special Case for @Valid annotated login endpoint, where we want to return 401 instead of 400 for invalid credentials
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiError> handleIllegalArgument(IllegalArgumentException ex) {
         logger.warn("Illegal argument encountered: {}", ex.getMessage());
-        ApiError apiError = new ApiError(ex.getMessage(), null, LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
+        return createResponse(ex.getMessage(), null, HttpStatus.UNAUTHORIZED);
     }
 
     // Catches Spring Security AccessDeniedException to return 403 Forbidden
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiError> handleAccessDeniedException(AccessDeniedException ex) {
         logger.warn("Access denied: {}", ex.getMessage());
-        ApiError apiError = new ApiError("You do not have permission to perform this action", null, LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiError);
+        return createResponse("You do not have permission to perform this action", null, HttpStatus.FORBIDDEN);
+    }
+
+    private ResponseEntity<ApiError> createResponse(String message, Map<String, String> errors, HttpStatus status) {
+        ApiError apiError = new ApiError(message, errors, LocalDateTime.now());
+        return new ResponseEntity<>(apiError, status);
     }
 }

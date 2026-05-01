@@ -12,6 +12,7 @@ import com.zylos.backend.repository.LehrveranstaltungsRepository;
 import java.util.*;
 
 @Service
+@Deprecated(since="2024-06", forRemoval=true)
 public class LehrveranstaltungsService {
 
     @Autowired

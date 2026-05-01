@@ -9,6 +9,7 @@ import com.zylos.backend.database.Freundschaft;
 import java.util.List;
 
 @Repository
+@Deprecated(since = "2024-06", forRemoval = true)
 public interface FreundschaftRepository extends JpaRepository<Freundschaft, FreundesListeID> {
     Freundschaft findByFreundesListeID(FreundesListeID freundesListeID);
 

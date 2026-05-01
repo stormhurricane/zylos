@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String userEmail;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            logger.warn("No Bearer token found in request to {}", request.getRequestURI());
+            // logger.warn("No Bearer token found in request to {}", request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }
@@ -66,8 +66,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     return List.<SimpleGrantedAuthority>of();
                 });
 
-                logger.info("User {} authenticated with authorities: {}", userEmail, authorities);
-
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userEmail, null, authorities);
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -81,6 +79,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * Normalisiert Rollenbezeichnungen, um Diskrepanzen zwischen 
      * TEACHER und INSTRUCTOR zu vermeiden.
      */
+    // TODO Rollen konsistent benennen, damit diese Normalisierung überflüssig wird
     private String normalizeRole(String role) {
         String r = role.toUpperCase();
         if ("TEACHER".equals(r)) return "INSTRUCTOR";

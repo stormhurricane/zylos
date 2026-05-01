@@ -8,6 +8,7 @@ import com.zylos.backend.database.LernkartenThema;
 import java.util.List;
 
 @Repository
+@Deprecated(since = "2024-06", forRemoval = true)
 public interface LernkartenThemaRepository  extends JpaRepository<LernkartenThema, Integer> {
 
     LernkartenThema findByLvIdAndBeschreibung(int lvId, String beschreibung);

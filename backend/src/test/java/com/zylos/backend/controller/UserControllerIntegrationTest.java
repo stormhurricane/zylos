@@ -5,6 +5,8 @@ import com.zylos.backend.model.dto.LoginRequest;
 import com.zylos.backend.model.dto.StudentRegistrationRequest;
 import com.zylos.backend.model.entity.Student;
 import com.zylos.backend.repository.StudentRepository;
+import com.zylos.backend.repository.UserRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +32,11 @@ class UserControllerIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private StudentRepository studentRepository;
+    private UserRepository userRepository;
 
     @BeforeEach
     void setup() {
-        studentRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
@@ -87,7 +89,8 @@ class UserControllerIntegrationTest {
                 .andExpect(status().isCreated());
 
         // 2. Wir müssen die generierte Matrikelnummer aus der DB holen
-        Student student = studentRepository.findByEmail("erika@uni.de")
+        Student student = userRepository.findByEmail("erika@uni.de")
+                .map(Student.class::cast)
                 .orElseThrow();
         String matNr = student.getMatriculationNumber();
 
@@ -129,7 +132,7 @@ class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].privateAddress").isEmpty()); // Maskierung prüfen
 
         // 3. Öffentliches Profil via ID prüfen
-        Student student = studentRepository.findByEmail("bob@uni.de").orElseThrow();
+        Student student = userRepository.findByEmail("bob@uni.de").map(Student.class::cast).orElseThrow();
         mockMvc.perform(get("/api/users/" + student.getId())
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())

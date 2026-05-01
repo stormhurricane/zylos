@@ -8,9 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface TeacherRepository extends JpaRepository<Teacher, Integer> {
-    boolean existsByEmail(String email);
 
-    Optional<Teacher> findByEmail(String email);
-
-    List<Teacher> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstName, String lastName);
 }

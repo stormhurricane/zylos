@@ -6,6 +6,7 @@ import com.zylos.backend.database.Reminder.FormEnum;
 /**
  * DTO für die Erstellung eines Reminders für einen Termin.
  */
+@Deprecated(since = "2024-06", forRemoval = true)
 public record CreateReminderRequest(
     @JsonProperty("terminId") int appointmentId,
     @JsonProperty("jahr") String year,

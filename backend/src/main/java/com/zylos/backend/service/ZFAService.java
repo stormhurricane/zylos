@@ -7,6 +7,7 @@ import com.zylos.backend.database.ZFA;
 import com.zylos.backend.repository.ZFARepository;
 
 @Service
+@Deprecated(since="2024-06", forRemoval=true)
 public class ZFAService {
 
     @Autowired

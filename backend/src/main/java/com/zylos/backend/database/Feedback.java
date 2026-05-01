@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Entity
 @Table(name = "FEEDBACK")
+@Deprecated(since = "2024-06", forRemoval = true)
 public class Feedback {
 
     @Id

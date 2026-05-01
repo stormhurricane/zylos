@@ -31,11 +31,8 @@ public class Course {
     }
 
     public Course(Long id, String title, CourseType type, SemesterTerm term, String academicYear) {
+        this(title, type, term, academicYear);
         this.id = id;
-        this.title = title;
-        this.type = type;
-        this.term = term;
-        this.academicYear = academicYear;
     }
 
     public Course(String title, CourseType type, SemesterTerm term, String academicYear) {

@@ -5,6 +5,7 @@ import java.io.Serializable;
 
 
 @Embeddable
+@Deprecated(since = "2024-06", forRemoval = true)
 public class ListID implements Serializable{
 
     private int nutzer_id;

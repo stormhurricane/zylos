@@ -8,6 +8,7 @@ import com.zylos.backend.database.Reminder;
 import java.util.List;
 
 @Repository
+@Deprecated(since = "2024-06", forRemoval = true)
 public interface ReminderRepository extends JpaRepository<Reminder, Integer> {
 
     List<Reminder> findAllByNutzerId (int nutzerId);

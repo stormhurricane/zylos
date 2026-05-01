@@ -10,6 +10,7 @@ import com.zylos.backend.repository.ArbeitsThemaRepository;
 import java.util.List;
 
 @Service
+@Deprecated(since="2024-06", forRemoval=true)
 public class TopicService_alt {
 
     private final ArbeitsThemaRepository topicRepository;
