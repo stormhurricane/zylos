@@ -1,0 +1,62 @@
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.left {
+  flex: 1;
+  background: var(--gradient-primary);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.logo {
+  width: 140px;
+  margin-bottom: 30px;
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+}
+
+.title {
+  font-size: 3rem;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  opacity: 0.85;
+  margin-top: 10px;
+  font-weight: 300;
+  text-align: center;
+}
+
+.right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fcfcfc;
+  padding: 40px;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .left {
+    padding: 60px 20px;
+  }
+
+  .title {
+    font-size: 2.25rem;
+  }
+
+  .right {
+    padding: 40px 20px;
+  }
+}

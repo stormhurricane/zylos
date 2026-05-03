@@ -1,0 +1,34 @@
+:root {
+  /* Primary colors */
+  --color-primary: #4CAF50;
+  --color-primary-soft: rgba(76, 175, 80, 0.1);
+  
+  /* Secondary colors */
+  --color-secondary: #2B82AD;
+  --color-secondary-soft: rgba(43, 130, 173, 0.1);
+
+  /* Neutral tones & contrasts */
+  --color-dark: #1A2B2E;
+  --color-light: #F1F3F4;
+  --color-white: #FFFFFF;
+
+  /* Status colors */
+  --color-error: #dc3545;
+  --color-success: #4CAF50;
+
+  /* Typography & UI elements */
+  --text-main: var(--color-dark);
+  --text-muted: #64748b;
+  --bg-body: var(--color-white);
+  --border-radius: 12px;
+  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+  --gradient-primary: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+}
