@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { courseApi } from '../../api/courseApi';
 import { Navbar } from '../../components/Navbar';
+import styles from './CourseCreate.module.css';
 
 export const CourseCreate: React.FC = () => {
     const [manualCourse, setManualCourse] = useState({
@@ -37,28 +38,21 @@ export const CourseCreate: React.FC = () => {
     };
 
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-light)' }}>
+        <div className="app-page">
             <Navbar />
-            <main style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto' }}>
-                <h1 style={{ marginBottom: '40px' }}>Lehrveranstaltung verwalten</h1>
+            <main className={styles.container}>
+                <h1 className={styles.title}>Lehrveranstaltung verwalten</h1>
 
                 {status && (
-                    <div className="auth-card" style={{ 
-                        padding: '15px', 
-                        marginBottom: '20px', 
-                        borderRadius: '8px', 
-                        backgroundColor: status.type === 'success' ? '#dcfce7' : '#fee2e2',
-                        color: status.type === 'success' ? '#166534' : '#991b1b',
-                        fontWeight: '500'
-                    }}>
+                    <div className={`auth-card ${styles.statusMessage} ${status.type === 'success' ? styles.statusSuccess : styles.statusError}`}>
                         {status.text}
                     </div>
                 )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+                <div className={styles.grid}>
                     {/* Manual Form */}
-                    <section className="auth-card" style={{ maxWidth: '100%' }}>
-                        <h2 style={{ marginBottom: '20px', color: 'var(--color-primary)' }}>Manuelle Eingabe</h2>
+                    <section className={`auth-card ${styles.sectionCard}`}>
+                        <h2 className={styles.manualTitle}>Manuelle Eingabe</h2>
                         <form onSubmit={handleManualSubmit}>
                             <div className="form-group">
                                 <label className="required">Titel</label>
@@ -107,21 +101,20 @@ export const CourseCreate: React.FC = () => {
                     </section>
 
                     {/* CSV Import */}
-                    <section className="auth-card" style={{ maxWidth: '100%' }}>
-                        <h2 style={{ marginBottom: '10px', color: 'var(--color-secondary)' }}>CSV Import</h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '20px' }}>
+                    <section className={`auth-card ${styles.sectionCard}`}>
+                        <h2 className={styles.csvTitle}>CSV Import</h2>
+                        <p className={styles.csvDescription}>
                             Format: Titel;Typ;Semester;Jahr
                         </p>
                             <input 
                             type="file" 
                             accept=".csv"
                             onChange={e => setCsvFile(e.target.files?.[0] || null)}
-                            style={{ marginBottom: '20px', width: '100%' }}
+                            className={styles.fileInput}
                         />
                         <button 
                             onClick={handleCsvSubmit}
-                            className="btn-primary"
-                            style={{ background: 'var(--color-secondary)' }}
+                            className={`btn-primary ${styles.csvBtn}`}
                             disabled={!csvFile}
                         >
                             CSV hochladen

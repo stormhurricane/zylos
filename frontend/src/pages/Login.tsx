@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { LandingLayout } from '../components/LandingLayout';
+import styles from './Register.module.css'; // Wir teilen uns die Auth-Styles
 
 export const Login = () => {
     const [identifier, setIdentifier] = useState('');
@@ -37,8 +38,8 @@ export const Login = () => {
     return (
         <LandingLayout>
         <div className="auth-card">
-            <h2 style={{ marginBottom: '10px', fontSize: '1.8rem' }}>Willkommen zurück</h2>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '30px' }}>Bitte logge dich in dein Konto ein.</p>
+            <h2 className={styles.headerTitle}>Willkommen zurück</h2>
+            <p className={styles.headerSubtitle}>Bitte logge dich in dein Konto ein.</p>
             
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
@@ -63,13 +64,13 @@ export const Login = () => {
                     />
                     {fieldErrors.password && <div className="error-message">{fieldErrors.password}</div>}
                 </div>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-                <button type="submit" className="btn-primary">
+                {error && <p className={styles.errorMessage}>{error}</p>}
+                <button type="submit" className={`btn-primary ${styles.submitButton}`}>
                     Anmelden
                 </button>
             </form>
-            <p style={{ marginTop: '25px', textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                Noch kein Konto? <span style={{ color: 'var(--color-secondary)', fontWeight: '600', cursor: 'pointer' }} onClick={() => navigate('/register')}>Jetzt registrieren</span>
+            <p className={styles.footer}>
+                Noch kein Konto? <span className={styles.link} onClick={() => navigate('/register')}>Jetzt registrieren</span>
             </p>
         </div>
         </LandingLayout>

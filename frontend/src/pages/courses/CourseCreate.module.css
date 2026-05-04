@@ -1,0 +1,62 @@
+.container {
+    padding: var(--spacing-xl);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.title {
+    margin-bottom: var(--spacing-xl);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-xl);
+}
+
+.sectionCard {
+    max-width: 100% !important;
+}
+
+.manualTitle {
+    margin-bottom: var(--spacing-lg);
+    color: var(--color-primary);
+}
+
+.csvTitle {
+    margin-bottom: var(--spacing-xs);
+    color: var(--color-secondary);
+}
+
+.csvDescription {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.fileInput {
+    margin-bottom: var(--spacing-lg);
+    width: 100%;
+}
+
+.csvBtn {
+    background-color: var(--color-secondary) !important;
+}
+
+.statusMessage {
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    max-width: 100% !important;
+}
+
+.statusSuccess {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.statusError {
+    background-color: #fee2e2;
+    color: #991b1b;
+}

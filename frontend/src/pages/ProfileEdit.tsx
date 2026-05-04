@@ -3,9 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { ProfileResponse, ProfileUpdateRequest } from '../api/types';
 import { Navbar } from '../components/Navbar';
+import styles from './ProfileEdit.module.css';
 
 export const ProfileEdit = () => {
-    const [formData, setFormData] = useState<ProfileUpdateRequest & { firstName?: string, lastName?: string }>({
+    const [formData, setFormData] = useState<ProfileUpdateRequest & { 
+        firstName?: string, 
+        lastName?: string,
+        chair?: string,
+        researchArea?: string,
+        studySubject?: string
+    }>({
         password: '',
         privateAddress: '',
         profilePicture: '',
@@ -26,6 +33,7 @@ export const ProfileEdit = () => {
                 const response = await api.get<ProfileResponse>('/users/me');
                 const data = response.data;
                 setFormData({
+                    password: '',
                     privateAddress: data.privateAddress || '',
                     profilePicture: data.profilePicture || '',
                     studySubject: data.studySubject || '',
@@ -71,15 +79,15 @@ export const ProfileEdit = () => {
         }
     };
 
-    if (loading) return <div style={{ padding: '20px' }}>Lädt...</div>;
+    if (loading) return <div className="text-center">Lädt...</div>;
 
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-light)' }}>
+        <div className="app-page">
             <Navbar />
-            <div style={{ padding: '40px', maxWidth: '600px', margin: '0 auto' }}>
-                <div className="auth-card">
+            <div className={styles.container}>
+                <div className={`auth-card ${styles.card}`}>
                     <h2>Profil bearbeiten</h2>
-                    <p style={{ color: 'var(--text-muted)', marginBottom: '25px' }}>
+                    <p className={styles.subtitle}>
                         Ändere deine persönlichen Informationen für {formData.firstName} {formData.lastName}.
                     </p>
 
@@ -88,7 +96,7 @@ export const ProfileEdit = () => {
                             <label>Profilbild</label>
                             <input type="file" accept="image/*" className="form-input" onChange={handleFileChange} />
                             {formData.profilePicture && (
-                                <img src={formData.profilePicture} alt="Preview" style={{ width: '80px', height: '80px', borderRadius: '50%', marginTop: '10px', objectFit: 'cover' }} />
+                                <img src={formData.profilePicture} alt="Preview" className={styles.previewImage} />
                             )}
                         </div>
 
@@ -136,11 +144,11 @@ export const ProfileEdit = () => {
                             </>
                         )}
 
-                        {error && <p style={{ color: 'red', marginBottom: '15px' }}>{error}</p>}
+                        {error && <p className={styles.error}>{error}</p>}
 
-                        <div style={{ display: 'flex', gap: '10px' }}>
+                        <div className={styles.buttonGroup}>
                             <button type="submit" className="btn-primary">Speichern</button>
-                            <button type="button" className="btn-primary" style={{ background: '#e2e8f0', color: 'var(--text-main)' }} onClick={() => navigate('/profile')}>Abbrechen</button>
+                            <button type="button" className={`btn-primary ${styles.cancelBtn}`} onClick={() => navigate('/profile')}>Abbrechen</button>
                         </div>
                     </form>
                 </div>

@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import { courseApi, Course } from '../api/courseApi';
 import { Navbar } from '../components/Navbar';
+import styles from './Dashboard.module.css';
 
 const DEFAULT_AVATAR = "https://ui-avatars.com/api/?background=4CAF50&color=fff&name=";
 
@@ -41,33 +42,33 @@ export const Dashboard = () => {
     }, [searchParams]);
 
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-light)' }}>
+        <div className="app-page">
             <Navbar onSearch={performSearch} />
             
-            <main style={{ flex: 1, padding: '40px' }}>
-                <header style={{ marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <main className={styles.main}>
+                <header className={styles.header}>
                     <h1>Willkommen, {user?.firstName}!</h1>
                 </header>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '40px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                <div className={styles.grid}>
+                    <div className={styles.content}>
                 {/* Suchergebnisse */}
                 <section>
-                    <h3 style={{ marginBottom: '20px' }}>Suche</h3>
+                    <h3 className="mb-4">Suche</h3>
                     {searchResults.length > 0 ? (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
+                        <div className={styles.resultsGrid}>
                             {searchResults.map((res: any, idx: number) => (
-                                <div key={res.id || idx} className="auth-card" style={{ padding: '20px', textAlign: 'center', maxWidth: '100%' }}>
+                                <div key={res.id || idx} className={`auth-card ${styles.userCard}`}>
                                     <img 
                                         src={res.profilePicture || `${DEFAULT_AVATAR}${res.firstName}+${res.lastName}`} 
                                         alt="Avatar"
-                                        style={{ width: '60px', height: '60px', borderRadius: '50%', marginBottom: '10px', objectFit: 'cover' }} 
+                                        className={styles.userAvatar}
                                     />
                                     <h4 style={{ margin: '5px 0' }}>{res.firstName} {res.lastName}</h4>
                                     <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{res.studySubject || res.chair || 'Nutzer'}</p>
                                     <button 
                                         onClick={() => navigate(`/profile/${res.id}`)}
-                                        style={{ marginTop: '10px', background: 'none', border: '1px solid var(--color-primary)', color: 'var(--color-primary)', padding: '5px 10px', borderRadius: '5px', cursor: 'pointer' }}
+                                        className={styles.profileBtn}
                                     >
                                         Profil ansehen
                                     </button>
@@ -75,7 +76,7 @@ export const Dashboard = () => {
                             ))}
                         </div>
                     ) : (
-                        <div className="auth-card" style={{ maxWidth: '100%', textAlign: 'center', color: 'var(--text-muted)' }}>
+                        <div className="auth-card text-center text-muted">
                             Nutze die Suche oben, um Kommilitonen oder Dozenten zu finden.
                         </div>
                     )}
@@ -84,14 +85,14 @@ export const Dashboard = () => {
 
                     {/* Sidebar: Meine Kurse */}
                     <aside>
-                        <div className="auth-card" style={{ maxWidth: '100%', padding: '20px' }}>
-                            <h3 style={{ marginBottom: '20px', color: 'var(--color-primary)' }}>Meine Kurse</h3>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <div className={`auth-card ${styles.sidebarCard}`}>
+                            <h3 className="color-primary mb-4">Meine Kurse</h3>
+                            <div className="flex flex-col gap-4">
                                 {myCourses.length > 0 ? myCourses.map(course => (
-                                    <div key={course.id} style={{ borderBottom: '1px solid #eee', paddingBottom: '10px' }}>
+                                    <div key={course.id} className={styles.courseItem}>
                                         <div 
                                             onClick={() => navigate(`/courses/${course.id}`)}
-                                            style={{ fontWeight: '600', cursor: 'pointer', color: 'var(--text-main)' }}
+                                            className={styles.courseLink}
                                         >
                                             {course.title}
                                         </div>

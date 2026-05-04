@@ -4,6 +4,7 @@ import { courseApi, Course, ParticipantsResponse, Material } from '../../api/cou
 import api from '../../api/axios';
 import { Navbar } from '../../components/Navbar';
 import { useAuth } from '../../context/AuthContext';
+import styles from './CourseDetail.module.css';
 
 export const CourseDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -121,71 +122,65 @@ export const CourseDetail: React.FC = () => {
         }
     };
 
-    if (loading) return <div className="p-8 text-center">Lade Kursdetails...</div>;
-    if (!course) return <div className="p-8 text-center text-red-500">Kurs nicht gefunden.</div>;
+    if (loading) return <div className="text-center">Lade Kursdetails...</div>;
+    if (!course) return <div className="text-center color-error">Kurs nicht gefunden.</div>;
 
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-light)' }}>
+        <div className="app-page">
             <Navbar />
-            <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 350px', gap: '40px' }}>
+            <div className={styles.container}>
                 {/* Linke Spalte: Kurs-Info & Materialien */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-                    <section>
-                        <h1 style={{ fontSize: '2.5rem', marginBottom: '10px' }}>{course.title}</h1>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>
+                <div className={styles.leftColumn}>
+                    <section className={styles.header}>
+                        <h1>{course.title}</h1>
+                        <p className={styles.headerSubtitle}>
                             {course.type === 'LECTURE' ? 'Vorlesung' : 'Seminar'} — {course.term === 'SUMMER' ? 'Sommersemester' : 'Wintersemester'} {course.academicYear}
                         </p>
                     </section>
 
-                    <section className="auth-card" style={{ maxWidth: '100%', padding: '30px' }}>
-                        <h2 style={{ marginBottom: '25px', color: 'var(--color-primary)' }}>Lehrmaterialien</h2>
+                    <section className={`auth-card ${styles.sectionCard}`}>
+                        <h2 className={styles.sectionTitle}>Lehrmaterialien</h2>
                         
                         {uploadStatus && (
-                            <div style={{ 
-                                padding: '10px 15px', 
-                                marginBottom: '20px', 
-                                borderRadius: '6px', 
-                                backgroundColor: uploadStatus.type === 'success' ? '#dcfce7' : '#fee2e2',
-                                color: uploadStatus.type === 'success' ? '#166534' : '#991b1b',
-                                fontSize: '0.9rem'
-                            }}>{uploadStatus.text}</div>
+                            <div className={`${styles.status} ${uploadStatus.type === 'success' ? 'status-success' : 'status-error'}`}>
+                                {uploadStatus.text}
+                            </div>
                         )}
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <div className={styles.materialList}>
                             {materials.map(mat => (
-                                <div key={mat.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', backgroundColor: '#f9fafb', borderRadius: '8px', border: '1px solid #eee' }}>
-                                    <div>
-                                        <p style={{ fontWeight: '600', margin: 0 }}>{mat.title}</p>
-                                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>{mat.fileName}</p>
+                                <div key={mat.id} className={styles.materialItem}>
+                                    <div className={styles.materialInfo}>
+                                        <p className={styles.materialTitle}>{mat.title}</p>
+                                        <p className={styles.materialFileName}>{mat.fileName}</p>
                                     </div>
                                     <button 
                                         onClick={() => handleDownload(mat.id, mat.fileName)}
                                         className="btn-primary"
-                                        style={{ width: 'auto', padding: '8px 15px', fontSize: '0.9rem' }}
+                                        style={{ width: 'auto' }}
                                     >
                                         Download
                                     </button>
                                 </div>
                             ))}
-                            {materials.length === 0 && <p style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>Noch keine Materialien hochgeladen.</p>}
+                            {materials.length === 0 && <p className="text-muted italic">Noch keine Materialien hochgeladen.</p>}
                         </div>
 
                         {/* Upload Bereich für Lehrende */}
-                        <form onSubmit={handleUpload} style={{ marginTop: '40px', padding: '20px', border: '2px dashed #e2e8f0', borderRadius: '10px' }}>
-                            <h3 style={{ fontSize: '1rem', marginBottom: '15px' }}>Material bereitstellen</h3>
-                            <div style={{ display: 'flex', gap: '10px' }}>
+                        <form onSubmit={handleUpload} className={styles.uploadArea}>
+                            <h3 className={styles.uploadTitle}>Material bereitstellen</h3>
+                            <div className={styles.uploadForm}>
                                 <input 
                                     className="form-input"
                                     placeholder="Titel"
                                     value={uploadTitle}
                                     onChange={e => setUploadTitle(e.target.value)}
-                                    style={{ flex: 1 }}
                                 />
                                 <input 
-                                        id="material-file-input"
+                                    id="material-file-input"
                                     type="file"
                                     onChange={e => setUploadFile(e.target.files?.[0] || null)}
-                                    style={{ fontSize: '0.8rem' }}
+                                    className="text-sm"
                                 />
                                 <button type="submit" className="btn-primary" style={{ width: 'auto' }}>Hochladen</button>
                             </div>
@@ -194,57 +189,43 @@ export const CourseDetail: React.FC = () => {
                 </div>
 
                 {/* Rechte Spalte: Teilnehmerliste */}
-                <aside style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
-                    <section className="auth-card" style={{ maxWidth: '100%', padding: '25px' }}>
-                        <h3 style={{ marginBottom: '20px', color: 'var(--color-primary)', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>Lehrende</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <aside className={styles.rightColumn}>
+                    <section className={`auth-card ${styles.sectionCard}`}>
+                        <h3 className={styles.participantGroupTitle}>Lehrende</h3>
+                        <div className={styles.participantList}>
                             {participants?.instructors.map(prof => (
-                                <div key={prof.id} style={{ fontWeight: '600', color: String(prof.id) === String(currentUserId) ? 'var(--color-primary)' : 'inherit' }}>
+                                <div key={prof.id} className={String(prof.id) === String(currentUserId) ? styles.me : ''}>
                                     {prof.firstName} {prof.lastName}{String(prof.id) === String(currentUserId) ? ' (Du)' : ''}
                                 </div>
                             ))}
                         </div>
 
-                        <h3 style={{ marginBottom: '20px', marginTop: '30px', color: 'var(--color-secondary)', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>Studierende</h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <h3 className={`${styles.participantGroupTitle} ${styles.studentGroupTitle} mt-8`}>Studierende</h3>
+                        <div className={styles.participantList}>
                             {participants?.students.map(std => (
-                                <div key={std.id} style={{ color: String(std.id) === String(currentUserId) ? 'var(--color-primary)' : 'var(--text-main)', fontWeight: String(std.id) === String(currentUserId) ? 'bold' : 'normal' }}>
+                                <div key={std.id} className={String(std.id) === String(currentUserId) ? styles.me : ''}>
                                     {std.firstName} {std.lastName}{String(std.id) === String(currentUserId) ? ' (Du)' : ''}
                                 </div>
                             ))}
-                            {participants?.students.length === 0 && <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Noch keine Studierenden.</p>}
+                            {participants?.students.length === 0 && <p className="text-muted text-sm">Noch keine Studierenden.</p>}
                         </div>
 
                         {/* Teilnehmer hinzufügen (Nur für Lehrende) */}
                         {isInstructor && (
-                            <div style={{ marginTop: '25px', paddingTop: '20px', borderTop: '1px dashed #eee' }}>
-                                <h4 style={{ fontSize: '0.9rem', marginBottom: '10px' }}>Teilnehmer hinzufügen</h4>
+                            <div className={styles.addParticipantSection}>
+                                <h4 className={styles.addParticipantTitle}>Teilnehmer hinzufügen</h4>
                                 <input 
-                                    className="form-input"
+                                    className={`form-input ${styles.addParticipantInput}`}
                                     placeholder="Name suchen..."
                                     value={studentSearch}
                                     onChange={e => handleStudentSearch(e.target.value)}
-                                    style={{ fontSize: '0.8rem', padding: '8px' }}
                                 />
                                 {searchResults.length > 0 && (
-                                    <div style={{ 
-                                        marginTop: '10px', 
-                                        backgroundColor: 'white', 
-                                        border: '1px solid #eee', 
-                                        borderRadius: '6px',
-                                        maxHeight: '150px',
-                                        overflowY: 'auto'
-                                    }}>
+                                    <div className={styles.searchResults}>
                                         {searchResults.map(s => (
-                                            <div key={s.id} style={{ 
-                                                padding: '8px 12px', 
-                                                display: 'flex', 
-                                                justifyContent: 'space-between', 
-                                                alignItems: 'center',
-                                                borderBottom: '1px solid #f9f9f9'
-                                            }}>
-                                                <span style={{ fontSize: '0.85rem' }}>{s.firstName} {s.lastName}</span>
-                                                <button onClick={() => handleAddStudent(s.id)} style={{ background: 'var(--color-secondary)', color: 'white', border: 'none', borderRadius: '4px', padding: '2px 8px', fontSize: '0.75rem', cursor: 'pointer' }}>+</button>
+                                            <div key={s.id} className={styles.searchResultItem}>
+                                                <span className={styles.searchResultName}>{s.firstName} {s.lastName}</span>
+                                                <button onClick={() => handleAddStudent(s.id)} className={styles.addButton}>+</button>
                                             </div>
                                         ))}
                                     </div>

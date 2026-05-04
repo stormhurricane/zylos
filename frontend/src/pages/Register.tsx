@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LandingLayout } from '../components/LandingLayout';
 import api from '../api/axios';
+import styles from './Register.module.css';
 
 export const Register = () => {
     const navigate = useNavigate();
@@ -54,8 +55,8 @@ export const Register = () => {
     if (success) {
         return (
             <LandingLayout>
-                <div className="auth-card" style={{ textAlign: 'center' }}>
-                    <h2 style={{ color: 'var(--color-primary)' }}>Registrierung erfolgreich!</h2>
+                <div className={`auth-card ${styles.successCard}`}>
+                    <h2 className={styles.successTitle}>Registrierung erfolgreich!</h2>
                     <p>Du wirst in Kürze zum Login weitergeleitet...</p>
                 </div>
             </LandingLayout>
@@ -65,34 +66,36 @@ export const Register = () => {
     return (
         <LandingLayout>
             <div className="auth-card">
-                <h2 style={{ marginBottom: '5px' }}>Konto erstellen</h2>
-                <p style={{ color: 'var(--text-muted)', marginBottom: '20px' }}>Werde Teil der Zylos-Community.</p>
+                <h2 className={styles.headerTitle}>Konto erstellen</h2>
+                <p className={styles.headerSubtitle}>Werde Teil der Zylos-Community.</p>
 
                 {/* Toggle für Nutzertyp */}
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '25px' }}>
+                <div className={styles.toggleContainer}>
                     <button 
                         onClick={() => setUserType('student')}
-                        className="btn-primary"
-                        style={{ background: userType === 'student' ? 'var(--color-primary)' : '#e2e8f0', color: userType === 'student' ? 'white' : 'var(--text-main)' }}
+                        className={`btn-primary ${styles.toggleButton} ${
+                            userType === 'student' ? styles.toggleButtonActive : ''
+                        }`}
                     >
                         Student
                     </button>
                     <button 
                         onClick={() => setUserType('teacher')}
-                        className="btn-primary"
-                        style={{ background: userType === 'teacher' ? 'var(--color-primary)' : '#e2e8f0', color: userType === 'teacher' ? 'white' : 'var(--text-main)' }}
+                        className={`btn-primary ${styles.toggleButton} ${
+                            userType === 'teacher' ? styles.toggleButtonActive : ''
+                        }`}
                     >
                         Lehrender
                     </button>
                 </div>
 
                 <form onSubmit={handleSubmit}>
-                    <div style={{ display: 'flex', gap: '15px' }}>
-                        <div className="form-group" style={{ flex: 1 }}>
+                    <div className={styles.row}>
+                        <div className={`form-group ${styles.flex1}`}>
                             <label className="required">Vorname</label>
                             <input name="firstName" className="form-input" placeholder="Max" required onChange={handleChange} />
                         </div>
-                        <div className="form-group" style={{ flex: 1 }}>
+                        <div className={`form-group ${styles.flex1}`}>
                             <label className="required">Nachname</label>
                             <input name="lastName" className="form-input" placeholder="Mustermann" required onChange={handleChange} />
                         </div>
@@ -100,7 +103,11 @@ export const Register = () => {
 
                     <div className="form-group">
                         <label className="required">E-Mail Adresse</label>
-                        <input name="email" type="email" className="form-input" placeholder="max.mustermann@stud.uni.de" required onChange={handleChange} />
+                        <input 
+                            name="email" 
+                            type="email" 
+                            className="form-input" 
+                            placeholder="max.mustermann@stud.uni.de" required onChange={handleChange} />
                     </div>
 
                     <div className="form-group">
@@ -116,7 +123,11 @@ export const Register = () => {
                     <div className="form-group">
                         <label>Profilbild</label>
                         <input type="file" accept="image/*" className="form-input" onChange={handleFileChange} />
-                        {formData.profilePicture && <img src={formData.profilePicture} alt="Preview" style={{ width: '50px', marginTop: '10px', borderRadius: '50%' }} />}
+                        {formData.profilePicture && (
+                            <img 
+                                src={formData.profilePicture} 
+                                alt="Preview" className={styles.previewImage} />
+                        )}
                     </div>
 
                     {/* Dynamische Felder je nach Typ */}
@@ -138,18 +149,18 @@ export const Register = () => {
                         </>
                     )}
 
-                    {error && <p style={{ color: 'red', fontSize: '0.9rem', marginBottom: '15px' }}>{error}</p>}
+                    {error && <p className={styles.errorMessage}>{error}</p>}
 
-                    <button type="submit" className="btn-primary" style={{ marginTop: '10px' }}>
+                    <button type="submit" className={`btn-primary ${styles.submitButton}`}>
                         Jetzt registrieren
                     </button>
                 </form>
 
-                <p style={{ marginTop: '25px', textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                <p className={styles.footer}>
                     Bereits registriert?{' '}
                     <span 
-                        style={{ color: 'var(--color-secondary)', fontWeight: '600', cursor: 'pointer' }} 
                         onClick={() => navigate('/login')}
+                        className={styles.link}
                     >
                         Zum Login
                     </span>

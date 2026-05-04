@@ -1,0 +1,41 @@
+.container {
+    padding: var(--spacing-xl);
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.subtitle {
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-lg);
+}
+
+.card {
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.previewImage {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-top: var(--spacing-sm);
+    object-fit: cover;
+}
+
+.error {
+    color: var(--color-error);
+    margin-bottom: var(--spacing-md);
+}
+
+.buttonGroup {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.cancelBtn {
+    background-color: #e2e8f0 !important;
+    color: var(--text-main) !important;
+}

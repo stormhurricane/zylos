@@ -1,0 +1,75 @@
+.main {
+    flex: 1;
+    padding: var(--spacing-xl);
+}
+
+.header {
+    margin-bottom: var(--spacing-xl);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: var(--spacing-xl);
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.resultsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.userCard {
+    padding: var(--spacing-lg) !important;
+    text-align: center;
+    max-width: 100% !important;
+}
+
+.userAvatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-bottom: var(--spacing-sm);
+    object-fit: cover;
+}
+
+.profileBtn {
+    margin-top: var(--spacing-sm);
+    background: none;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    padding: 5px 10px;
+    border-radius: var(--spacing-xs);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.profileBtn:hover {
+    background-color: var(--color-primary-soft);
+}
+
+.sidebarCard {
+    max-width: 100% !important;
+    padding: var(--spacing-md) !important;
+}
+
+.courseItem {
+    border-bottom: 1px solid #eee;
+    padding-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.courseLink {
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-main);
+}

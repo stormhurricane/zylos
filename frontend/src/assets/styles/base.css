@@ -11,3 +11,22 @@ body {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
+
+/* Global Layout Utilities */
+.app-page {
+  min-height: 100vh;
+  background-color: var(--color-light);
+}
+
+.text-center {
+  text-align: center;
+  padding: var(--spacing-lg);
+}
+
+.color-error {
+  color: var(--color-error);
+}
+
+.mt-8 {
+  margin-top: 2rem;
+}

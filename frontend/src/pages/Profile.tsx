@@ -5,6 +5,7 @@ import { ProfileResponse } from '../api/types';
 import { courseApi, Course } from '../api/courseApi';
 import { Navbar } from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
+import styles from './Profile.module.css';
 
 const DEFAULT_AVATAR = "https://ui-avatars.com/api/?background=4CAF50&color=fff&name=";
 
@@ -43,42 +44,42 @@ export const Profile = () => {
         }
     }, [id, currentUserId]);
 
-    if (loading) return <div style={{ padding: '20px' }}>Lädt...</div>;
-    if (!profile) return <div style={{ padding: '20px' }}>Profil nicht gefunden.</div>;
+    if (loading) return <div className="text-center">Lädt...</div>;
+    if (!profile) return <div className="text-center">Profil nicht gefunden.</div>;
 
     const isOwnProfile = !id || String(id) === String(currentUserId);
 
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-light)' }}>
+        <div className="app-page">
             <Navbar />
-            <div style={{ padding: '40px', maxWidth: '800px', margin: '0 auto' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', width: '100%' }}>
-                    <button onClick={() => navigate('/dashboard')} className="btn-primary" style={{ width: 'auto' }}>
+            <div className={styles.container}>
+                <div className={styles.actionHeader}>
+                    <button onClick={() => navigate('/dashboard')} className={`btn-primary ${styles.backBtn}`}>
                         ← Zurück
                     </button>
                     {isOwnProfile && (
-                        <button onClick={() => navigate('/profile/edit')} className="btn-primary" style={{ width: 'auto', background: 'var(--color-secondary)' }}>
+                        <button onClick={() => navigate('/profile/edit')} className={`btn-primary ${styles.editBtn}`}>
                             Profil bearbeiten
                         </button>
                     )}
                 </div>
                 
-                <div className="auth-card" style={{ maxWidth: '100%' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '30px' }}>
+                <div className={`auth-card ${styles.cardFull}`}>
+                    <div className={styles.profileHeader}>
                         <img 
                             src={profile.profilePicture || `${DEFAULT_AVATAR}${profile.firstName}+${profile.lastName}`} 
                             alt="Profile" 
-                            style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover' }} 
+                            className={styles.avatar}
                         />
                         <div>
-                            <h1 style={{ margin: 0 }}>{profile.firstName} {profile.lastName}</h1>
-                            <p style={{ color: 'var(--text-muted)', margin: '5px 0' }}>{profile.email}</p>
+                            <h1 className="m-0">{profile.firstName} {profile.lastName}</h1>
+                            <p className={styles.email}>{profile.email}</p>
                         </div>
                     </div>
 
-                    <hr style={{ border: '0', borderTop: '1px solid #eee', marginBottom: '30px' }} />
+                    <hr className={styles.divider} />
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                    <div className={styles.infoGrid}>
                         <div className="info-block">
                             <label style={{ fontWeight: 'bold', color: 'var(--text-muted)' }}>Rolle / Details</label>
                             {profile.matriculationNumber ? (
@@ -115,23 +116,17 @@ export const Profile = () => {
                 </div>
 
                 {isOwnProfile && (
-                    <div className="auth-card" style={{ maxWidth: '100%', marginTop: '30px' }}>
-                        <h2 style={{ marginBottom: '20px', color: 'var(--color-primary)' }}>Meine Kurse</h2>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '15px' }}>
+                    <div className={`auth-card ${styles.courseSection}`}>
+                        <h2 className={styles.courseSectionTitle}>Meine Kurse</h2>
+                        <div className={styles.courseGrid}>
                             {courses.length > 0 ? courses.map(course => (
                                 <div 
                                     key={course.id} 
                                     onClick={() => navigate(`/courses/${course.id}`)}
-                                    style={{ 
-                                        padding: '15px', 
-                                        border: '1px solid #eee', 
-                                        borderRadius: '8px', 
-                                        cursor: 'pointer',
-                                        backgroundColor: '#f9fafb'
-                                    }}
+                                    className={styles.courseCard}
                                 >
-                                    <div style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>{course.title}</div>
-                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{course.term} {course.academicYear}</div>
+                                    <div className={styles.courseTitle}>{course.title}</div>
+                                    <div className={styles.courseMeta}>{course.term} {course.academicYear}</div>
                                 </div>
                             )) : (
                                 <p style={{ color: 'var(--text-muted)' }}>Du bist noch in keinen Kursen eingeschrieben.</p>

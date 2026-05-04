@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { courseApi, Course } from '../../api/courseApi';
 import { Link, useNavigate } from 'react-router-dom';
 import { Navbar } from '../../components/Navbar';
+import styles from './CourseList.module.css';
 
 export const CourseList: React.FC = () => {
     const [courses, setCourses] = useState<Course[]>([]);
@@ -35,33 +36,29 @@ export const CourseList: React.FC = () => {
     };
 
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-light)' }}>
+        <div className="app-page">
             <Navbar />
-            <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto' }}>
-                <h1 style={{ marginBottom: '30px' }}>Verfügbare Lehrveranstaltungen</h1>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '25px' }}>
+            <div className={styles.container}>
+                <h1 className={styles.title}>Verfügbare Lehrveranstaltungen</h1>
+                <div className={styles.grid}>
                     {courses.map(course => {
                         const isEnrolled = enrolledIds.includes(course.id);
                         return (
-                            <div key={course.id} className="auth-card" style={{ maxWidth: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                                <div style={{ marginBottom: '20px' }}>
-                                    <Link to={`/courses/${course.id}`} style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'var(--color-primary)', textDecoration: 'none' }}>
+                            <div key={course.id} className={`auth-card ${styles.courseCard}`}>
+                                <div className={styles.courseHeader}>
+                                    <Link to={`/courses/${course.id}`} className={styles.courseLink}>
                                         {course.title}
                                     </Link>
-                                    <p style={{ marginTop: '10px', fontWeight: '600', color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase' }}>
+                                    <p className={styles.courseType}>
                                         {course.type === 'LECTURE' ? 'Vorlesung' : 'Seminar'}
                                     </p>
-                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                                    <p className={styles.courseMeta}>
                                         {course.term === 'SUMMER' ? 'SoSe' : 'WiSe'} {course.academicYear}
                                     </p>
                                 </div>
                                 <button 
                                     onClick={() => isEnrolled ? navigate(`/courses/${course.id}`) : handleEnroll(course.id)}
-                                    className="btn-primary"
-                                    style={{ 
-                                        width: '100%', 
-                                        backgroundColor: isEnrolled ? 'var(--color-secondary)' : 'var(--color-primary)' 
-                                    }}
+                                    className={`btn-primary ${styles.enrollBtn} ${isEnrolled ? styles.enrolledBtn : ''}`}
                                 >
                                     {isEnrolled ? 'Ansehen' : 'Teilnehmen'}
                                 </button>
@@ -70,7 +67,7 @@ export const CourseList: React.FC = () => {
                     })}
                 </div>
                 {courses.length === 0 && (
-                    <div className="auth-card" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                    <div className={`auth-card ${styles.emptyState}`}>
                         Keine Lehrveranstaltungen gefunden.
                     </div>
                 )}
