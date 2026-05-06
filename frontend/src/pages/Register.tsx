@@ -55,7 +55,7 @@ export const Register = () => {
     if (success) {
         return (
             <LandingLayout>
-                <div className={`auth-card ${styles.successCard}`}>
+                <div className={`card auth-card ${styles.successCard}`}>
                     <h2 className={styles.successTitle}>Registrierung erfolgreich!</h2>
                     <p>Du wirst in Kürze zum Login weitergeleitet...</p>
                 </div>
@@ -65,7 +65,7 @@ export const Register = () => {
 
     return (
         <LandingLayout>
-            <div className="auth-card">
+            <div className="card auth-card">
                 <h2 className={styles.headerTitle}>Konto erstellen</h2>
                 <p className={styles.headerSubtitle}>Werde Teil der Zylos-Community.</p>
 
@@ -126,7 +126,7 @@ export const Register = () => {
                         {formData.profilePicture && (
                             <img 
                                 src={formData.profilePicture} 
-                                alt="Preview" className={styles.previewImage} />
+                                alt="Preview" className={`avatar-img ${styles.previewImage}`} style={{ width: '50px', height: '50px', marginTop: 'var(--spacing-sm)' }} />
                         )}
                     </div>
 
@@ -149,9 +149,9 @@ export const Register = () => {
                         </>
                     )}
 
-                    {error && <p className={styles.errorMessage}>{error}</p>}
+                    {error && <p className="error-message">{error}</p>}
 
-                    <button type="submit" className={`btn-primary ${styles.submitButton}`}>
+                    <button type="submit" className="btn-primary btn-block" style={{ marginTop: 'var(--spacing-sm)' }}>
                         Jetzt registrieren
                     </button>
                 </form>

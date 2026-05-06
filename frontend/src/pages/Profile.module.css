@@ -1,7 +1,8 @@
-.container {
-    padding: var(--spacing-xl);
-    max-width: 800px;
-    margin: 0 auto;
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: var(--spacing-xl);
+    align-items: start;
 }
 
 .actionHeader {
@@ -16,13 +17,6 @@
     align-items: center;
     gap: var(--spacing-lg);
     margin-bottom: var(--spacing-xl);
-}
-
-.avatar {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
 }
 
 .divider {
@@ -43,22 +37,10 @@
     gap: var(--spacing-md);
 }
 
-.courseCard {
-    padding: var(--spacing-md);
-    border: 1px solid #eee;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    background-color: #f9fafb;
-}
-
 .backBtn { }
 
 .editBtn {
     background-color: var(--color-secondary);
-}
-
-.cardFull {
-    max-width: 100% !important;
 }
 
 .email {
@@ -67,8 +49,12 @@
 }
 
 .courseSection {
-    max-width: 100% !important;
-    margin-top: var(--spacing-xl);
+    margin-top: 0;
+}
+
+.sidebar {
+    position: sticky;
+    top: 90px;
 }
 
 .courseSectionTitle {

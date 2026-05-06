@@ -52,7 +52,7 @@ export const Profile = () => {
     return (
         <div className="app-page">
             <Navbar />
-            <div className={styles.container}>
+            <div className="container">
                 <div className={styles.actionHeader}>
                     <button onClick={() => navigate('/dashboard')} className={`btn-primary ${styles.backBtn}`}>
                         ← Zurück
@@ -64,12 +64,14 @@ export const Profile = () => {
                     )}
                 </div>
                 
-                <div className={`auth-card ${styles.cardFull}`}>
+                <div className={styles.grid}>
+                <div className="card">
                     <div className={styles.profileHeader}>
                         <img 
                             src={profile.profilePicture || `${DEFAULT_AVATAR}${profile.firstName}+${profile.lastName}`} 
                             alt="Profile" 
-                            className={styles.avatar}
+                            className="avatar-img"
+                            style={{ width: '100px', height: '100px' }}
                         />
                         <div>
                             <h1 className="m-0">{profile.firstName} {profile.lastName}</h1>
@@ -114,9 +116,8 @@ export const Profile = () => {
                         </div>
                     </div>
                 </div>
-
                 {isOwnProfile && (
-                    <div className={`auth-card ${styles.courseSection}`}>
+                    <aside className={`card ${styles.courseSection} ${styles.sidebar}`}>
                         <h2 className={styles.courseSectionTitle}>Meine Kurse</h2>
                         <div className={styles.courseGrid}>
                             {courses.length > 0 ? courses.map(course => (
@@ -132,8 +133,9 @@ export const Profile = () => {
                                 <p style={{ color: 'var(--text-muted)' }}>Du bist noch in keinen Kursen eingeschrieben.</p>
                             )}
                         </div>
-                    </div>
+                    </aside>
                 )}
+                </div>
             </div>
         </div>
     );

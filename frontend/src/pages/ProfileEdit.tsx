@@ -84,8 +84,8 @@ export const ProfileEdit = () => {
     return (
         <div className="app-page">
             <Navbar />
-            <div className={styles.container}>
-                <div className={`auth-card ${styles.card}`}>
+            <div className="container container-narrow text-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div className="card" style={{ textAlign: 'left' }}>
                     <h2>Profil bearbeiten</h2>
                     <p className={styles.subtitle}>
                         Ändere deine persönlichen Informationen für {formData.firstName} {formData.lastName}.
@@ -96,7 +96,7 @@ export const ProfileEdit = () => {
                             <label>Profilbild</label>
                             <input type="file" accept="image/*" className="form-input" onChange={handleFileChange} />
                             {formData.profilePicture && (
-                                <img src={formData.profilePicture} alt="Preview" className={styles.previewImage} />
+                                <img src={formData.profilePicture} alt="Preview" className="avatar-img" style={{ width: '80px', height: '80px', marginTop: 'var(--spacing-sm)' }} />
                             )}
                         </div>
 
@@ -144,7 +144,7 @@ export const ProfileEdit = () => {
                             </>
                         )}
 
-                        {error && <p className={styles.error}>{error}</p>}
+                        {error && <p className="error-message">{error}</p>}
 
                         <div className={styles.buttonGroup}>
                             <button type="submit" className="btn-primary">Speichern</button>

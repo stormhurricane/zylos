@@ -1,19 +1,23 @@
 .main {
-    flex: 1;
     padding: var(--spacing-xl);
+    max-width: 1600px; /* Erhöhte Breite für mehr Screen-Nutzung */
+    margin: 0 auto;
 }
 
 .header {
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 2px solid var(--color-light);
+    padding-bottom: var(--spacing-md);
 }
 
 .grid {
     display: grid;
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: 1fr 320px; /* Suche links (flexibel), Kurse rechts (fest) */
     gap: var(--spacing-xl);
+    align-items: start;
 }
 
 .content {
@@ -28,18 +32,9 @@
     gap: var(--spacing-md);
 }
 
-.userCard {
-    padding: var(--spacing-lg) !important;
-    text-align: center;
-    max-width: 100% !important;
-}
-
-.userAvatar {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    margin-bottom: var(--spacing-sm);
-    object-fit: cover;
+.sidebar {
+    position: sticky;
+    top: 90px; /* Bleibt beim Scrollen unter der Navbar (70px + Puffer) stehen */
 }
 
 .profileBtn {
@@ -55,11 +50,6 @@
 
 .profileBtn:hover {
     background-color: var(--color-primary-soft);
-}
-
-.sidebarCard {
-    max-width: 100% !important;
-    padding: var(--spacing-md) !important;
 }
 
 .courseItem {

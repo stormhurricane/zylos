@@ -40,18 +40,18 @@ export const CourseCreate: React.FC = () => {
     return (
         <div className="app-page">
             <Navbar />
-            <main className={styles.container}>
+            <main className="container">
                 <h1 className={styles.title}>Lehrveranstaltung verwalten</h1>
 
                 {status && (
-                    <div className={`auth-card ${styles.statusMessage} ${status.type === 'success' ? styles.statusSuccess : styles.statusError}`}>
+                    <div className={`status-box ${status.type === 'success' ? 'status-success' : 'status-error'}`}>
                         {status.text}
                     </div>
                 )}
 
                 <div className={styles.grid}>
                     {/* Manual Form */}
-                    <section className={`auth-card ${styles.sectionCard}`}>
+                    <section className="card">
                         <h2 className={styles.manualTitle}>Manuelle Eingabe</h2>
                         <form onSubmit={handleManualSubmit}>
                             <div className="form-group">
@@ -101,7 +101,7 @@ export const CourseCreate: React.FC = () => {
                     </section>
 
                     {/* CSV Import */}
-                    <section className={`auth-card ${styles.sectionCard}`}>
+                    <section className="card">
                         <h2 className={styles.csvTitle}>CSV Import</h2>
                         <p className={styles.csvDescription}>
                             Format: Titel;Typ;Semester;Jahr

@@ -37,7 +37,7 @@ export const Login = () => {
 
     return (
         <LandingLayout>
-        <div className="auth-card">
+        <div className="card auth-card">
             <h2 className={styles.headerTitle}>Willkommen zurück</h2>
             <p className={styles.headerSubtitle}>Bitte logge dich in dein Konto ein.</p>
             
@@ -64,8 +64,8 @@ export const Login = () => {
                     />
                     {fieldErrors.password && <div className="error-message">{fieldErrors.password}</div>}
                 </div>
-                {error && <p className={styles.errorMessage}>{error}</p>}
-                <button type="submit" className={`btn-primary ${styles.submitButton}`}>
+                {error && <p className="error-message">{error}</p>}
+                <button type="submit" className="btn-primary btn-block" style={{ marginTop: 'var(--spacing-sm)' }}>
                     Anmelden
                 </button>
             </form>

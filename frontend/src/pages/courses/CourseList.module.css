@@ -1,9 +1,3 @@
-.container {
-    padding: var(--spacing-xl);
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
 .title {
     margin-bottom: var(--spacing-lg);
 }
@@ -12,13 +6,6 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: var(--spacing-lg);
-}
-
-.courseCard {
-    max-width: 100% !important;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
 }
 
 .courseHeader {
@@ -55,11 +42,4 @@
 
 .enrolledBtn {
     background-color: var(--color-secondary) !important;
-}
-
-.emptyState {
-    max-width: 100% !important;
-    text-align: center;
-    padding: var(--spacing-xl) !important;
-    color: var(--text-muted);
 }

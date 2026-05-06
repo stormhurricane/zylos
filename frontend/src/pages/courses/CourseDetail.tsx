@@ -128,7 +128,7 @@ export const CourseDetail: React.FC = () => {
     return (
         <div className="app-page">
             <Navbar />
-            <div className={styles.container}>
+            <div className={`container ${styles.container}`}>
                 {/* Linke Spalte: Kurs-Info & Materialien */}
                 <div className={styles.leftColumn}>
                     <section className={styles.header}>
@@ -138,11 +138,11 @@ export const CourseDetail: React.FC = () => {
                         </p>
                     </section>
 
-                    <section className={`auth-card ${styles.sectionCard}`}>
+                    <section className="card">
                         <h2 className={styles.sectionTitle}>Lehrmaterialien</h2>
                         
                         {uploadStatus && (
-                            <div className={`${styles.status} ${uploadStatus.type === 'success' ? 'status-success' : 'status-error'}`}>
+                            <div className={`status-box ${uploadStatus.type === 'success' ? 'status-success' : 'status-error'}`}>
                                 {uploadStatus.text}
                             </div>
                         )}
@@ -190,7 +190,7 @@ export const CourseDetail: React.FC = () => {
 
                 {/* Rechte Spalte: Teilnehmerliste */}
                 <aside className={styles.rightColumn}>
-                    <section className={`auth-card ${styles.sectionCard}`}>
+                    <section className="card">
                         <h3 className={styles.participantGroupTitle}>Lehrende</h3>
                         <div className={styles.participantList}>
                             {participants?.instructors.map(prof => (

@@ -1,9 +1,3 @@
-.container {
-    padding: var(--spacing-xl);
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
 .title {
     margin-bottom: var(--spacing-xl);
 }
@@ -12,10 +6,6 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--spacing-xl);
-}
-
-.sectionCard {
-    max-width: 100% !important;
 }
 
 .manualTitle {
@@ -41,22 +31,4 @@
 
 .csvBtn {
     background-color: var(--color-secondary) !important;
-}
-
-.statusMessage {
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
-    border-radius: var(--border-radius);
-    font-weight: 500;
-    max-width: 100% !important;
-}
-
-.statusSuccess {
-    background-color: #dcfce7;
-    color: #166534;
-}
-
-.statusError {
-    background-color: #fee2e2;
-    color: #991b1b;
 }

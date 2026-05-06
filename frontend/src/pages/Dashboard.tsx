@@ -58,11 +58,12 @@ export const Dashboard = () => {
                     {searchResults.length > 0 ? (
                         <div className={styles.resultsGrid}>
                             {searchResults.map((res: any, idx: number) => (
-                                <div key={res.id || idx} className={`auth-card ${styles.userCard}`}>
+                                <div key={res.id || idx} className="card text-center">
                                     <img 
                                         src={res.profilePicture || `${DEFAULT_AVATAR}${res.firstName}+${res.lastName}`} 
                                         alt="Avatar"
-                                        className={styles.userAvatar}
+                                        className="avatar-img"
+                                        style={{ width: '60px', height: '60px', margin: '0 auto var(--spacing-sm)' }}
                                     />
                                     <h4 style={{ margin: '5px 0' }}>{res.firstName} {res.lastName}</h4>
                                     <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{res.studySubject || res.chair || 'Nutzer'}</p>
@@ -76,7 +77,7 @@ export const Dashboard = () => {
                             ))}
                         </div>
                     ) : (
-                        <div className="auth-card text-center text-muted">
+                        <div className="card text-center text-muted">
                             Nutze die Suche oben, um Kommilitonen oder Dozenten zu finden.
                         </div>
                     )}
@@ -84,8 +85,8 @@ export const Dashboard = () => {
                     </div>
 
                     {/* Sidebar: Meine Kurse */}
-                    <aside>
-                        <div className={`auth-card ${styles.sidebarCard}`}>
+                    <aside className={styles.sidebar}>
+                        <div className="card">
                             <h3 className="color-primary mb-4">Meine Kurse</h3>
                             <div className="flex flex-col gap-4">
                                 {myCourses.length > 0 ? myCourses.map(course => (

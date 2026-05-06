@@ -38,13 +38,13 @@ export const CourseList: React.FC = () => {
     return (
         <div className="app-page">
             <Navbar />
-            <div className={styles.container}>
+            <div className="container">
                 <h1 className={styles.title}>Verfügbare Lehrveranstaltungen</h1>
                 <div className={styles.grid}>
                     {courses.map(course => {
                         const isEnrolled = enrolledIds.includes(course.id);
                         return (
-                            <div key={course.id} className={`auth-card ${styles.courseCard}`}>
+                            <div key={course.id} className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                                 <div className={styles.courseHeader}>
                                     <Link to={`/courses/${course.id}`} className={styles.courseLink}>
                                         {course.title}
@@ -67,7 +67,7 @@ export const CourseList: React.FC = () => {
                     })}
                 </div>
                 {courses.length === 0 && (
-                    <div className={`auth-card ${styles.emptyState}`}>
+                    <div className="card text-center text-muted">
                         Keine Lehrveranstaltungen gefunden.
                     </div>
                 )}
