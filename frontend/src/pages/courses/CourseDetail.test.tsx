@@ -15,9 +15,6 @@ vi.mock('../../api/courseApi', () => ({
 }));
 
 describe('CourseDetail Component', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
 
     it('renders course info, materials and participants', async () => {
         (courseApi.getCourseById as any).mockResolvedValue({

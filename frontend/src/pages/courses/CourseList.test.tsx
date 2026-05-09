@@ -15,10 +15,6 @@ vi.mock('../../api/courseApi', () => ({
 }));
 
 describe('CourseList Component', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
-
     it('renders courses and handles enrollment', async () => {
         const mockCourse = { id: 1, title: 'Software Engineering', type: 'LECTURE', term: 'SUMMER', academicYear: '2024' };
         

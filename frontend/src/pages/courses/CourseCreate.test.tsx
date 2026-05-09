@@ -14,9 +14,6 @@ vi.mock('../../api/courseApi', () => ({
 }));
 
 describe('CourseCreate Component', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
 
     it('submits manual course creation successfully', async () => {
         (courseApi.createCourse as any).mockResolvedValue({ data: { id: 100 } });
