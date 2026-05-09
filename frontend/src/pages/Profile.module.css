@@ -37,8 +37,6 @@
     gap: var(--spacing-md);
 }
 
-.backBtn { }
-
 .editBtn {
     background-color: var(--color-secondary);
 }
