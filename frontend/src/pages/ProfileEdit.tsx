@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { ProfileResponse, ProfileUpdateRequest } from '../api/types';
+import { PageLoader } from '../components/PageLoader';
 import styles from './ProfileEdit.module.css';
 
 export const ProfileEdit = () => {
@@ -78,7 +79,7 @@ export const ProfileEdit = () => {
         }
     };
 
-    if (loading) return <div className="text-center">Lädt...</div>;
+    if (loading) return <PageLoader message="Einstellungen werden geladen..." />;
 
     return (
         <div className="app-page">

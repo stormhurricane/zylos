@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { ProfileResponse } from '../api/types';
 import { courseApi, Course } from '../api/courseApi';
+import { PageLoader } from '../components/PageLoader';
 import { useAuth } from '../context/AuthContext';
 import styles from './Profile.module.css';
 
@@ -43,7 +44,7 @@ export const Profile = () => {
         }
     }, [id, currentUserId]);
 
-    if (loading) return <div className="text-center">Lädt...</div>;
+    if (loading) return <PageLoader message="Profil wird geladen..." />;
     if (!profile) return <div className="text-center">Profil nicht gefunden.</div>;
 
     const isOwnProfile = !id || String(id) === String(currentUserId);

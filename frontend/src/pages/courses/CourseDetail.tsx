@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { courseApi, Course, ParticipantsResponse, Material } from '../../api/courseApi';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
+import { PageLoader } from '../../components/PageLoader';
 import styles from './CourseDetail.module.css';
 
 export const CourseDetail: React.FC = () => {
@@ -121,7 +122,7 @@ export const CourseDetail: React.FC = () => {
         }
     };
 
-    if (loading) return <div className="text-center">Lade Kursdetails...</div>;
+    if (loading) return <PageLoader message="Kursdetails werden geladen..." />;
     if (!course) return <div className="text-center color-error">Kurs nicht gefunden.</div>;
 
     return (
