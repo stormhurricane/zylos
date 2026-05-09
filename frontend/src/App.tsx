@@ -5,8 +5,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { Navbar } from './components/Navbar';
 import { PageLoader } from './components/PageLoader';
 
-// Lazy Loading für die Seiten
-// Da wir Named Exports verwenden, mappen wir diese auf 'default' für React.lazy
+// Lazy Loading
 const Login = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })));
 const Register = lazy(() => import('./pages/Register').then(m => ({ default: m.Register })));
 const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -38,8 +37,8 @@ function App() {
             {/* Protected Area with Layout */}
             <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<Dashboard />} />
-              {/* Konsolidiert: Ein Pfad mit optionalem ID-Parameter wäre hier möglich, 
-                  aber wir bleiben bei zwei expliziten Pfaden für bessere Lesbarkeit */}
+              {/* Consolidated: A single path with an optional ID parameter would be possible here, 
+                  but we'll stick to two explicit paths for better readability */}
               <Route path="/profile" element={<Profile />} />
               <Route path="/profile/:id" element={<Profile />} />
               <Route path="/profile/edit" element={<ProfileEdit />} />
