@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { courseApi, Course, ParticipantsResponse, Material } from '../../api/courseApi';
 import api from '../../api/axios';
-import { Navbar } from '../../components/Navbar';
 import { useAuth } from '../../context/AuthContext';
 import styles from './CourseDetail.module.css';
 
@@ -127,7 +126,6 @@ export const CourseDetail: React.FC = () => {
 
     return (
         <div className="app-page">
-            <Navbar />
             <div className={`container ${styles.container}`}>
                 {/* Linke Spalte: Kurs-Info & Materialien */}
                 <div className={styles.leftColumn}>

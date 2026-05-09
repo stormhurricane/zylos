@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { ProfileResponse } from '../api/types';
 import { courseApi, Course } from '../api/courseApi';
-import { Navbar } from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
 import styles from './Profile.module.css';
 
@@ -51,7 +50,6 @@ export const Profile = () => {
 
     return (
         <div className="app-page">
-            <Navbar />
             <div className="container">
                 <div className={styles.actionHeader}>
                     <button onClick={() => navigate('/dashboard')} className={`btn-primary ${styles.backBtn}`}>

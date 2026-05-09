@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { courseApi, Course } from '../../api/courseApi';
 import { Link, useNavigate } from 'react-router-dom';
-import { Navbar } from '../../components/Navbar';
 import styles from './CourseList.module.css';
 
 export const CourseList: React.FC = () => {
@@ -37,7 +36,6 @@ export const CourseList: React.FC = () => {
 
     return (
         <div className="app-page">
-            <Navbar />
             <div className="container">
                 <h1 className={styles.title}>Verfügbare Lehrveranstaltungen</h1>
                 <div className={styles.grid}>

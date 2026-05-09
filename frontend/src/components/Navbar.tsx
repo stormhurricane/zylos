@@ -3,22 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import styles from './Navbar.module.css';
 
-interface NavbarProps {
-    onSearch?: (query: string) => void;
-}
-
-export const Navbar: React.FC<NavbarProps> = ({ onSearch }) => {
+export const Navbar: React.FC = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
 
     const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (onSearch) {
-            onSearch(searchQuery);
-        } else {
-            navigate(`/dashboard?q=${encodeURIComponent(searchQuery)}`);
-        }
+        navigate(`/dashboard?q=${encodeURIComponent(searchQuery)}`);
     };
 
     // Lehrende haben keine Matrikelnummer, Studierende hingegen schon.

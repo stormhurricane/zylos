@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { courseApi } from '../../api/courseApi';
-import { Navbar } from '../../components/Navbar';
 import styles from './CourseCreate.module.css';
 
 export const CourseCreate: React.FC = () => {
@@ -39,7 +38,6 @@ export const CourseCreate: React.FC = () => {
 
     return (
         <div className="app-page">
-            <Navbar />
             <main className="container">
                 <h1 className={styles.title}>Lehrveranstaltung verwalten</h1>
 

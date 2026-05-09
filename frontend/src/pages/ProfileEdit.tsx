@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { ProfileResponse, ProfileUpdateRequest } from '../api/types';
-import { Navbar } from '../components/Navbar';
 import styles from './ProfileEdit.module.css';
 
 export const ProfileEdit = () => {
@@ -83,7 +82,6 @@ export const ProfileEdit = () => {
 
     return (
         <div className="app-page">
-            <Navbar />
             <div className="container container-narrow text-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <div className="card" style={{ textAlign: 'left' }}>
                     <h2>Profil bearbeiten</h2>

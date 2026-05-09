@@ -10,37 +10,43 @@ import { CourseList } from './pages/courses/CourseList';
 import { CourseCreate } from './pages/courses/CourseCreate';
 import { CourseDetail } from './pages/courses/CourseDetail';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { Navbar } from './components/Navbar';
+import { Outlet } from 'react-router-dom';
 
-/**
- * Zentrales Routing der Zylos-Plattform.
- * Hier werden alle vertikalen Slices (Auth, Profile, Courses) zusammengeführt.
- */
+const MainLayout = () => (
+  <div className="app-layout">
+    <Navbar />
+    <main>
+      <Outlet />
+    </main>
+  </div>
+);
+
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Öffentliche Routen */}
+          {/* Public Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Dashboard & Profil */}
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/profile/:id" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/profile/edit" element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} />
+          {/* Protected Area with Layout */}
+          <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/:id" element={<Profile />} />
+            <Route path="/profile/edit" element={<ProfileEdit />} />
+            
+            <Route path="/courses" element={<CourseList />} />
+            <Route 
+              path="/courses/new" 
+              element={<ProtectedRoute requiredRole="INSTRUCTOR"><CourseCreate /></ProtectedRoute>} 
+            />
+            <Route path="/courses/:id" element={<CourseDetail />} />
+          </Route>
 
-          {/* Slice 2: Lehrveranstaltungen & Materialien */}
-          {/* Übersicht aller Kurse */}
-          <Route path="/courses" element={<ProtectedRoute><CourseList /></ProtectedRoute>} />
-          
-          {/* Erstellen einer neuen LV (Manuell/CSV) - Nur für Lehrende gedacht */}
-          <Route path="/courses/new" element={<ProtectedRoute requiredRole="INSTRUCTOR"><CourseCreate /></ProtectedRoute>} />
-          
-          {/* Detailansicht mit Teilnehmerliste und Materialien */}
-          <Route path="/courses/:id" element={<ProtectedRoute><CourseDetail /></ProtectedRoute>} />
-
-          {/* Standard-Weiterleitung */}
+          {/* Standard-Rerouting */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

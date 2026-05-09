@@ -3,7 +3,6 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import { courseApi, Course } from '../api/courseApi';
-import { Navbar } from '../components/Navbar';
 import styles from './Dashboard.module.css';
 
 const DEFAULT_AVATAR = "https://ui-avatars.com/api/?background=4CAF50&color=fff&name=";
@@ -43,8 +42,6 @@ export const Dashboard = () => {
 
     return (
         <div className="app-page">
-            <Navbar onSearch={performSearch} />
-            
             <main className={styles.main}>
                 <header className={styles.header}>
                     <h1>Willkommen, {user?.firstName}!</h1>
