@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import api from '../api/axios';
-import { ProfileResponse } from '../api/types';
+import { userApi } from '../api/userApi';
+import { ProfileResponse, Course } from '../api/types';
 import { courseApi } from '../api/courseApi';
-import { Course } from '../api/types';
 import { PageLoader } from '../components/PageLoader';
 import { useAuth } from '../context/AuthContext';
 import styles from './Profile.module.css';
@@ -21,8 +20,7 @@ export const Profile = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const endpoint = id ? `/users/${id}` : '/users/me';
-                const response = await api.get<ProfileResponse>(endpoint);
+                const response = await userApi.getProfile(id);
                 console.log("Geladene Profil-ID:", response.data.id);
                 setProfile(response.data);
             } catch (err) {
