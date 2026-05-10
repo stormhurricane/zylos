@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         const savedUser = localStorage.getItem('user');
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken');
         if (savedUser && token) {
             setUser(JSON.parse(savedUser));
         }
@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const response = await api.post<AuthResponse>('/users/login', credentials);
             const authData = response.data;
             
-            localStorage.setItem('token', authData.accessToken);
+            localStorage.setItem('accessToken', authData.accessToken);
             localStorage.setItem('user', JSON.stringify(authData));
             setUser(authData);
         } catch (error) {
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
+        localStorage.removeItem('accessToken');
         localStorage.removeItem('user');
         setUser(null);
     };
