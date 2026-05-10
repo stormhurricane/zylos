@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { courseApi, Course, ParticipantsResponse, Material } from '../../api/courseApi';
+import { courseApi } from '../../api/courseApi';
+import { Course, ParticipantsResponse, Material } from '../../api/types';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import { PageLoader } from '../../components/PageLoader';

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
-import { courseApi, Course } from '../api/courseApi';
+import { courseApi } from '../api/courseApi';
+import { Course } from '../api/types';
 import styles from './Dashboard.module.css';
 
 const DEFAULT_AVATAR = "https://ui-avatars.com/api/?background=4CAF50&color=fff&name=";

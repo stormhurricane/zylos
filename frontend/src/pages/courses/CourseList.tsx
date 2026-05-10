@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { courseApi, Course } from '../../api/courseApi';
+import { courseApi} from '../../api/courseApi';
+import {Course} from '../../api/types';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './CourseList.module.css';
 

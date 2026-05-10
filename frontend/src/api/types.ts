@@ -42,3 +42,30 @@ export interface ProfileUpdateRequest {
     profilePicture?: string;
     // Rollenspezifische Felder weggelassen für Kürze
 }
+
+export interface Course {
+    id: number;
+    title: string;
+    type: 'LECTURE' | 'SEMINAR';
+    term: 'SUMMER' | 'WINTER';
+    academicYear: string;
+}
+
+export interface UserResponse {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+}
+
+export interface ParticipantsResponse {
+    instructors: UserResponse[];
+    students: UserResponse[];
+}
+
+export interface Material {
+    id: number;
+    title: string;
+    fileName: string;
+    contentType: string;
+}
