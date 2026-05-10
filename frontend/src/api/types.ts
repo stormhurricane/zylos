@@ -15,14 +15,14 @@ export interface ProfileResponse {
     email: string;
     privateAddress: string;
     profilePicture?: string;
-    matriculationNumber?: string; // Nur für Studenten
-    studySubject?: string;        // Nur für Studenten
-    researchArea?: string;        // Nur für Lehrende
-    chair?: string;               // Nur für Lehrende
+    matriculationNumber?: string; // Only for students
+    studySubject?: string;        // Only for students
+    researchArea?: string;        // Only for instructors
+    chair?: string;               // Only for instructors
 }
 
 export interface LoginRequest {
-    identifier: string; // Email oder Matrikelnummer
+    identifier: string; // Email or matriculation number
     password: string;
 }
 
@@ -37,10 +37,15 @@ export interface StudentRegistrationRequest {
 }
 
 export interface ProfileUpdateRequest {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
     password?: string;
     privateAddress?: string;
     profilePicture?: string;
-    // Rollenspezifische Felder weggelassen für Kürze
+    studySubject?: string;
+    researchArea?: string;
+    chair?: string;
 }
 
 export interface Course {
