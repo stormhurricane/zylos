@@ -46,6 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(null);
     };
 
+    // Compute derived state for easy access in components
     return (
         <AuthContext.Provider value={{ 
             user, 
@@ -53,7 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             logout, 
             isAuthenticated: !!user,
             loading,
-            isInstructor: user ? !('matriculationNumber' in user) : false
+            isInstructor: user?.role === 'TEACHER'
         }}>
             {!loading && children}
         </AuthContext.Provider>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { LandingLayout } from '../components/LandingLayout';
 import styles from './Register.module.css'; // Wir teilen uns die Auth-Styles
 
@@ -10,6 +10,7 @@ export const Login = () => {
     const [error, setError] = useState('');
     const [fieldErrors, setFieldErrors] = useState<{identifier?: string, password?: string}>({});
     const { login } = useAuth();
+    const location = useLocation(); // Get the current location object
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -29,7 +30,8 @@ export const Login = () => {
 
         try {
             await login({ identifier, password });
-            navigate('/dashboard');
+            // Redirect to the 'from' path if it exists, otherwise to '/dashboard'
+            navigate(location.state?.from?.pathname || '/dashboard');
         } catch (err: any) {
             setError(err.response?.data?.error || 'Login fehlgeschlagen. Bitte Daten prüfen.');
         }
