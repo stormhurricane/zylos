@@ -20,12 +20,9 @@ export const CourseDetail: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [studentSearch, setStudentSearch] = useState('');
     const [searchResults, setSearchResults] = useState<any[]>([]);
-    const { user } = useAuth();
+    const { user, isInstructor } = useAuth();
     console.log("Aktueller User aus Context:", user);
 
-
-    const isInstructor = user && !('matriculationNumber' in user);
-    // Prüfe verschiedene gängige Namen für die ID im Auth-Objekt
     const currentUserId = user?.userId;
 
     const isEnrolled = currentUserId && (

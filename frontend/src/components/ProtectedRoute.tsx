@@ -9,13 +9,13 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
-    const { user } = useAuth();
+    const { user, isInstructor } = useAuth();
 
     if (!user) {
         return <Navigate to="/login" replace />;
     }
 
-    if (requiredRole === 'INSTRUCTOR' && ('matriculationNumber' in user)) {
+    if (requiredRole === 'INSTRUCTOR' && !isInstructor) {
         return <Navigate to="/dashboard" replace />;
     }
 

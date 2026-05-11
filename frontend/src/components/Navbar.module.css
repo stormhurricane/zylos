@@ -36,6 +36,12 @@
   text-decoration: none;
 }
 
+.active {
+  color: var(--color-primary) !important;
+  font-weight: 600;
+  border-bottom: 2px solid var(--color-primary);
+}
+
 .searchForm {
   flex: 1;
   max-width: 500px;

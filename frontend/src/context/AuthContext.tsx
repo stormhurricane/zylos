@@ -8,6 +8,7 @@ interface AuthContextType {
     logout: () => void;
     isAuthenticated: boolean;
     loading: boolean;
+    isInstructor: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -51,7 +52,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             login, 
             logout, 
             isAuthenticated: !!user,
-            loading 
+            loading,
+            isInstructor: user ? !('matriculationNumber' in user) : false
         }}>
             {!loading && children}
         </AuthContext.Provider>
