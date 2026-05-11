@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LandingLayout } from '../components/LandingLayout';
-import api from '../api/axios';
+import { userApi } from '../api/userApi';
 import styles from './Register.module.css';
 
 export const Register = () => {
@@ -43,8 +43,12 @@ export const Register = () => {
         setError('');
         
         try {
-            const endpoint = userType === 'student' ? '/users/register/student' : '/users/register/teacher';
-            await api.post(endpoint, formData);
+            if (userType === 'student') {
+                await userApi.registerStudent(formData);
+            } else {
+                await userApi.registerTeacher(formData);
+            }
+            
             setSuccess(true);
             setTimeout(() => navigate('/login'), 3000);
         } catch (err: any) {

@@ -32,6 +32,10 @@ export const courseApi = {
     getParticipants: (courseId: number) => 
         api.get<ParticipantsResponse>(`/courses/${courseId}/participants`),
 
+    /** Adds a specific user as a participant to a course (Instructor only) */
+    addParticipant: (courseId: number, userId: number) =>
+        api.post<void>(`/courses/${courseId}/participants`, { userId }),
+
     /** Fetches all teaching materials for a course */
     getMaterials: (courseId: number) => 
         api.get<Material[]>(`/courses/${courseId}/materials`),

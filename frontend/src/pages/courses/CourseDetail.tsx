@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { courseApi } from '../../api/courseApi';
 import { Course, ParticipantsResponse, Material } from '../../api/types';
-import api from '../../api/axios';
+import { userApi } from '../../api/userApi';
 import { useAuth } from '../../context/AuthContext';
 import { PageLoader } from '../../components/PageLoader';
 import styles from './CourseDetail.module.css';
@@ -40,7 +40,7 @@ export const CourseDetail: React.FC = () => {
             return;
         }
         try {
-            const res = await api.get('/users/search', { params: { q: query } });
+            const res = await userApi.searchUsers(query);
             // Nur Nutzer vorschlagen, die noch nicht im Kurs sind
             const filtered = res.data.filter((u: any) => 
                 !participants?.students?.some(s => s.id === u.id) &&
@@ -54,7 +54,7 @@ export const CourseDetail: React.FC = () => {
 
     const handleAddStudent = async (studentId: number) => {
         try {
-            await api.post(`/courses/${courseId}/participants`, { userId: studentId });
+            await courseApi.addParticipant(courseId, studentId);
             setStudentSearch('');
             setSearchResults([]);
             loadData(); // Liste neu laden

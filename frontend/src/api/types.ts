@@ -36,6 +36,17 @@ export interface StudentRegistrationRequest {
     profilePicture?: string;
 }
 
+export interface TeacherRegistrationRequest {
+    firstName: string;
+    lastName: string;
+    password: string;
+    email: string;
+    privateAddress: string;
+    chair: string;
+    researchArea: string;
+    profilePicture?: string;
+}
+
 export interface ProfileUpdateRequest {
     firstName?: string;
     lastName?: string;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axios';
+import { userApi } from '../api/userApi';
 import { ProfileResponse, ProfileUpdateRequest } from '../api/types';
 import { PageLoader } from '../components/PageLoader';
 import styles from './ProfileEdit.module.css';
@@ -30,7 +30,7 @@ export const ProfileEdit = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await api.get<ProfileResponse>('/users/me');
+                const response = await userApi.getProfile();
                 const data = response.data;
                 setFormData({
                     password: '',
@@ -72,7 +72,7 @@ export const ProfileEdit = () => {
         try {
             // Filter out display-only fields before sending to API
             const { firstName, lastName, ...updateData } = formData;
-            await api.put('/users/me', updateData);
+            await userApi.updateProfile(updateData);
             navigate('/profile');
         } catch (err) {
             setError('Update fehlgeschlagen.');

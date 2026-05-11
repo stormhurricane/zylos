@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AuthResponse, LoginRequest } from '../api/types';
-import api from '../api/axios';
+import { userApi } from '../api/userApi';
 
 interface AuthContextType {
     user: AuthResponse | null;
@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const login = async (credentials: LoginRequest) => {
         try {
-            const response = await api.post<AuthResponse>('/users/login', credentials);
+            const response = await userApi.login(credentials);
             const authData = response.data;
             
             localStorage.setItem('accessToken', authData.accessToken);

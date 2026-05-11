@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import api from '../api/axios';
+import { userApi } from '../api/userApi';
 import { courseApi } from '../api/courseApi';
 import { Course } from '../api/types';
 import styles from './Dashboard.module.css';
@@ -17,7 +17,7 @@ export const Dashboard = () => {
 
     const performSearch = async (query: string) => {
         try {
-            const response = await api.get('/users/search', { params: { q: query } });
+            const response = await userApi.searchUsers(query);
             setSearchResults(response.data);
         } catch (err) {
             console.error("Suche fehlgeschlagen", err);
