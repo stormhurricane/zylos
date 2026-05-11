@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './LandingLayout.module.css';
+import logo from '../assets/logo_round.webp'; 
 
 interface LandingLayoutProps {
     children: React.ReactNode;
@@ -7,15 +8,15 @@ interface LandingLayoutProps {
 
 export const LandingLayout: React.FC<LandingLayoutProps> = ({ children }) => {
     return (
-        <div className={styles.container}>
-            <div className={styles.left}>
-                <img src="/src/assets/logo_round.webp" alt="Zylos Logo" className={styles.logo} />
+        <main className={styles.container}> 
+            <section className={styles.left}> 
+                <img src={logo} alt="Zylos Logo" className={styles.logo} /> 
                 <h1 className={styles.title}>Zylos</h1>
                 <p className={styles.subtitle}>Dein Campus. Deine Projekte. Deine Zukunft.</p>
-            </div>
-            <div className={styles.right}>
+            </section>
+            <section className={styles.right}> 
                 {children}
-            </div>
-        </div>
+            </section>
+        </main>
     );
 };
