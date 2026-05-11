@@ -8,6 +8,7 @@ interface AuthContextType {
     logout: () => void;
     isAuthenticated: boolean;
     loading: boolean;
+    isAuthenticating: boolean;
     isInstructor: boolean;
 }
 
@@ -16,17 +17,25 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<AuthResponse | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isAuthenticating, setIsAuthenticating] = useState(false);
 
     useEffect(() => {
         const savedUser = localStorage.getItem('user');
         const token = localStorage.getItem('accessToken');
         if (savedUser && token) {
-            setUser(JSON.parse(savedUser));
+            try {
+                setUser(JSON.parse(savedUser));
+            } catch (error) {
+                console.error('Fehler beim Laden der Benutzersitzung:', error);
+                localStorage.removeItem('user');
+                localStorage.removeItem('accessToken');
+            }
         }
         setLoading(false);
     }, []);
 
     const login = async (credentials: LoginRequest) => {
+        setIsAuthenticating(true);
         try {
             const response = await userApi.login(credentials);
             const authData = response.data;
@@ -37,13 +46,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } catch (error) {
             console.error('Login failed', error);
             throw error;
+        } finally {
+            setIsAuthenticating(false);
         }
     };
 
     const logout = () => {
+        setIsAuthenticating(true);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('user');
         setUser(null);
+        setIsAuthenticating(false);
     };
 
     // Compute derived state for easy access in components
@@ -54,6 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             logout, 
             isAuthenticated: !!user,
             loading,
+            isAuthenticating,
             isInstructor: user?.role === 'TEACHER'
         }}>
             {!loading && children}
