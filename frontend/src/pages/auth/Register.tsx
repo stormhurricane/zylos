@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LandingLayout } from '../components/LandingLayout';
-import { userApi } from '../api/userApi';
+import { LandingLayout } from '../../components/LandingLayout';
+import { userApi } from '../../api/userApi';
 import styles from './Register.module.css';
 
 export const Register = () => {

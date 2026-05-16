@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LandingLayout } from '../components/LandingLayout';
+import { LandingLayout } from '../../components/LandingLayout';
 import styles from './Register.module.css'; // Wir teilen uns die Auth-Styles
 
 export const Login = () => {

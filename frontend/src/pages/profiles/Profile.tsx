@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { userApi } from '../api/userApi';
-import { ProfileResponse, Course } from '../api/types';
-import { courseApi } from '../api/courseApi';
-import { PageLoader } from '../components/PageLoader';
-import { useAuth } from '../context/AuthContext';
+import { userApi } from '../../api/userApi';
+import { ProfileResponse, Course } from '../../api/types';
+import { courseApi } from '../../api/courseApi';
+import { PageLoader } from '../../components/PageLoader';
+import { useAuth } from '../../context/AuthContext';
 import styles from './Profile.module.css';
 
 const DEFAULT_AVATAR = "https://ui-avatars.com/api/?background=4CAF50&color=fff&name=";

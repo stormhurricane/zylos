@@ -3,8 +3,7 @@ import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi } from 'vitest';
 import { Login } from './Login';
 import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from '../context/AuthContext';
-import api from '../api/axios';
+import { AuthProvider } from '../../context/AuthContext';
 
 // Mocken des API-Moduls
 vi.mock('../api/axios', () => ({

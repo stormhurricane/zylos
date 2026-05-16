@@ -6,11 +6,11 @@ import { Navbar } from './components/Navbar';
 import { PageLoader } from './components/PageLoader';
 
 // Lazy Loading
-const Login = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })));
-const Register = lazy(() => import('./pages/Register').then(m => ({ default: m.Register })));
+const Login = lazy(() => import('./pages/auth/Login').then(m => ({ default: m.Login })));
+const Register = lazy(() => import('./pages/auth/Register').then(m => ({ default: m.Register })));
 const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
-const Profile = lazy(() => import('./pages/Profile').then(m => ({ default: m.Profile })));
-const ProfileEdit = lazy(() => import('./pages/ProfileEdit').then(m => ({ default: m.ProfileEdit })));
+const Profile = lazy(() => import('./pages/profiles/Profile').then(m => ({ default: m.Profile })));
+const ProfileEdit = lazy(() => import('./pages/profiles/ProfileEdit').then(m => ({ default: m.ProfileEdit })));
 const CourseList = lazy(() => import('./pages/courses/CourseList').then(m => ({ default: m.CourseList })));
 const CourseCreate = lazy(() => import('./pages/courses/CourseCreate').then(m => ({ default: m.CourseCreate })));
 const CourseDetail = lazy(() => import('./pages/courses/CourseDetail').then(m => ({ default: m.CourseDetail })));

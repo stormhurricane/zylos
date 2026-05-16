@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { userApi } from '../api/userApi';
-import { ProfileResponse, ProfileUpdateRequest } from '../api/types';
-import { PageLoader } from '../components/PageLoader';
+import { userApi } from '../../api/userApi';
+import { ProfileResponse, ProfileUpdateRequest } from '../../api/types';
+import { PageLoader } from '../../components/PageLoader';
 import styles from './ProfileEdit.module.css';
 
 export const ProfileEdit = () => {

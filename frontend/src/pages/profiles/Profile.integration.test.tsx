@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, beforeAll, afterEach, afterAll } from 'vitest';
 import { Profile } from './Profile';
 import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from '../context/AuthContext';
+import { AuthProvider } from '../../context/AuthContext';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
 
