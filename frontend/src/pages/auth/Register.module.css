@@ -58,3 +58,7 @@
 .link:hover {
     text-decoration: underline;
 }
+
+.submitButton {
+    margin-top: var(--spacing-sm);
+}

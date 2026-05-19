@@ -155,7 +155,10 @@ export const Register = () => {
 
                     {error && <p className="error-message">{error}</p>}
 
-                    <button type="submit" className="btn-primary btn-block" style={{ marginTop: 'var(--spacing-sm)' }}>
+                    <button 
+                        type="submit" 
+                        className={`btn-primary btn-block ${styles.submitButton}`}
+                    >
                         Jetzt registrieren
                     </button>
                 </form>
