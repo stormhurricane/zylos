@@ -34,13 +34,28 @@ export const Register = () => {
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setFormData({ ...formData, profilePicture: reader.result as string });
-            };
-            reader.readAsDataURL(file);
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            setError('Bitte wähle eine gültige Bilddatei aus.');
+            return;
         }
+
+        // Limit file size to 1MB (Base64 will increase this)
+        if (file.size > 1024 * 1024) {
+            setError('Das Bild ist zu groß (maximal 1MB erlaubt).');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setFormData({ ...formData, profilePicture: reader.result as string });
+        };
+        reader.onerror = () => {
+            setError('Fehler beim Lesen der Datei.');
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
