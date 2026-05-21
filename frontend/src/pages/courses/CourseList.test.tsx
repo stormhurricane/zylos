@@ -14,44 +14,78 @@ vi.mock('../../api/courseApi', () => ({
     },
 }));
 
+const mockedCourseApi = vi.mocked(courseApi);
+
+/**
+ * Helper to render the CourseList with necessary providers.
+ */
+const renderCourseList = () => {
+    return render(
+        <BrowserRouter>
+            <AuthProvider>
+                <CourseList />
+            </AuthProvider>
+        </BrowserRouter>
+    );
+};
+
 describe('CourseList Component', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        window.alert = vi.fn();
+    });
+
     it('renders courses and handles enrollment', async () => {
         const mockCourse = { id: 1, title: 'Software Engineering', type: 'LECTURE', term: 'SUMMER', academicYear: '2024' };
         
-        (courseApi.getAllCourses as any).mockResolvedValue({ data: [mockCourse] });
-        (courseApi.getMyCourses as any).mockResolvedValue({ data: [] });
-        (courseApi.enroll as any).mockResolvedValue({});
-        
-        window.alert = vi.fn();
+        mockedCourseApi.getAllCourses.mockResolvedValue({ data: [mockCourse] } as any);
+        mockedCourseApi.getMyCourses.mockResolvedValue({ data: [] } as any);
+        mockedCourseApi.enroll.mockResolvedValue({} as any);
 
-        render(
-            <BrowserRouter>
-                <AuthProvider>
-                    <CourseList />
-                </AuthProvider>
-            </BrowserRouter>
-        );
+        renderCourseList();
 
-        // Prüfen, ob der Kurs angezeigt wird
+        // Verify the course title is rendered
         expect(await screen.findByText('Software Engineering')).toBeInTheDocument();
         
-        // Button sollte "Teilnehmen" zeigen
-        const enrollButton = screen.getByText('Teilnehmen');
+        // Button should show "Teilnehmen" (Enroll)
+        const enrollButton = screen.getByRole('button', { name: /Teilnehmen/i });
         fireEvent.click(enrollButton);
 
         await waitFor(() => {
-            expect(courseApi.enroll).toHaveBeenCalledWith(1);
+            expect(mockedCourseApi.enroll).toHaveBeenCalledWith(1);
             expect(window.alert).toHaveBeenCalledWith('Erfolgreich eingeschrieben!');
         });
     });
 
     it('shows "Ansehen" button if already enrolled', async () => {
         const mockCourse = { id: 1, title: 'Software Engineering', type: 'LECTURE', term: 'SUMMER', academicYear: '2024' };
-        (courseApi.getAllCourses as any).mockResolvedValue({ data: [mockCourse] });
-        (courseApi.getMyCourses as any).mockResolvedValue({ data: [mockCourse] });
+        mockedCourseApi.getAllCourses.mockResolvedValue({ data: [mockCourse] } as any);
+        mockedCourseApi.getMyCourses.mockResolvedValue({ data: [mockCourse] } as any);
 
-        render(<BrowserRouter><AuthProvider><CourseList /></AuthProvider></BrowserRouter>);
+        renderCourseList();
 
-        expect(await screen.findByText('Ansehen')).toBeInTheDocument();
+        // Button should show "Ansehen" (View) for enrolled courses
+        expect(await screen.findByRole('button', { name: /Ansehen/i })).toBeInTheDocument();
+    });
+
+    it('shows empty state message when no courses are found', async () => {
+        mockedCourseApi.getAllCourses.mockResolvedValue({ data: [] } as any);
+        mockedCourseApi.getMyCourses.mockResolvedValue({ data: [] } as any);
+
+        renderCourseList();
+
+        // Check for the "no courses found" message
+        expect(await screen.findByText(/Keine Lehrveranstaltungen gefunden/i)).toBeInTheDocument();
+    });
+
+    it('shows error message when API fails', async () => {
+        // Mock a rejection for the API call
+        mockedCourseApi.getAllCourses.mockRejectedValue(new Error('API Error'));
+        mockedCourseApi.getMyCourses.mockResolvedValue({ data: [] } as any);
+
+        renderCourseList();
+
+        // Verify the error message is displayed to the user
+        expect(await screen.findByText(/Fehler beim Laden der Kurse/i)).toBeInTheDocument();
     });
 });
