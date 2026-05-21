@@ -2,16 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { courseApi} from '../../api/courseApi';
 import {Course} from '../../api/types';
 import { Link, useNavigate } from 'react-router-dom';
+import { PageLoader } from '../../components/PageLoader';
 import styles from './CourseList.module.css';
 
 export const CourseList: React.FC = () => {
     const [courses, setCourses] = useState<Course[]>([]);
     const [enrolledIds, setEnrolledIds] = useState<number[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setLoading(true);
                 const [allRes, myRes] = await Promise.all([
                     courseApi.getAllCourses(),
                     courseApi.getMyCourses()
@@ -20,6 +24,9 @@ export const CourseList: React.FC = () => {
                 setEnrolledIds(myRes.data.map(c => c.id));
             } catch (err) {
                 console.error("Fehler beim Laden der Kurse", err);
+                setError("Fehler beim Laden der Kurse. Bitte versuche es später erneut.");
+            } finally {
+                setLoading(false);
             }
         };
         fetchData();
@@ -35,15 +42,20 @@ export const CourseList: React.FC = () => {
         }
     };
 
+    if (loading) return <PageLoader message="Loading courses..." />;
+
     return (
         <div className="app-page">
             <div className="container">
                 <h1 className={styles.title}>Verfügbare Lehrveranstaltungen</h1>
+                
+                {error && <div className="status-box status-error">{error}</div>}
+
                 <div className={styles.grid}>
                     {courses.map(course => {
                         const isEnrolled = enrolledIds.includes(course.id);
                         return (
-                            <div key={course.id} className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                            <div key={course.id} className={`card ${styles.courseCard}`}>
                                 <div className={styles.courseHeader}>
                                     <Link to={`/courses/${course.id}`} className={styles.courseLink}>
                                         {course.title}
