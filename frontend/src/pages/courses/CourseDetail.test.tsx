@@ -1,6 +1,6 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { CourseDetail } from './CourseDetail';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '../../context/AuthContext';
@@ -14,40 +14,60 @@ vi.mock('../../api/courseApi', () => ({
     },
 }));
 
+/**
+ * Helper function to render the CourseDetail component with all necessary context providers.
+ */
+const renderCourseDetail = (id: string = '1') => {
+    return render(
+        <MemoryRouter initialEntries={[`/courses/${id}`]}>
+            <AuthProvider>
+                <Routes>
+                    <Route path="/courses/:id" element={<CourseDetail />} />
+                </Routes>
+            </AuthProvider>
+        </MemoryRouter>
+    );
+};
+
 describe('CourseDetail Component', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
 
     it('renders course info, materials and participants', async () => {
-        (courseApi.getCourseById as any).mockResolvedValue({
+        (courseApi.getCourseById as Mock).mockResolvedValue({
             data: { id: 1, title: 'Deep Dive React', type: 'SEMINAR', term: 'WINTER', academicYear: '2024' }
         });
-        (courseApi.getParticipants as any).mockResolvedValue({
+        (courseApi.getParticipants as Mock).mockResolvedValue({
             data: { 
                 instructors: [{ id: 10, firstName: 'Dr.', lastName: 'Zylos' }], 
                 students: [{ id: 20, firstName: 'Sascha', lastName: 'S.' }] 
             }
         });
-        (courseApi.getMaterials as any).mockResolvedValue({ 
+        (courseApi.getMaterials as Mock).mockResolvedValue({ 
             data: [{ id: 1, title: 'Skript 1', fileName: 'skript1.pdf' }] 
         });
 
-        render(
-            <MemoryRouter initialEntries={['/courses/1']}>
-                <AuthProvider>
-                    <Routes>
-                        <Route path="/courses/:id" element={<CourseDetail />} />
-                    </Routes>
-                </AuthProvider>
-            </MemoryRouter>
-        );
+        renderCourseDetail('1');
 
-        // Header prüfen
-        expect(await screen.findByText('Deep Dive React')).toBeInTheDocument();
+        // Check header (using role for better accessibility testing)
+        expect(await screen.findByRole('heading', { name: /Deep Dive React/i })).toBeInTheDocument();
         
-        // Materialien prüfen
+        // Check materials
         expect(screen.getByText('Skript 1')).toBeInTheDocument();
         
-        // Teilnehmer prüfen
+        // Check participants
         expect(screen.getByText('Dr. Zylos')).toBeInTheDocument();
         expect(screen.getByText('Sascha S.')).toBeInTheDocument();
+    });
+
+    it('shows error message when course is not found', async () => {
+        // Mock a failed API call
+        (courseApi.getCourseById as Mock).mockRejectedValue(new Error('Not Found'));
+
+        renderCourseDetail('999');
+
+        // Verify the error message is displayed
+        expect(await screen.findByText(/Kurs nicht gefunden/i)).toBeInTheDocument();
     });
 });
