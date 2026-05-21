@@ -59,11 +59,21 @@ export interface ProfileUpdateRequest {
     chair?: string;
 }
 
+export enum CourseType {
+    LECTURE = 'LECTURE',
+    SEMINAR = 'SEMINAR'
+}
+
+export enum SemesterTerm {
+    SUMMER = 'SUMMER',
+    WINTER = 'WINTER'
+}
+
 export interface Course {
     id: number;
     title: string;
-    type: 'LECTURE' | 'SEMINAR';
-    term: 'SUMMER' | 'WINTER';
+    type: CourseType;
+    term: SemesterTerm;
     academicYear: string;
 }
 
