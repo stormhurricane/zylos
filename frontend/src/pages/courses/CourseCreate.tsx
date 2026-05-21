@@ -73,7 +73,7 @@ export const CourseCreate: React.FC = () => {
                         <h2 className={styles.manualTitle}>Manuelle Eingabe</h2>
                         <form onSubmit={handleManualSubmit}>
                             <div className="form-group">
-                                <label className="required">Titel</label>
+                                <label htmlFor="manual-title" className="required">Titel</label>
                                 <input 
                                     className="form-input"
                                     placeholder="z.B. Software Engineering"
@@ -84,7 +84,7 @@ export const CourseCreate: React.FC = () => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label className="required">Veranstaltungstyp</label>
+                                <label htmlFor="manual-type" className="required">Veranstaltungstyp</label>
                                 <select 
                                     className="form-input"
                                     value={manualCourse.type as string} // Cast to string for select value
@@ -97,7 +97,7 @@ export const CourseCreate: React.FC = () => {
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label className="required">Semester</label>
+                                <label htmlFor="manual-term" className="required">Semester</label>
                                 <select 
                                     className="form-input"
                                     value={manualCourse.term as string} // Cast to string for select value
@@ -110,11 +110,12 @@ export const CourseCreate: React.FC = () => {
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label className="required">Jahr</label>
+                                <label htmlFor="manual-year" className="required">Jahr</label>
                                 <input 
                                     className="form-input"
                                     type="text" // Changed to text to allow "2024/25"
                                     pattern="^\d{4}(/\d{2})?$" // Pattern for "YYYY" or "YYYY/YY"
+                                    id="manual-year"
                                     placeholder="z.B. 2024"
                                     value={manualCourse.academicYear}
                                     onChange={e => setManualCourse({...manualCourse, academicYear: e.target.value})}
@@ -133,7 +134,9 @@ export const CourseCreate: React.FC = () => {
                         <p className={styles.csvDescription}>
                             Format: Titel;Typ;Semester;Jahr
                         </p>
+                        <label htmlFor="csv-file-input" className="sr-only">CSV Import</label>
                             <input 
+                            id="csv-file-input"
                             type="file" 
                             accept=".csv"
                             onChange={e => setCsvFile(e.target.files?.[0] || null)}
