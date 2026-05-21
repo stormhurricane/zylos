@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { courseApi } from '../../api/courseApi';
-import { Course, ParticipantsResponse, Material } from '../../api/types';
+import { Course, ParticipantsResponse, Material, UserResponse } from '../../api/types';
 import { userApi } from '../../api/userApi';
 import { useAuth } from '../../context/AuthContext';
 import { PageLoader } from '../../components/PageLoader';
@@ -19,9 +19,8 @@ export const CourseDetail: React.FC = () => {
     const [uploadStatus, setUploadStatus] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [loading, setLoading] = useState(true);
     const [studentSearch, setStudentSearch] = useState('');
-    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [searchResults, setSearchResults] = useState<UserResponse[]>([]);
     const { user, isInstructor } = useAuth();
-    console.log("Aktueller User aus Context:", user);
 
     const currentUserId = user?.userId;
 
@@ -38,8 +37,8 @@ export const CourseDetail: React.FC = () => {
         }
         try {
             const res = await userApi.searchUsers(query);
-            // Nur Nutzer vorschlagen, die noch nicht im Kurs sind
-            const filtered = res.data.filter((u: any) => 
+            // Only suggest users who are not already enrolled in the course
+            const filtered = (res.data as unknown as UserResponse[]).filter((u: UserResponse) =>
                 !participants?.students?.some(s => s.id === u.id) &&
                 !participants?.instructors?.some(i => i.id === u.id)
             );
@@ -54,11 +53,10 @@ export const CourseDetail: React.FC = () => {
             await courseApi.addParticipant(courseId, studentId);
             setStudentSearch('');
             setSearchResults([]);
-            loadData(); // Liste neu laden
+            loadData(); // Refresh data to show the new participant
         } catch (err) {
-            // alert("Teilnehmer konnte nicht hinzugefügt werden.");
-            console.error("Hinzufügen fehlgeschlagen:", err);
-            alert(`Fehler 403: Entweder bist du nicht als Lehrkraft für diesen Kurs berechtigt, oder die API-Route ist falsch.`);
+            console.error("Hinzufügen des Teilnehmers fehlgeschlagen:", err);
+            alert(`Error 403: Permission denied or invalid course ID.`);
         }
     };
 
@@ -94,12 +92,13 @@ export const CourseDetail: React.FC = () => {
             setUploadStatus({ type: 'success', text: 'Material erfolgreich hochgeladen!' });
             setUploadTitle('');
             setUploadFile(null);
-            // Zurücksetzen des File-Inputs im DOM
+            
+            // Reset the native file input element
             const fileInput = document.getElementById('material-file-input') as HTMLInputElement;
             if (fileInput) fileInput.value = '';
             
-            loadData(); // Refresh list
-            setTimeout(() => setUploadStatus(null), 3000); // Meldung nach 3s ausblenden
+            loadData(); // Reload the materials list
+            setTimeout(() => setUploadStatus(null), 3000); // Hide status message after 3 seconds
         } catch (err) {
             setUploadStatus({ type: 'error', text: 'Upload fehlgeschlagen.' });
         }
@@ -126,7 +125,7 @@ export const CourseDetail: React.FC = () => {
     return (
         <div className="app-page">
             <div className={`container ${styles.container}`}>
-                {/* Linke Spalte: Kurs-Info & Materialien */}
+                {/* Left Column: Course Information & Materials */}
                 <div className={styles.leftColumn}>
                     <section className={styles.header}>
                         <h1>{course.title}</h1>
@@ -163,29 +162,30 @@ export const CourseDetail: React.FC = () => {
                             {materials.length === 0 && <p className="text-muted italic">Noch keine Materialien hochgeladen.</p>}
                         </div>
 
-                        {/* Upload Bereich für Lehrende */}
-                        <form onSubmit={handleUpload} className={styles.uploadArea}>
-                            <h3 className={styles.uploadTitle}>Material bereitstellen</h3>
-                            <div className={styles.uploadForm}>
-                                <input 
-                                    className="form-input"
-                                    placeholder="Titel"
-                                    value={uploadTitle}
-                                    onChange={e => setUploadTitle(e.target.value)}
-                                />
-                                <input 
-                                    id="material-file-input"
-                                    type="file"
-                                    onChange={e => setUploadFile(e.target.files?.[0] || null)}
-                                    className="text-sm"
-                                />
-                                <button type="submit" className="btn-primary" style={{ width: 'auto' }}>Hochladen</button>
-                            </div>
-                        </form>
+                        {/* Material Upload (Visible to instructors only) */}
+                        {isInstructor && (
+                            <form onSubmit={handleUpload} className={styles.uploadArea}>
+                                <h3 className={styles.uploadTitle}>Material bereitstellen</h3>
+                                <div className={styles.uploadForm}>
+                                    <input 
+                                        className="form-input"
+                                        placeholder="Titel"
+                                        value={uploadTitle}
+                                        onChange={e => setUploadTitle(e.target.value)}
+                                    />
+                                    <input 
+                                        id="material-file-input"
+                                        type="file"
+                                        onChange={e => setUploadFile(e.target.files?.[0] || null)}
+                                        className="text-sm"
+                                    />
+                                    <button type="submit" className="btn-primary" style={{ width: 'auto' }}>Hochladen</button>
+                                </div>
+                            </form>
+                        )}
                     </section>
                 </div>
-
-                {/* Rechte Spalte: Teilnehmerliste */}
+                {/* Right Column: Participant Lists */}
                 <aside className={styles.rightColumn}>
                     <section className="card">
                         <h3 className={styles.participantGroupTitle}>Lehrende</h3>
@@ -207,7 +207,7 @@ export const CourseDetail: React.FC = () => {
                             {participants?.students.length === 0 && <p className="text-muted text-sm">Noch keine Studierenden.</p>}
                         </div>
 
-                        {/* Teilnehmer hinzufügen (Nur für Lehrende) */}
+                        {/* Search and add participants (Instructors only) */}
                         {isInstructor && (
                             <div className={styles.addParticipantSection}>
                                 <h4 className={styles.addParticipantTitle}>Teilnehmer hinzufügen</h4>
