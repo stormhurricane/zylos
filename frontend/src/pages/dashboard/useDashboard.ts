@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { userApi } from '../api/userApi';
-import { courseApi } from '../api/courseApi';
-import { Course, ProfileResponse } from '../api/types';
+import { userApi } from '../../api/userApi';
+import { courseApi } from '../../api/courseApi';
+import { Course, ProfileResponse } from '../../api/types';
 
 export const useDashboard = () => {
     const [searchParams] = useSearchParams();
