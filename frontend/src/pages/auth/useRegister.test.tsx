@@ -11,6 +11,16 @@ vi.mock('../../api/userApi', () => ({
     }
 }));
 
+const createFormEvent = () => ({ preventDefault: vi.fn() } as any);
+
+const fillStudentForm = (result: any) => {
+    result.current.handleChange({ target: { name: 'firstName', value: 'Max' } } as any);
+    result.current.handleChange({ target: { name: 'lastName', value: 'Mustermann' } } as any);
+    result.current.handleChange({ target: { name: 'email', value: 'max@stud.uni.de' } } as any);
+    result.current.handleChange({ target: { name: 'password', value: 'sicherespasswort123' } } as any);
+    result.current.handleChange({ target: { name: 'studySubject', value: 'Informatik' } } as any);
+};
+
 describe('useRegister Hook', () => {
     beforeEach(() => {
         vi.clearAllMocks();
@@ -21,9 +31,7 @@ describe('useRegister Hook', () => {
             wrapper: MemoryRouter
         });
 
-        const fakeEvent = { preventDefault: vi.fn() };
-
-        await result.current.handleSubmit(fakeEvent as any);
+        result.current.handleSubmit(createFormEvent());
 
         await waitFor(() => {
             expect(result.current.fieldErrors).toHaveProperty('firstName');
@@ -41,11 +49,7 @@ describe('useRegister Hook', () => {
         });
 
         // input data into form fields
-        result.current.handleChange({ target: { name: 'firstName', value: 'Max' } } as any);
-        result.current.handleChange({ target: { name: 'lastName', value: 'Mustermann' } } as any);
-        result.current.handleChange({ target: { name: 'email', value: 'max@stud.uni.de' } } as any);
-        result.current.handleChange({ target: { name: 'password', value: 'sicherespasswort123' } } as any);
-        result.current.handleChange({ target: { name: 'studySubject', value: 'Informatik' } } as any);
+        fillStudentForm(result);
         result.current.handleChange({ target: { name: 'chair', value: 'Müll-Daten' } } as any); // Soll gefiltert werden!
 
         // await filling data 
@@ -53,9 +57,7 @@ describe('useRegister Hook', () => {
             expect(result.current.formData.firstName).toBe('Max');
         });
 
-        // trigger form submission
-        const fakeEvent = { preventDefault: vi.fn() };
-        result.current.handleSubmit(fakeEvent as any);
+        result.current.handleSubmit(createFormEvent());
 
         // check cyclical until sucess is true and API was called with cleaned payload (chair should NOT be in payload for student)
         await waitFor(() => {
@@ -97,8 +99,7 @@ describe('useRegister Hook', () => {
             expect(result.current.formData.chair).toBe('Distributed Systems');
         });
 
-        const fakeEvent = { preventDefault: vi.fn() };
-        result.current.handleSubmit(fakeEvent as any);
+        result.current.handleSubmit(createFormEvent());
 
         // 5. Assertions
         await waitFor(() => {
@@ -115,6 +116,35 @@ describe('useRegister Hook', () => {
             chair: 'Distributed Systems',
             researchArea: 'Cloud Computing'
             // 'studySubject' wurde erfolgreich herausgefiltert!
+        });
+    });
+
+    it('should handle API errors and populate the error message', async () => {
+        const apiError = { response: { data: { error: 'E-Mail bereits vergeben.' } } };
+        vi.mocked(userApi.registerStudent).mockRejectedValue(apiError);
+
+        const { result } = renderHook(() => useRegister(), {
+            wrapper: MemoryRouter
+        });
+
+        // Required fields filled so validation does not block
+        result.current.handleChange({ target: { name: 'firstName', value: 'Max' } } as any);
+        result.current.handleChange({ target: { name: 'lastName', value: 'Mustermann' } } as any);
+        result.current.handleChange({ target: { name: 'email', value: 'max@stud.uni.de' } } as any);
+        result.current.handleChange({ target: { name: 'password', value: 'sicherespasswort123' } } as any);
+        result.current.handleChange({ target: { name: 'studySubject', value: 'Informatik' } } as any);
+
+        await waitFor(() => {
+            expect(result.current.formData.firstName).toBe('Max');
+        });
+
+        result.current.handleSubmit(createFormEvent());
+
+        // Assert:  success  false, but error isSubmitting stopped
+        await waitFor(() => {
+            expect(result.current.success).toBe(false);
+            expect(result.current.error).toBe('E-Mail bereits vergeben.');
+            expect(result.current.isSubmitting).toBe(false);
         });
     });
     
