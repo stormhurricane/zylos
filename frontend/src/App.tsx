@@ -8,7 +8,7 @@ import { PageLoader } from './components/PageLoader';
 // Lazy Loading
 const Login = lazy(() => import('./pages/auth/Login').then(m => ({ default: m.Login })));
 const Register = lazy(() => import('./pages/auth/Register').then(m => ({ default: m.Register })));
-const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
+const Dashboard = lazy(() => import('./pages/dashboard/Dashboard').then(m => ({ default: m.Dashboard })));
 const Profile = lazy(() => import('./pages/profiles/Profile').then(m => ({ default: m.Profile })));
 const ProfileEdit = lazy(() => import('./pages/profiles/ProfileEdit').then(m => ({ default: m.ProfileEdit })));
 const CourseList = lazy(() => import('./pages/courses/CourseList').then(m => ({ default: m.CourseList })));
