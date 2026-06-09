@@ -1,97 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LandingLayout } from '../../components/LandingLayout';
-import { userApi } from '../../api/userApi';
 import styles from './Register.module.css';
+import { useRegister } from './useRegister';
 
 export const Register = () => {
+    const {
+        userType,
+        setUserType,
+        error,
+        fieldErrors,
+        success,
+        isSubmitting,
+        formData,
+        handleChange,
+        handleFileChange,
+        handleSubmit 
+    } = useRegister();
+
     const navigate = useNavigate();
-    const [userType, setUserType] = useState<'student' | 'teacher'>('student');
-    const [error, setError] = useState('');
-    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-    const [success, setSuccess] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Form state
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        privateAddress: '',
-        studySubject: '', // Student only
-        chair: '',        // Teacher only
-        researchArea: '', // Teacher only
-        profilePicture: ''
-    });
+    useEffect(() => { 
+        if(!success) return;
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (fieldErrors[e.target.name]) {
-            setFieldErrors({ ...fieldErrors, [e.target.name]: '' });
-        }
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+        // start timer
+        const timer = setTimeout(() => {
+            navigate('/login');
+        }, 3000);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-            setError('Bitte wähle eine gültige Bilddatei aus.');
-            return;
-        }
-
-        // Limit file size to 1MB (Base64 will increase this)
-        if (file.size > 1024 * 1024) {
-            setError('Das Bild ist zu groß (maximal 1MB erlaubt).');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setFormData({ ...formData, profilePicture: reader.result as string });
-        };
-        reader.onerror = () => {
-            setError('Fehler beim Lesen der Datei.');
-        };
-        reader.readAsDataURL(file);
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-        setFieldErrors({});
-
-        // Simple validation
-        const errors: Record<string, string> = {};
-        if (!formData.firstName) errors.firstName = 'Vorname ist erforderlich.';
-        if (!formData.lastName) errors.lastName = 'Nachname ist erforderlich.';
-        if (!formData.email) errors.email = 'E-Mail ist erforderlich.';
-        if (formData.password.length < 8) errors.password = 'Passwort muss mind. 8 Zeichen lang sein.';
-
-        if (Object.keys(errors).length > 0) {
-            setFieldErrors(errors);
-            return;
-        }
-
-        setIsSubmitting(true);
-        
-        try {
-            if (userType === 'student') {
-                await userApi.registerStudent(formData);
-            } else {
-                await userApi.registerTeacher(formData);
-            }
-            
-            setSuccess(true);
-            setTimeout(() => navigate('/login'), 3000);
-        } catch (err: any) {
-            setError(err.response?.data?.error || 'Registrierung fehlgeschlagen.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+        // cleanup function to clear timer if component unmounts before timeout
+        return () => clearTimeout(timer);
+    }, [success, navigate]);
 
     if (success) {
         return (
