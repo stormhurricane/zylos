@@ -1,9 +1,6 @@
-import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { userApi } from '../api/userApi';
-import { courseApi } from '../api/courseApi';
-import { Course } from '../api/types';
+import { useNavigate } from 'react-router-dom';
+import { useDashboard } from './useDashboard';
 import styles from './Dashboard.module.css';
 
 const DEFAULT_AVATAR = "https://ui-avatars.com/api/?background=4CAF50&color=fff&name=";
@@ -11,35 +8,9 @@ const DEFAULT_AVATAR = "https://ui-avatars.com/api/?background=4CAF50&color=fff&
 export const Dashboard = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
-    const [searchResults, setSearchResults] = useState<any[]>([]);
-    const [myCourses, setMyCourses] = useState<Course[]>([]);
-
-    const performSearch = async (query: string) => {
-        try {
-            const response = await userApi.searchUsers(query);
-            setSearchResults(response.data);
-        } catch (err) {
-            console.error("Suche fehlgeschlagen", err);
-        }
-    };
-
-    useEffect(() => {
-        const q = searchParams.get('q');
-        if (q) performSearch(q);
-        
-        // Lade meine Kurse
-        courseApi.getMyCourses().then(res => {
-            // Sortiere anti-chronologisch (Jahr absteigend, Winter vor Sommer)
-            const sorted = res.data.sort((a, b) => {
-                const yearA = parseInt(a.academicYear.split('/')[0]);
-                const yearB = parseInt(b.academicYear.split('/')[0]);
-                if (yearB !== yearA) return yearB - yearA;
-                return a.term === 'WINTER' ? -1 : 1;
-            });
-            setMyCourses(sorted);
-        }).catch(console.error);
-    }, [searchParams]);
+    
+    // Custom Hook for Dashboard Logic
+    const { searchResults, myCourses, isLoadingCourses, searchError } = useDashboard();
 
     return (
         <div className="app-page">
@@ -50,57 +21,66 @@ export const Dashboard = () => {
 
                 <div className={styles.grid}>
                     <div className={styles.content}>
-                {/* Suchergebnisse */}
-                <section>
-                    <h3 className="mb-4">Suche</h3>
-                    {searchResults.length > 0 ? (
-                        <div className={styles.resultsGrid}>
-                            {searchResults.map((res: any, idx: number) => (
-                                <div key={res.id || idx} className="card text-center">
-                                    <img 
-                                        src={res.profilePicture || `${DEFAULT_AVATAR}${res.firstName}+${res.lastName}`} 
-                                        alt="Avatar"
-                                        className="avatar-img"
-                                        style={{ width: '60px', height: '60px', margin: '0 auto var(--spacing-sm)' }}
-                                    />
-                                    <h4 style={{ margin: '5px 0' }}>{res.firstName} {res.lastName}</h4>
-                                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{res.studySubject || res.chair || 'Nutzer'}</p>
-                                    <button 
-                                        onClick={() => navigate(`/profile/${res.id}`)}
-                                        className={styles.profileBtn}
-                                    >
-                                        Profil ansehen
-                                    </button>
+                        {/* Search Results */}
+                        <section>
+                            <h3 className="mb-4">Suche</h3>
+                            {searchError && <div className="alert alert-danger">{searchError}</div>}
+                            
+                            {searchResults.length > 0 ? (
+                                <div className={styles.resultsGrid}>
+                                    {searchResults.map((res) => (
+                                        <div key={res.id} className="card text-center">
+                                            <img 
+                                                src={res.profilePicture || `${DEFAULT_AVATAR}${res.firstName}+${res.lastName}`} 
+                                                alt="Avatar"
+                                                className="avatar-img"
+                                                style={{ width: '60px', height: '60px', margin: '0 auto var(--spacing-sm)' }}
+                                            />
+                                            <h4 style={{ margin: '5px 0' }}>{res.firstName} {res.lastName}</h4>
+                                            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                                {res.studySubject || res.chair || 'Nutzer'}
+                                            </p>
+                                            <button 
+                                                onClick={() => navigate(`/profile/${res.id}`)}
+                                                className={styles.profileBtn}
+                                            >
+                                                Profil ansehen
+                                            </button>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="card text-center text-muted">
-                            Nutze die Suche oben, um Kommilitonen oder Dozenten zu finden.
-                        </div>
-                    )}
-                </section>
+                            ) : (
+                                <div className="card text-center text-muted">
+                                    Nutze die Suche oben, um Kommilitonen oder Dozenten zu finden.
+                                </div>
+                            )}
+                        </section>
                     </div>
 
-                    {/* Sidebar: Meine Kurse */}
+                    {/* Sidebar: My Courses */}
                     <aside className={styles.sidebar}>
                         <div className="card">
                             <h3 className="color-primary mb-4">Meine Kurse</h3>
                             <div className="flex flex-col gap-4">
-                                {myCourses.length > 0 ? myCourses.map(course => (
-                                    <div key={course.id} className={styles.courseItem}>
-                                        <div 
-                                            onClick={() => navigate(`/courses/${course.id}`)}
-                                            className={styles.courseLink}
-                                        >
-                                            {course.title}
+                                {isLoadingCourses ? (
+                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Kurse werden geladen...</p>
+                                ) : myCourses.length > 0 ? (
+                                    myCourses.map(course => (
+                                        <div key={course.id} className={styles.courseItem}>
+                                            <div 
+                                                onClick={() => navigate(`/courses/${course.id}`)}
+                                                className={styles.courseLink}                                            >
+                                                {course.title}
+                                            </div>
+                                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                                {course.term} {course.academicYear}
+                                            </div>
                                         </div>
-                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                                            {course.term} {course.academicYear}
-                                        </div>
-                                    </div>
-                                )) : (
-                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Du bist noch in keinen Kursen eingeschrieben.</p>
+                                    ))
+                                ) : (
+                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                                        Du bist noch in keinen Kursen eingeschrieben.
+                                    </p>
                                 )}
                             </div>
                         </div>
