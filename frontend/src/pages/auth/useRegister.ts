@@ -25,12 +25,15 @@ export const useRegister = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         
-        // delete field error on change
         if (fieldErrors[name]) {
-            setFieldErrors({ ...fieldErrors, [name]: '' });
+            setFieldErrors(prev => {
+                const { [name]: removed, ...rest } = prev;
+                return rest;
+            });
         }
         
-        setFormData({ ...formData, [name]: value });
+        // BEST PRACTICE: use functional update to ensure we always have the latest state, especially important if multiple changes happen in quick succession
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     // handle file upload
