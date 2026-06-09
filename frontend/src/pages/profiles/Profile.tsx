@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { userApi } from '../../api/userApi';
 import { ProfileResponse, Course } from '../../api/types';
+import axios from 'axios';
 import { courseApi } from '../../api/courseApi';
 import { PageLoader } from '../../components/PageLoader';
 import { useAuth } from '../../context/AuthContext';
@@ -14,39 +15,48 @@ export const Profile = () => {
     const [profile, setProfile] = useState<ProfileResponse | null>(null);
     const [courses, setCourses] = useState<Course[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const response = await userApi.getProfile(id);
-                console.log("Geladene Profil-ID:", response.data.id);
-                setProfile(response.data);
-            } catch (err) {
-                console.error("Fehler beim Laden des Profils", err);
-            } finally {
-                setLoading(false);
+    // 1. Berechne die Variable weiterhin synchron
+const currentUserId = user?.userId;
+const isOwnProfile = !id || (currentUserId !== undefined && String(id) === String(currentUserId));
+
+useEffect(() => {
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            
+            const response = await userApi.getProfile(id);
+            setProfile(response.data);
+
+            // Nutze die Variable einfach hier drinnen, sie muss nicht im Dependency-Array stehen!
+            if (isOwnProfile) {
+                const coursesRes = await courseApi.getMyCourses();
+                setCourses(coursesRes.data);
             }
-        };
-        fetchProfile();
-    }, [id]);
-
-    const currentUserId = user?.userId;
-
-    useEffect(() => {
-        const isOwn = !id || String(id) === String(currentUserId);
-        if (isOwn) { // Nur Kurse laden, wenn es das eigene Profil ist
-            courseApi.getMyCourses()
-                .then(res => setCourses(res.data))
-                .catch(err => console.error("Fehler beim Laden der Profil-Kurse", err));
+        } catch (err) {
+            console.error("Fehler beim Laden des Profils", err);
+            if (axios.isAxiosError(err) && err.response?.status === 404) {
+                setProfile(null);
+            } else {
+                setError("Das Profil konnte nicht geladen werden.");
+            }
+        } finally {
+            setLoading(false);
         }
-    }, [id, currentUserId]);
+    };
+    
+    fetchData();
+    // VORHER: [id, isOwnProfile]
+    // JETZT: Nur noch id und currentUserId überwachen!
+}, [id, currentUserId]);
 
     if (loading) return <PageLoader message="Profil wird geladen..." />;
-    if (!profile) return <div className="text-center">Profil nicht gefunden.</div>;
-
-    const isOwnProfile = !id || String(id) === String(currentUserId);
+    if (error) return <div className="text-center status-box status-error m-4">{error}</div>;
+    if (!profile) return <div className="text-center m-4">Profil nicht gefunden.</div>;
 
     return (
         <div className="app-page">

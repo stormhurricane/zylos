@@ -6,24 +6,18 @@ import { PageLoader } from '../../components/PageLoader';
 import styles from './ProfileEdit.module.css';
 
 export const ProfileEdit = () => {
-    const [formData, setFormData] = useState<ProfileUpdateRequest & { 
-        firstName?: string, 
-        lastName?: string,
-        chair?: string,
-        researchArea?: string,
-        studySubject?: string
-    }>({
+    const [formData, setFormData] = useState<ProfileUpdateRequest>({
         password: '',
         privateAddress: '',
         profilePicture: '',
         chair: '',
         researchArea: '',
-        studySubject: '',
-        firstName: '',
-        lastName: ''
+        studySubject: ''
     });
+    const [displayName, setDisplayName] = useState({ firstName: '', lastName: '' });
     const [isStudent, setIsStudent] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
@@ -32,15 +26,15 @@ export const ProfileEdit = () => {
             try {
                 const response = await userApi.getProfile();
                 const data = response.data;
+                
+                setDisplayName({ firstName: data.firstName, lastName: data.lastName });
                 setFormData({
                     password: '',
                     privateAddress: data.privateAddress || '',
                     profilePicture: data.profilePicture || '',
                     studySubject: data.studySubject || '',
                     chair: data.chair || '',
-                    researchArea: data.researchArea || '',
-                    firstName: data.firstName, // Nur zur Anzeige
-                    lastName: data.lastName    // Nur zur Anzeige
+                    researchArea: data.researchArea || ''
                 });
                 setIsStudent(!!data.matriculationNumber);
             } catch (err) {
@@ -63,19 +57,23 @@ export const ProfileEdit = () => {
             reader.onloadend = () => {
                 setFormData({ ...formData, profilePicture: reader.result as string });
             };
+            reader.onerror = () => setError('Bildverarbeitung fehlgeschlagen.');
             reader.readAsDataURL(file);
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsSubmitting(true);
+        setError('');
+
         try {
-            // Filter out display-only fields before sending to API
-            const { firstName, lastName, ...updateData } = formData;
-            await userApi.updateProfile(updateData);
+            await userApi.updateProfile(formData);
             navigate('/profile');
         } catch (err) {
             setError('Update fehlgeschlagen.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -87,7 +85,7 @@ export const ProfileEdit = () => {
                 <div className="card" style={{ textAlign: 'left' }}>
                     <h2>Profil bearbeiten</h2>
                     <p className={styles.subtitle}>
-                        Ändere deine persönlichen Informationen für {formData.firstName} {formData.lastName}.
+                        Ändere deine persönlichen Informationen für {displayName.firstName} {displayName.lastName}.
                     </p>
 
                     <form onSubmit={handleSubmit}>
@@ -146,8 +144,14 @@ export const ProfileEdit = () => {
                         {error && <p className="error-message">{error}</p>}
 
                         <div className={styles.buttonGroup}>
-                            <button type="submit" className="btn-primary">Speichern</button>
-                            <button type="button" className={`btn-primary ${styles.cancelBtn}`} onClick={() => navigate('/profile')}>Abbrechen</button>
+                            <button 
+                                type="submit" 
+                                className="btn-primary" 
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? 'Speichern...' : 'Änderungen speichern'}
+                            </button>
+                            <button type="button" className="btn-secondary" onClick={() => navigate('/profile')}>Abbrechen</button>
                         </div>
                     </form>
                 </div>
