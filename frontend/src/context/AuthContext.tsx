@@ -1,9 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AuthResponse, LoginRequest } from '../api/types';
 import { userApi } from '../api/userApi';
+import { tokenService } from '../utils/tokenService';
+
+// new type with everything from AuthResponse except 'accessToken' (which we handle separately for security)
+type UserData = Omit<AuthResponse, 'accessToken'>;
 
 interface AuthContextType {
-    user: AuthResponse | null;
+    user: UserData | null;
     login: (credentials: LoginRequest) => Promise<void>;
     logout: () => void;
     isAuthenticated: boolean;
@@ -15,45 +19,58 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<AuthResponse | null>(null);
+    const [user, setUser] = useState<UserData | null>(null);
     const [loading, setLoading] = useState(true);
     const [isAuthenticating, setIsAuthenticating] = useState(false);
 
     useEffect(() => {
-        const savedUser = localStorage.getItem('user');
-        const token = localStorage.getItem('accessToken');
-        if (savedUser && token) {
+        const savedUserStr = localStorage.getItem('user');
+        const token = tokenService.getToken(); 
+
+        if (savedUserStr && token) {
             try {
-                setUser(JSON.parse(savedUser));
+                const parsedUser: UserData = JSON.parse(savedUserStr);
+                setUser(parsedUser);
             } catch (error) {
-                console.error('Fehler beim Laden der Benutzersitzung:', error);
+                console.error('Fehler beim Parsen der Benutzersitzung:', error);
+                tokenService.clearToken();
                 localStorage.removeItem('user');
-                localStorage.removeItem('accessToken');
+                setUser(null);
             }
+        } else {
+            tokenService.clearToken();
+            localStorage.removeItem('user');
+            setUser(null);
         }
+        
         setLoading(false);
     }, []);
 
-    const login = async (credentials: LoginRequest) => {
-        setIsAuthenticating(true);
-        try {
-            const response = await userApi.login(credentials);
-            const authData = response.data;
-            
-            localStorage.setItem('accessToken', authData.accessToken);
-            localStorage.setItem('user', JSON.stringify(authData));
-            setUser(authData);
-        } catch (error) {
-            console.error('Login failed', error);
-            throw error;
-        } finally {
-            setIsAuthenticating(false);
-        }
-    };
+   const login = async (credentials: LoginRequest) => {
+    setIsAuthenticating(true);
+    try {
+        const response = await userApi.login(credentials);
+        const { accessToken, ...userData } = response.data; // <--- Das Token sauber herausfiltern!
+        
+        // 1. Token isoliert und sicher ablegen
+        tokenService.setToken(accessToken);
+        
+        // 2. NUR die unkritischen Profildaten (Name, Rolle etc.) im Storage ablegen
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // 3. UI-State im Context aktualisieren
+        setUser(userData); 
+    } catch (error) {
+        console.error('Login failed', error);
+        throw error;
+    } finally {
+        setIsAuthenticating(false);
+    }
+};
 
     const logout = () => {
         setIsAuthenticating(true);
-        localStorage.removeItem('accessToken');
+        tokenService.clearToken();
         localStorage.removeItem('user');
         setUser(null);
         setIsAuthenticating(false);
