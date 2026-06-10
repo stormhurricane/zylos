@@ -1,46 +1,20 @@
-import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { LandingLayout } from '../../components/LandingLayout';
 import styles from './Register.module.css'; // Sharing auth styles with Register component
+import { useLogin } from './useLogin';
 
 export const Login = () => {
-    const [identifier, setIdentifier] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [fieldErrors, setFieldErrors] = useState<{identifier?: string, password?: string}>({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    
-    const { login } = useAuth();
-    const location = useLocation(); // Get the current location object
+    const {       
+        identifier,
+        password,
+        error,
+        fieldErrors,
+        isSubmitting,
+        setIdentifier,
+        setPassword,
+        handleSubmit
+    } = useLogin();
     const navigate = useNavigate();
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-        setFieldErrors({});
-
-        // Manual validation instead of HTML 'required' attribute for better UI control
-        const errors: {identifier?: string, password?: string} = {};
-        if (!identifier) errors.identifier = 'Bitte gib deine E-Mail oder Matrikelnummer ein.';
-        if (!password) errors.password = 'Bitte gib dein Passwort ein.';
-
-        if (Object.keys(errors).length > 0) {
-            setFieldErrors(errors);
-            return;
-        }
-
-        setIsSubmitting(true);
-        try {
-            await login({ identifier, password });
-            // Redirect to the 'from' path if it exists, otherwise to '/dashboard'
-            navigate(location.state?.from?.pathname || '/dashboard');
-        } catch (err: any) {
-            setError(err.response?.data?.error || 'Login fehlgeschlagen. Bitte Daten prüfen.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
 
     return (
         <LandingLayout>
