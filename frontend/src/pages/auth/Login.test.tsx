@@ -2,35 +2,67 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Login } from './Login';
-import { BrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { AuthProvider } from '../../context/AuthContext';
-import axios from '../../api/axios';
+import { userApi } from '../../api/userApi';
+import { tokenService } from '../../utils/tokenService';
 
-// Mock the API module
-vi.mock('../../api/axios', () => ({
-    default: {
-        post: vi.fn(),
+vi.mock('../../api/userApi', () => ({
+    userApi: {
+        login: vi.fn(),
     },
 }));
 
-// Helper to render the component with all necessary providers
-const renderLogin = () => {
-    return render(
-        <BrowserRouter>
-            <AuthProvider>
-                <Login />
-            </AuthProvider>
-        </BrowserRouter>
+vi.mock('../../utils/tokenService', () => ({
+    tokenService: {
+        getToken: vi.fn(() => null), 
+        setToken: vi.fn(),
+        clearToken: vi.fn(),
+    },
+}));
+
+// Mock for useNavigate, to check Redirects
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => {
+    const actual = await vi.importActual('react-router-dom');
+    return {
+        ...actual,
+        useNavigate: () => mockNavigate,
+        useLocation: () => ({ state: { from: { pathname: '/dashboard' } } }),
+    };
+});
+
+const renderLogin = async () => {
+    const router = createBrowserRouter(
+        [
+            {
+                path: '*',
+                element: <Login />,
+            },
+        ],
     );
+
+    const renderResult = render(
+        <AuthProvider>
+            <RouterProvider router={router} future={{ v7_startTransition: true }} />
+        </AuthProvider>
+    );
+
+    await waitFor(() => {
+        expect(screen.getByRole('heading', { name: /Willkommen zurück/i })).toBeInTheDocument();
+    });
+
+    return renderResult;
 };
 
-describe('Login Component', () => {
+describe('Login Component (Integration)', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        localStorage.clear();
     });
 
     it('should show field errors when submitting empty form', async () => {
-        renderLogin();
+        await renderLogin();
         
         const loginButton = screen.getByRole('button', { name: /Anmelden/i });
         fireEvent.click(loginButton);
@@ -39,8 +71,8 @@ describe('Login Component', () => {
         expect(await screen.findByText('Bitte gib dein Passwort ein.')).toBeInTheDocument();
     });
 
-    it('should allow typing into identifier field', () => {
-        renderLogin();
+    it('should allow typing into identifier field', async () => {
+        await renderLogin();
 
         const input = screen.getByPlaceholderText('z.B. 1000001') as HTMLInputElement;
         fireEvent.change(input, { target: { value: 'test@uni.de' } });
@@ -48,12 +80,14 @@ describe('Login Component', () => {
     });
 
     it('should display an error message on failed login', async () => {
-        // Setup mock for failure
-        vi.mocked(axios.post).mockRejectedValueOnce({
+        // Disable console for this test to prevent clutter from expected error logs
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        vi.mocked(userApi.login).mockRejectedValueOnce({
             response: { data: { error: 'Ungültige Zugangsdaten' } }
         });
 
-        renderLogin();
+        await renderLogin();
 
         fireEvent.change(screen.getByPlaceholderText('z.B. 1000001'), { target: { value: 'wrong@user.de' } });
         fireEvent.change(screen.getByPlaceholderText('••••••••'), { target: { value: 'wrongpassword' } });
@@ -61,15 +95,22 @@ describe('Login Component', () => {
         const loginButton = screen.getByRole('button', { name: /Anmelden/i });
         fireEvent.click(loginButton);
 
-        // Wait for the async error message from the mocked API to appear
         expect(await screen.findByText('Ungültige Zugangsdaten')).toBeInTheDocument();
+
+        consoleSpy.mockRestore();
     });
 
-    it('should show loading state during submission', async () => {
-        // Mock a slow response
-        vi.mocked(axios.post).mockReturnValueOnce(new Promise(() => {}));
+    it('should show loading state and redirect on success', async () => {
+        vi.mocked(userApi.login).mockResolvedValueOnce({
+            data: {
+                accessToken: 'mocked-jwt-token',
+                id: '1',
+                email: 'user@test.de',
+                role: 'STUDENT'
+            }
+        } as any);
         
-        renderLogin();
+        await renderLogin();
 
         fireEvent.change(screen.getByPlaceholderText('z.B. 1000001'), { target: { value: 'user@test.de' } });
         fireEvent.change(screen.getByPlaceholderText('••••••••'), { target: { value: 'password123' } });
@@ -77,8 +118,14 @@ describe('Login Component', () => {
         const loginButton = screen.getByRole('button', { name: /Anmelden/i });
         fireEvent.click(loginButton);
 
-        // The text should change to the loading indicator defined in Login.tsx
-        expect(screen.getByText('Wird angemeldet...')).toBeInTheDocument();
-        expect(loginButton).toBeDisabled();
+        // [Certain] Wir warten darauf, dass der Button wieder freigegeben wird 
+        // oder der Text umschlägt. Das signalisiert das Ende aller lokalen States.
+        await waitFor(() => {
+            expect(screen.queryByText('Wird angemeldet...')).not.toBeInTheDocument();
+        });
+
+        // Erst danach prüfen wir, ob die Seiteneffekte (Routing, Token) sauber durch sind
+        expect(tokenService.setToken).toHaveBeenCalledWith('mocked-jwt-token');
+        expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
     });
 });

@@ -46,27 +46,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(false);
     }, []);
 
-   const login = async (credentials: LoginRequest) => {
-    setIsAuthenticating(true);
-    try {
-        const response = await userApi.login(credentials);
-        const { accessToken, ...userData } = response.data; // <--- Das Token sauber herausfiltern!
-        
-        // 1. Token isoliert und sicher ablegen
-        tokenService.setToken(accessToken);
-        
-        // 2. NUR die unkritischen Profildaten (Name, Rolle etc.) im Storage ablegen
-        localStorage.setItem('user', JSON.stringify(userData));
-        
-        // 3. UI-State im Context aktualisieren
-        setUser(userData); 
-    } catch (error) {
-        console.error('Login failed', error);
-        throw error;
-    } finally {
-        setIsAuthenticating(false);
-    }
-};
+    const login = async (credentials: LoginRequest) => {
+        setIsAuthenticating(true);
+        try {
+            const response = await userApi.login(credentials);
+            const { accessToken, ...userData } = response.data;
+            
+            tokenService.setToken(accessToken);
+            localStorage.setItem('user', JSON.stringify(userData));
+            
+            // first local auth process must be fully completed BEFORE changing user state and triggering routing!
+            setIsAuthenticating(false); 
+            setUser(userData); 
+        } catch (error) {
+            // reset in error case
+            setIsAuthenticating(false);
+            throw error;
+        }
+    };
 
     const logout = () => {
         setIsAuthenticating(true);
