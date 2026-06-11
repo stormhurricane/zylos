@@ -1,58 +1,21 @@
-import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { userApi } from '../../api/userApi';
-import { ProfileResponse, Course } from '../../api/types';
-import axios from 'axios';
-import { courseApi } from '../../api/courseApi';
 import { PageLoader } from '../../components/PageLoader';
-import { useAuth } from '../../context/AuthContext';
 import styles from './Profile.module.css';
+import { useProfile } from './useProfile';
 
 const DEFAULT_AVATAR = "https://ui-avatars.com/api/?background=4CAF50&color=fff&name=";
 
 export const Profile = () => {
     const { id } = useParams<{ id: string }>();
-    const [profile, setProfile] = useState<ProfileResponse | null>(null);
-    const [courses, setCourses] = useState<Course[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const { user } = useAuth();
     const navigate = useNavigate();
+    const {
+        profile,
+        courses,
+        loading,
+        error,
+        isOwnProfile
+    } = useProfile(id);
 
-    // 1. Berechne die Variable weiterhin synchron
-const currentUserId = user?.userId;
-const isOwnProfile = !id || (currentUserId !== undefined && String(id) === String(currentUserId));
-
-useEffect(() => {
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            
-            const response = await userApi.getProfile(id);
-            setProfile(response.data);
-
-            // Nutze die Variable einfach hier drinnen, sie muss nicht im Dependency-Array stehen!
-            if (isOwnProfile) {
-                const coursesRes = await courseApi.getMyCourses();
-                setCourses(coursesRes.data);
-            }
-        } catch (err) {
-            console.error("Fehler beim Laden des Profils", err);
-            if (axios.isAxiosError(err) && err.response?.status === 404) {
-                setProfile(null);
-            } else {
-                setError("Das Profil konnte nicht geladen werden.");
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
-    
-    fetchData();
-    // VORHER: [id, isOwnProfile]
-    // JETZT: Nur noch id und currentUserId überwachen!
-}, [id, currentUserId]);
 
     if (loading) return <PageLoader message="Profil wird geladen..." />;
     if (error) return <div className="text-center status-box status-error m-4">{error}</div>;

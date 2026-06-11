@@ -118,13 +118,12 @@ describe('Login Component (Integration)', () => {
         const loginButton = screen.getByRole('button', { name: /Anmelden/i });
         fireEvent.click(loginButton);
 
-        // [Certain] Wir warten darauf, dass der Button wieder freigegeben wird 
-        // oder der Text umschlägt. Das signalisiert das Ende aller lokalen States.
+        // Wait for the button to be enabled again, which indicates that the login process (including state updates) has completed
         await waitFor(() => {
             expect(screen.queryByText('Wird angemeldet...')).not.toBeInTheDocument();
         });
 
-        // Erst danach prüfen wir, ob die Seiteneffekte (Routing, Token) sauber durch sind
+        // Afterwards we check for side effects (Routing, Token)
         expect(tokenService.setToken).toHaveBeenCalledWith('mocked-jwt-token');
         expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
     });

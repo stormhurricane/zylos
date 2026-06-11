@@ -1,4 +1,5 @@
 import api from './axios';
+import axios from 'axios';
 import { 
     AuthResponse, 
     LoginRequest, 
@@ -14,8 +15,20 @@ export const userApi = {
         api.post<AuthResponse>('/users/login', credentials),
 
     /** Fetches a profile (own or specific ID) */
-    getProfile: (id?: string) => 
-        api.get<ProfileResponse>(id ? `/users/${id}` : '/users/me'),
+    getProfile: async (id?: string): Promise<ProfileResponse | null> => {
+        try {
+            const endpoint = id ? `/users/${id}` : '/users/me';
+            const response = await api.get<ProfileResponse>(endpoint);
+            return response.data;
+        } catch (error) {
+            // If 404, User does not exist - return null to indicate "not found"
+            if (axios.isAxiosError(error) && error.response?.status === 404) {
+                return null; 
+            }
+            // every other error (500, network down) we re-throw so that the hook can handle it in the catch block
+            throw error; 
+        }
+    },
 
     /** Updates profile data */
     updateProfile: (data: ProfileUpdateRequest) => 
