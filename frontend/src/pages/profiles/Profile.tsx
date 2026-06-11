@@ -81,10 +81,12 @@ export const Profile = () => {
                             </>
                         )}
 
-                        <div className="info-block">
-                            <label style={{ fontWeight: 'bold', color: 'var(--text-muted)' }}>Private Adresse</label>
-                            <p>{profile.privateAddress || 'Nicht angegeben'}</p>
-                        </div>
+                        {isOwnProfile && (
+                            <div className="info-block">
+                                <label style={{ fontWeight: 'bold', color: 'var(--text-muted)' }}>Private Adresse</label>
+                                <p>{profile.privateAddress || 'Nicht angegeben'}</p>
+                            </div>
+                        )}
                     </div>
                 </div>
                 {isOwnProfile && (

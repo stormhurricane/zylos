@@ -2,10 +2,9 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Login } from './Login';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { AuthProvider } from '../../context/AuthContext';
 import { userApi } from '../../api/userApi';
 import { tokenService } from '../../utils/tokenService';
+import { renderWithAuthAndRouter } from '../../test/testUtils';
 
 vi.mock('../../api/userApi', () => ({
     userApi: {
@@ -33,20 +32,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 const renderLogin = async () => {
-    const router = createBrowserRouter(
-        [
-            {
-                path: '*',
-                element: <Login />,
-            },
-        ],
-    );
-
-    const renderResult = render(
-        <AuthProvider>
-            <RouterProvider router={router} future={{ v7_startTransition: true }} />
-        </AuthProvider>
-    );
+    const renderResult = renderWithAuthAndRouter(<Login />);
 
     await waitFor(() => {
         expect(screen.getByRole('heading', { name: /Willkommen zurück/i })).toBeInTheDocument();
