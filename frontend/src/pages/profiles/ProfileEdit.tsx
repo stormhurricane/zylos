@@ -1,81 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { userApi } from '../../api/userApi';
-import { ProfileResponse, ProfileUpdateRequest } from '../../api/types';
 import { PageLoader } from '../../components/PageLoader';
 import styles from './ProfileEdit.module.css';
+import { useProfileEdit } from './useProfileEdit';
 
 export const ProfileEdit = () => {
-    const [formData, setFormData] = useState<ProfileUpdateRequest>({
-        password: '',
-        privateAddress: '',
-        profilePicture: '',
-        chair: '',
-        researchArea: '',
-        studySubject: ''
-    });
-    const [displayName, setDisplayName] = useState({ firstName: '', lastName: '' });
-    const [isStudent, setIsStudent] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const response = await userApi.getProfile();
-                const data = response.data;
-                
-                setDisplayName({ firstName: data.firstName, lastName: data.lastName });
-                setFormData({
-                    password: '',
-                    privateAddress: data.privateAddress || '',
-                    profilePicture: data.profilePicture || '',
-                    studySubject: data.studySubject || '',
-                    chair: data.chair || '',
-                    researchArea: data.researchArea || ''
-                });
-                setIsStudent(!!data.matriculationNumber);
-            } catch (err) {
-                setError('Profil konnte nicht geladen werden.');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchProfile();
-    }, []);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setFormData({ ...formData, profilePicture: reader.result as string });
-            };
-            reader.onerror = () => setError('Bildverarbeitung fehlgeschlagen.');
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        setError('');
-
-        try {
-            await userApi.updateProfile(formData);
-            navigate('/profile');
-        } catch (err) {
-            setError('Update fehlgeschlagen.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+    const {
+        
+        formData,
+        displayName,
+        isStudent,
+        loading,
+        isSubmitting,
+        error,
+        handleChange,
+        handleFileChange,
+        handleSubmit,
+        cancel
+    } = useProfileEdit();
 
     if (loading) return <PageLoader message="Einstellungen werden geladen..." />;
 
@@ -151,7 +91,7 @@ export const ProfileEdit = () => {
                             >
                                 {isSubmitting ? 'Speichern...' : 'Änderungen speichern'}
                             </button>
-                            <button type="button" className="btn-secondary" onClick={() => navigate('/profile')}>Abbrechen</button>
+                            <button type="button" className="btn-secondary" onClick={cancel}>Abbrechen</button>
                         </div>
                     </form>
                 </div>
