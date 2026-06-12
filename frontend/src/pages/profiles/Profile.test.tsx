@@ -88,7 +88,7 @@ describe('Profile Component Integration', () => {
         expect(editButton).not.toBeInTheDocument();
     });
 
-    it('zeigt eine Meldung an, wenn das Profil nicht existiert', () => {
+    it('should show a message if profile does not exist', () => {
         vi.mocked(useProfile).mockReturnValue({
             profile: null, // no Profile found
             courses: [],

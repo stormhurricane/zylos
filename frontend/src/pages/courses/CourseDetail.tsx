@@ -1,123 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { courseApi } from '../../api/courseApi';
-import { Course, ParticipantsResponse, Material, UserResponse } from '../../api/types';
-import { userApi } from '../../api/userApi';
-import { useAuth } from '../../context/AuthContext';
+import React from 'react';
 import { PageLoader } from '../../components/PageLoader';
 import styles from './CourseDetail.module.css';
+import { useCourseDetail } from './useCourseDetail';
 
 export const CourseDetail: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
-    const courseId = Number(id);
-
-    const [course, setCourse] = useState<Course | null>(null);
-    const [participants, setParticipants] = useState<ParticipantsResponse | null>(null);
-    const [materials, setMaterials] = useState<Material[]>([]);
-    const [uploadTitle, setUploadTitle] = useState('');
-    const [uploadFile, setUploadFile] = useState<File | null>(null);
-    const [uploadStatus, setUploadStatus] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [studentSearch, setStudentSearch] = useState('');
-    const [searchResults, setSearchResults] = useState<UserResponse[]>([]);
-    const { user, isInstructor } = useAuth();
-
-    const currentUserId = user?.userId;
-
-    const isEnrolled = currentUserId && (
-        participants?.students?.some(s => String(s.id) === String(currentUserId)) || 
-        participants?.instructors?.some(i => String(i.id) === String(currentUserId))
-    );
-
-    const handleStudentSearch = async (query: string) => {
-        setStudentSearch(query);
-        if (query.length < 2) {
-            setSearchResults([]);
-            return;
-        }
-        try {
-            const res = await userApi.searchUsers(query);
-            // Only suggest users who are not already enrolled in the course
-            const filtered = (res.data as unknown as UserResponse[]).filter((u: UserResponse) =>
-                !participants?.students?.some(s => s.id === u.id) &&
-                !participants?.instructors?.some(i => i.id === u.id)
-            );
-            setSearchResults(filtered);
-        } catch (err) {
-            console.error("Suche fehlgeschlagen", err);
-        }
-    };
-
-    const handleAddStudent = async (studentId: number) => {
-        try {
-            await courseApi.addParticipant(courseId, studentId);
-            setStudentSearch('');
-            setSearchResults([]);
-            loadData(); // Refresh data to show the new participant
-        } catch (err) {
-            console.error("Hinzufügen des Teilnehmers fehlgeschlagen:", err);
-            alert(`Error 403: Permission denied or invalid course ID.`);
-        }
-    };
-
-    const loadData = async () => {
-        try {
-            const courseRes = await courseApi.getCourseById(courseId);
-            setCourse(courseRes.data);
-
-            const [partRes, matRes] = await Promise.allSettled([
-                courseApi.getParticipants(courseId),
-                courseApi.getMaterials(courseId)
-            ]);
-
-            if (partRes.status === 'fulfilled') setParticipants(partRes.value.data);
-            if (matRes.status === 'fulfilled') setMaterials(matRes.value.data);
-
-        } catch (err) {
-            console.error("Error loading course details", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        loadData();
-    }, [courseId]);
-
-    const handleUpload = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!uploadFile || !uploadTitle) return;
-        try {
-            await courseApi.uploadMaterial(courseId, uploadTitle, uploadFile);
-            setUploadStatus({ type: 'success', text: 'Material erfolgreich hochgeladen!' });
-            setUploadTitle('');
-            setUploadFile(null);
-            
-            // Reset the native file input element
-            const fileInput = document.getElementById('material-file-input') as HTMLInputElement;
-            if (fileInput) fileInput.value = '';
-            
-            loadData(); // Reload the materials list
-            setTimeout(() => setUploadStatus(null), 3000); // Hide status message after 3 seconds
-        } catch (err) {
-            setUploadStatus({ type: 'error', text: 'Upload fehlgeschlagen.' });
-        }
-    };
-
-    const handleDownload = async (materialId: number, fileName: string) => {
-        try {
-            const response = await courseApi.downloadMaterial(materialId);
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', fileName);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-        } catch (err) {
-            alert("Download fehlgeschlagen.");
-        }
-    };
+    const {
+        course,
+        participants,
+        materials,
+        loading,
+        uploadTitle,
+        uploadStatus,
+        studentSearch,
+        searchResults,
+        isInstructor,
+        currentUserId,
+        fileInputKey,
+        setUploadTitle,
+        setUploadFile,
+        handleStudentSearch,
+        handleAddStudent,
+        handleUpload,
+        handleDownload
+    } = useCourseDetail();
 
     if (loading) return <PageLoader message="Kursdetails werden geladen..." />;
     if (!course) return <div className="text-center color-error">Kurs nicht gefunden.</div>;
@@ -174,6 +79,7 @@ export const CourseDetail: React.FC = () => {
                                         onChange={e => setUploadTitle(e.target.value)}
                                     />
                                     <input 
+                                        key={fileInputKey}
                                         id="material-file-input"
                                         type="file"
                                         onChange={e => setUploadFile(e.target.files?.[0] || null)}
