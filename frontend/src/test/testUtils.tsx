@@ -27,3 +27,20 @@ export const renderWithAuthAndRouter = (ui: React.ReactElement, initialEntries =
         </AuthProvider>
     );
 };
+
+export const renderWithRouter = (ui: React.ReactElement, initialEntries = ['/']) => {
+    const routerOptions = {
+        initialEntries,
+        future: {
+            v7_startTransition: true,
+            v7_relativeSplatPath: true,
+        } as any 
+    };
+
+    const router = createMemoryRouter(
+        [{ path: '*', element: ui }], 
+        routerOptions
+    );
+
+    return render(<RouterProvider router={router} />);
+};
