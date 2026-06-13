@@ -4,6 +4,7 @@ import { courseApi } from '../../api/courseApi';
 import { userApi } from '../../api/userApi';
 import { useAuth } from '../../context/AuthContext';
 import { Course, ParticipantsResponse, Material, UserResponse } from '../../api/types';
+import { triggerBinaryDownload } from '../../utils/fileUtils';
 
 export const useCourseDetail = () => {
     const { id } = useParams<{ id: string }>();
@@ -100,20 +101,13 @@ export const useCourseDetail = () => {
     };
 
     const handleDownload = async (materialId: number, fileName: string) => {
-        try {
-            const response = await courseApi.downloadMaterial(materialId);
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', fileName);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            window.URL.revokeObjectURL(url); // Memory Leak fixen!
-        } catch (err) {
-            alert("Download fehlgeschlagen.");
-        }
-    };
+    try {
+        const response = await courseApi.downloadMaterial(materialId);
+        triggerBinaryDownload(new Blob([response.data]), fileName);
+    } catch (err) {
+        alert("Download fehlgeschlagen.");
+    }
+};
 
     return {
         course,
