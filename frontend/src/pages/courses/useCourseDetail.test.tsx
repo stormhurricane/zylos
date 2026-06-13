@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, screen } from '@testing-library/react';
 import { act } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useCourseDetail } from './useCourseDetail';
@@ -175,4 +175,5 @@ describe('useCourseDetail Component', () => {
 
         downloadSpy.mockRestore();
     });
+
 });
