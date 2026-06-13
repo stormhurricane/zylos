@@ -1,16 +1,13 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, afterEach, afterAll } from 'vitest';
 import { Login } from './Login';
-import { userApi } from '../../api/userApi';
 import { tokenService } from '../../utils/tokenService';
 import { renderWithAuthAndRouter } from '../../test/testUtils';
+import { setupServer } from 'msw/node';
+import { globalHandlers } from '../../test/handlers';
 
-vi.mock('../../api/userApi', () => ({
-    userApi: {
-        login: vi.fn(),
-    },
-}));
+const server = setupServer(...globalHandlers);
 
 vi.mock('../../utils/tokenService', () => ({
     tokenService: {
@@ -20,7 +17,6 @@ vi.mock('../../utils/tokenService', () => ({
     },
 }));
 
-// Mock for useNavigate, to check Redirects
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
     const actual = await vi.importActual('react-router-dom');
@@ -33,19 +29,21 @@ vi.mock('react-router-dom', async () => {
 
 const renderLogin = async () => {
     const renderResult = renderWithAuthAndRouter(<Login />);
-
     await waitFor(() => {
         expect(screen.getByRole('heading', { name: /Willkommen zurück/i })).toBeInTheDocument();
     });
-
     return renderResult;
 };
 
-describe('Login Component (Integration)', () => {
-    beforeEach(() => {
+describe('Login Component Integration', () => {
+    // handle MSW server lifecycle in Vitest
+    beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+    afterEach(() => {
+        server.resetHandlers();
         vi.clearAllMocks();
         localStorage.clear();
     });
+    afterAll(() => server.close());
 
     it('should show field errors when submitting empty form', async () => {
         await renderLogin();
@@ -66,12 +64,7 @@ describe('Login Component (Integration)', () => {
     });
 
     it('should display an error message on failed login', async () => {
-        // Disable console for this test to prevent clutter from expected error logs
         const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-        vi.mocked(userApi.login).mockRejectedValueOnce({
-            response: { data: { error: 'Ungültige Zugangsdaten' } }
-        });
 
         await renderLogin();
 
@@ -81,21 +74,11 @@ describe('Login Component (Integration)', () => {
         const loginButton = screen.getByRole('button', { name: /Anmelden/i });
         fireEvent.click(loginButton);
 
-        expect(await screen.findByText('Ungültige Zugangsdaten')).toBeInTheDocument();
-
+        expect(await screen.findByText(/Login fehlgeschlagen/i)).toBeInTheDocument();
         consoleSpy.mockRestore();
     });
 
     it('should show loading state and redirect on success', async () => {
-        vi.mocked(userApi.login).mockResolvedValueOnce({
-            data: {
-                accessToken: 'mocked-jwt-token',
-                id: '1',
-                email: 'user@test.de',
-                role: 'STUDENT'
-            }
-        } as any);
-        
         await renderLogin();
 
         fireEvent.change(screen.getByPlaceholderText('z.B. 1000001'), { target: { value: 'user@test.de' } });
@@ -104,12 +87,10 @@ describe('Login Component (Integration)', () => {
         const loginButton = screen.getByRole('button', { name: /Anmelden/i });
         fireEvent.click(loginButton);
 
-        // Wait for the button to be enabled again, which indicates that the login process (including state updates) has completed
         await waitFor(() => {
             expect(screen.queryByText('Wird angemeldet...')).not.toBeInTheDocument();
         });
 
-        // Afterwards we check for side effects (Routing, Token)
         expect(tokenService.setToken).toHaveBeenCalledWith('mocked-jwt-token');
         expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
     });
