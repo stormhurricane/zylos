@@ -1,4 +1,5 @@
-import axios, { InternalAxiosRequestConfig } from 'axios';
+import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
+import { tokenService } from '../utils/tokenService';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
@@ -9,7 +10,7 @@ const api = axios.create({
 
 // Request Interceptor for JWT
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('accessToken');
+    const token = tokenService.getToken();
     if (token && config.headers) {
         config.headers.set('Authorization', `Bearer ${token}`);
     }
