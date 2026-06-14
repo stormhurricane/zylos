@@ -15,7 +15,7 @@ export const useDashboard = () => {
         try {
             setSearchError(null);
             const response = await userApi.searchUsers(query);
-            setSearchResults(response.data);
+            setSearchResults(response);
         } catch (err) {
             console.error("Suche fehlgeschlagen", err);
             setSearchError("Die Nutzersuche ist fehlgeschlagen. Bitte erneut versuchen.");
@@ -28,7 +28,7 @@ export const useDashboard = () => {
             const res = await courseApi.getMyCourses();
             
             // Clear separation of sort
-            const sorted = res.data.sort((a, b) => {
+            const sorted = res.sort((a, b) => {
                 const yearA = parseInt(a.academicYear.split('/')[0]);
                 const yearB = parseInt(b.academicYear.split('/')[0]);
                 if (yearB !== yearA) return yearB - yearA;

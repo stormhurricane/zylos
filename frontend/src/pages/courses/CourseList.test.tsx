@@ -38,8 +38,8 @@ describe('CourseList Component', () => {
     it('renders courses and handles enrollment', async () => {
         const mockCourse = { id: 1, title: 'Software Engineering', type: 'LECTURE', term: 'SUMMER', academicYear: '2024' };
         
-        mockedCourseApi.getAllCourses.mockResolvedValue({ data: [mockCourse] } as any);
-        mockedCourseApi.getMyCourses.mockResolvedValue({ data: [] } as any);
+        mockedCourseApi.getAllCourses.mockResolvedValue([mockCourse]  as any);
+        mockedCourseApi.getMyCourses.mockResolvedValue([] as any);
         mockedCourseApi.enroll.mockResolvedValue({} as any);
 
         renderCourseList();
@@ -59,8 +59,8 @@ describe('CourseList Component', () => {
 
     it('shows "Ansehen" button if already enrolled', async () => {
         const mockCourse = { id: 1, title: 'Software Engineering', type: 'LECTURE', term: 'SUMMER', academicYear: '2024' };
-        mockedCourseApi.getAllCourses.mockResolvedValue({ data: [mockCourse] } as any);
-        mockedCourseApi.getMyCourses.mockResolvedValue({ data: [mockCourse] } as any);
+        mockedCourseApi.getAllCourses.mockResolvedValue( [mockCourse]  as any);
+        mockedCourseApi.getMyCourses.mockResolvedValue( [mockCourse] as any);
 
         renderCourseList();
 
@@ -69,8 +69,8 @@ describe('CourseList Component', () => {
     });
 
     it('shows empty state message when no courses are found', async () => {
-        mockedCourseApi.getAllCourses.mockResolvedValue({ data: [] } as any);
-        mockedCourseApi.getMyCourses.mockResolvedValue({ data: [] } as any);
+        mockedCourseApi.getAllCourses.mockResolvedValue( [] as any);
+        mockedCourseApi.getMyCourses.mockResolvedValue( [] as any);
 
         renderCourseList();
 
@@ -81,7 +81,7 @@ describe('CourseList Component', () => {
     it('shows error message when API fails', async () => {
         // Mock a rejection for the API call
         mockedCourseApi.getAllCourses.mockRejectedValue(new Error('API Error'));
-        mockedCourseApi.getMyCourses.mockResolvedValue({ data: [] } as any);
+        mockedCourseApi.getMyCourses.mockResolvedValue( [] as any);
 
         renderCourseList();
 

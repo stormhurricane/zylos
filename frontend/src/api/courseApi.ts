@@ -2,56 +2,59 @@ import api from './axios';
 import { Course, ParticipantsResponse, Material } from './types';
 
 export const courseApi = {
-    /** Fetches all available courses */
-    getAllCourses: () => api.get<Course[]>(`/courses`),
+    /** Gets all available courses */
+    getAllCourses: (): Promise<Course[]> => 
+        api.get('/courses'),
     
-    /** Fetches details for a specific course by ID */
-    getCourseById: (id: number) => api.get<Course>(`/courses/${id}`),
+    /** Gets details for a specific course via ID */
+    getCourseById: (id: number): Promise<Course> => 
+        api.get(`/courses/${id}`),
 
-    /** Creates a new course (Teacher only) */
-    createCourse: (data: Omit<Course, 'id'>) => 
-        api.post<Course>(`/courses`, data),
+    /** Creates a new Course (Only teachers) */
+    createCourse: (data: Omit<Course, 'id'>): Promise<Course> => 
+        api.post(`/courses`, data),
     
-    /** Fetches courses where the current user is enrolled */
-    getMyCourses: () => api.get<Course[]>(`/courses/my-enrollments`),
+    /** Gets all courses, in which current user is enrolled */
+    getMyCourses: (): Promise<Course[]> => 
+        api.get(`/courses/my-enrollments`),
 
-    /** Imports courses via CSV file */
-    importCsv: (file: File) => {
+    /** Imports courses via csv */
+    importCsv: (file: File): Promise<Course[]> => {
         const formData = new FormData();
         formData.append('file', file);
-        return api.post<Course[]>(`/courses/import`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' } // Browser sets boundary automatically
-        });
-    },
-
-    /** Enrolls the current user into a course */
-    enroll: (courseId: number) => 
-        api.post<void>(`/courses/${courseId}/enroll`),
-
-    /** Fetches the list of instructors and students for a course */
-    getParticipants: (courseId: number) => 
-        api.get<ParticipantsResponse>(`/courses/${courseId}/participants`),
-
-    /** Adds a specific user as a participant to a course (Instructor only) */
-    addParticipant: (courseId: number, userId: number) =>
-        api.post<void>(`/courses/${courseId}/participants`, { userId }),
-
-    /** Fetches all teaching materials for a course */
-    getMaterials: (courseId: number) => 
-        api.get<Material[]>(`/courses/${courseId}/materials`),
-
-    /** Uploads a file as teaching material for a course */
-    uploadMaterial: (courseId: number, title: string, file: File) => {
-        const formData = new FormData();
-        formData.append('title', title);
-        formData.append('file', file);
-        return api.post<Material>(`/courses/${courseId}/materials`, formData, {
+        return api.post(`/courses/import`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
     },
 
-    /** Downloads a material file as a Blob */
-    downloadMaterial: (materialId: number) => 
+    /** Enrolled current user into course */
+    enroll: (courseId: number): Promise<void> => 
+        api.post(`/courses/${courseId}/enroll`),
+
+    /** Gets list of participants of a course */
+    getParticipants: (courseId: number): Promise<ParticipantsResponse> => 
+        api.get(`/courses/${courseId}/participants`),
+
+    /** Adds a user to the course */
+    addParticipant: (courseId: number, userId: number): Promise<void> =>
+        api.post(`/courses/${courseId}/participants`, { userId }),
+
+    /** Gets all material from a course */
+    getMaterials: (courseId: number): Promise<Material[]> => 
+        api.get(`/courses/${courseId}/materials`),
+
+    /** Uploads material to a course */
+    uploadMaterial: (courseId: number, title: string, file: File): Promise<Material> => {
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('file', file);
+        return api.post(`/courses/${courseId}/materials`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+    },
+
+    /** Downloads material as a blob */
+    downloadMaterial: (materialId: number): Promise<Blob> => 
         api.get(`/courses/materials/${materialId}/download`, {
             responseType: 'blob'
         })

@@ -55,15 +55,15 @@ describe('useCourseDetail Component', () => {
             academicYear: '2023/24'
         };
 
-        vi.mocked(courseApi.getCourseById).mockResolvedValue({ data: mockCourseData } as any);
+        vi.mocked(courseApi.getCourseById).mockResolvedValue( mockCourseData as any);
         
         vi.mocked(courseApi.getParticipants).mockResolvedValue({
-            data: { instructors: [{ id: 1, firstName: 'Prof.', lastName: 'Tester' }], students: [] }
+             instructors: [{ id: 1, firstName: 'Prof.', lastName: 'Tester' }], students: [] 
         } as any);
         
-        vi.mocked(courseApi.getMaterials).mockResolvedValue({
-            data: [{ id: 1, title: 'Skript 1', fileName: 'skript1.pdf' }]
-        } as any);
+        vi.mocked(courseApi.getMaterials).mockResolvedValue([
+            { id: 1, title: 'Skript 1', fileName: 'skript1.pdf' }
+        ] as any);
 
         // Hook
         const { result } = renderHook(() => useCourseDetail());
@@ -80,18 +80,16 @@ describe('useCourseDetail Component', () => {
     });
 
     it('should filter user search results correctly', async () => {
-        vi.mocked(courseApi.getCourseById).mockResolvedValue({ data: { id: 123 } } as any);
+        vi.mocked(courseApi.getCourseById).mockResolvedValue({ id: 123 } as any);
         vi.mocked(courseApi.getParticipants).mockResolvedValue({
-            data: { instructors: [], students: [{ id: 99, firstName: 'Existiert', lastName: 'Schon' }] }
+            instructors: [], students: [{ id: 99, firstName: 'Existiert', lastName: 'Schon' }]
         } as any);
-        vi.mocked(courseApi.getMaterials).mockResolvedValue({ data: [] } as any);
+        vi.mocked(courseApi.getMaterials).mockResolvedValue( [] as any);
 
-        vi.mocked(userApi.searchUsers).mockResolvedValue({
-            data: [
+        vi.mocked(userApi.searchUsers).mockResolvedValue([
                 { id: 99, firstName: 'Existiert', lastName: 'Schon' },
                 { id: 100, firstName: 'Neuer', lastName: 'Student' }
-            ]
-        } as any);
+        ] as any);
 
         const { result } = renderHook(() => useCourseDetail());
 
@@ -111,9 +109,9 @@ describe('useCourseDetail Component', () => {
     });
 
     it('should upload a material successfully and update the data afterwards', async () => {
-        vi.mocked(courseApi.getCourseById).mockResolvedValue({ data: { id: 123 } } as any);
-        vi.mocked(courseApi.getParticipants).mockResolvedValue({ data: { instructors: [], students: [] } } as any);
-        vi.mocked(courseApi.getMaterials).mockResolvedValue({ data: [] } as any);
+        vi.mocked(courseApi.getCourseById).mockResolvedValue({ id: 123 } as any);
+        vi.mocked(courseApi.getParticipants).mockResolvedValue( { instructors: [], students: [] } as any);
+        vi.mocked(courseApi.getMaterials).mockResolvedValue( [] as any);
 
         vi.mocked(courseApi.uploadMaterial).mockResolvedValue({ data: {} } as any);
 
@@ -144,9 +142,9 @@ describe('useCourseDetail Component', () => {
     });
 
     it('should call API on download and trigger file utils', async () => {
-        vi.mocked(courseApi.getCourseById).mockResolvedValue({ data: { id: 123 } } as any);
-        vi.mocked(courseApi.getParticipants).mockResolvedValue({ data: { instructors: [], students: [] } } as any);
-        vi.mocked(courseApi.getMaterials).mockResolvedValue({ data: [] } as any);
+        vi.mocked(courseApi.getCourseById).mockResolvedValue( { id: 123 } as any);
+        vi.mocked(courseApi.getParticipants).mockResolvedValue( { instructors: [], students: [] } as any);
+        vi.mocked(courseApi.getMaterials).mockResolvedValue( [] as any);
 
         const fakeBlob = new Blob(['pdf-daten'], { type: 'application/pdf' });
         vi.mocked(courseApi.downloadMaterial).mockResolvedValue({ data: fakeBlob } as any);

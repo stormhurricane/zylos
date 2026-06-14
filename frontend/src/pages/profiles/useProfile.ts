@@ -31,7 +31,7 @@ export const useProfile = (id: string | undefined) => {
                 // 2 load own courses (depends on 'isOwnProfile', which in turn depends on 'currentUserId' and 'id')
                 if (isOwnProfile && profileData) {
                     const coursesRes = await courseApi.getMyCourses();
-                    setCourses(coursesRes.data);
+                    setCourses(coursesRes);
                 } else {
                     setCourses([]);
                 }

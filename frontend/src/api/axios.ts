@@ -17,14 +17,15 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     return config;
 });
 
-// Response Interceptor for Global Error Handling
+// Response Interceptor: extract data globally and catch errors
 api.interceptors.response.use(
-    (response) => response,
+    (response: AxiosResponse) => {
+        return Promise.resolve(response.data);    },
     (error) => {
         if (error.response?.status === 401) {
-            // Token expired or unauthorized, force logout
             localStorage.removeItem('accessToken');
-            window.location.href = '/login';
+            // trigger global event
+            window.dispatchEvent(new Event('auth-unauthorized'));
         }
         return Promise.reject(error);
     }

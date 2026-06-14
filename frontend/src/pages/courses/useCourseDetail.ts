@@ -33,15 +33,15 @@ export const useCourseDetail = () => {
         }
         try {
             const courseRes = await courseApi.getCourseById(courseId);
-            setCourse(courseRes.data);
+            setCourse(courseRes);
 
             const [partRes, matRes] = await Promise.allSettled([
                 courseApi.getParticipants(courseId),
                 courseApi.getMaterials(courseId)
             ]);
 
-            if (partRes.status === 'fulfilled') setParticipants(partRes.value.data);
-            if (matRes.status === 'fulfilled') setMaterials(matRes.value.data);
+            if (partRes.status === 'fulfilled') setParticipants(partRes.value);
+            if (matRes.status === 'fulfilled') setMaterials(matRes.value);
         } catch (err) {
             console.error("Error loading course details", err);
         } finally {
@@ -61,7 +61,7 @@ export const useCourseDetail = () => {
         }
         try {
             const res = await userApi.searchUsers(query);
-            const filtered = (res.data as unknown as UserResponse[]).filter((u: UserResponse) =>
+            const filtered = (res as unknown as UserResponse[]).filter((u: UserResponse) =>
                 !participants?.students?.some(s => s.id === u.id) &&
                 !participants?.instructors?.some(i => i.id === u.id)
             );
@@ -103,7 +103,7 @@ export const useCourseDetail = () => {
     const handleDownload = async (materialId: number, fileName: string) => {
     try {
         const response = await courseApi.downloadMaterial(materialId);
-        triggerBinaryDownload(new Blob([response.data]), fileName);
+        triggerBinaryDownload(new Blob([response]), fileName);
     } catch (err) {
         alert("Download fehlgeschlagen.");
     }

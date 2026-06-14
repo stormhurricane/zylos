@@ -20,8 +20,8 @@ export const CourseList: React.FC = () => {
                     courseApi.getAllCourses(),
                     courseApi.getMyCourses()
                 ]);
-                setCourses(allRes.data);
-                setEnrolledIds(myRes.data.map(c => c.id));
+                setCourses(allRes);
+                setEnrolledIds(myRes.map(c => c.id));
             } catch (err) {
                 console.error("Fehler beim Laden der Kurse", err);
                 setError("Fehler beim Laden der Kurse. Bitte versuche es später erneut.");

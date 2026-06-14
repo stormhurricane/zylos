@@ -5,34 +5,10 @@ import { Profile } from './Profile';
 import { renderWithAuthAndRouter } from '../../test/testUtils';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
-import { SemesterTerm } from '../../api/types';
 import * as AuthContext from '../../context/AuthContext'; 
+import { globalHandlers } from '../../test/handlers';
 
-const server = setupServer(
-    http.get('*/users/*', ({ params }) => {
-        const id = params[0];
-        return HttpResponse.json({
-            id: id,
-            firstName: 'Jojen',
-            lastName: 'Doe',
-            email: 'own@uni.de',
-            matriculationNumber: '1000001',
-            studySubject: 'Informatik',
-            privateAddress: 'Musterstraße 1'
-        });
-    }),
-
-    // Due to current data strcture, hybrid mock with response and response.data
-    http.get('*enrollments*', () => {
-        const coursesArray = [
-            { id: 1, title: 'Software Engineering', term: SemesterTerm.WINTER, academicYear: '2026' }
-        ];
-        
-        const hybridResponse = Object.assign(coursesArray, { data: coursesArray });
-        
-        return HttpResponse.json(hybridResponse);
-    })
-);
+const server = setupServer(...globalHandlers);
 
 const mockNavigate = vi.fn();
 let mockParamId = '123';
@@ -105,7 +81,7 @@ describe('Profile Component (Integration mit MSW)', () => {
         );
 
         renderWithAuthAndRouter(<Profile />);
-
+        
         expect(await screen.findByText('Max Mustermann')).toBeInTheDocument();
         expect(screen.getByText('stranger@uni.de')).toBeInTheDocument();
         expect(screen.getByText('Software Engineering')).toBeInTheDocument();

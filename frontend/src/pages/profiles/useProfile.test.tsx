@@ -34,7 +34,7 @@ describe('useProfile Hook', () => {
         const mockCourses = [{ id: 'c1', title: 'Software Engineering', term: 'WS', academicYear: '2026' }];
 
         vi.mocked(userApi.getProfile).mockResolvedValue(mockProfile as any);
-        vi.mocked(courseApi.getMyCourses).mockResolvedValue({ data: mockCourses } as any);
+        vi.mocked(courseApi.getMyCourses).mockResolvedValue( mockCourses as any);
 
         // render Hook 
         const { result } = renderHook(() => useProfile('123'));

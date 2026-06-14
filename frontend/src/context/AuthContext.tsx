@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsAuthenticating(true);
         try {
             const response = await userApi.login(credentials);
-            const { accessToken, ...userData } = response.data;
+            const { accessToken, ...userData } = response;
             
             tokenService.setToken(accessToken);
             localStorage.setItem('user', JSON.stringify(userData));

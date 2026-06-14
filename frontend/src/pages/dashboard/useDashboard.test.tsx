@@ -23,7 +23,7 @@ describe('useDashboard Hook', () => {
         vi.clearAllMocks();
 
         // Default mock behavior for courseApi.getMyCourses to return an empty array, can be overridden in specific tests
-        vi.mocked(courseApi.getMyCourses).mockResolvedValue({ data: [] } as any); // No Courses for this test
+        vi.mocked(courseApi.getMyCourses).mockResolvedValue( [] as any); // No Courses for this test
     });
 
     it('should initialize with empty search results and load courses', async () => {
@@ -34,9 +34,7 @@ describe('useDashboard Hook', () => {
         ];
 
         // Faking API response with attribute "data" that contains our courses array.
-        vi.mocked(courseApi.getMyCourses).mockResolvedValue({
-            data: mockCourses
-        } as any);
+        vi.mocked(courseApi.getMyCourses).mockResolvedValue(mockCourses as any);
 
         // Starting Hook in test environment with MemoryRouter to provide necessary context for useSearchParams
         const { result } = renderHook(() => useDashboard(), {
@@ -61,9 +59,7 @@ describe('useDashboard Hook', () => {
             { id: 1, firstName: 'John', lastName: 'Doe', email: 'john.doe@example.com' }
         ];
 
-        vi.mocked(userApi.searchUsers).mockResolvedValue({
-            data: mockSearchResults
-        } as any);
+        vi.mocked(userApi.searchUsers).mockResolvedValue(mockSearchResults as any);
 
         // Modified Wrapper to include initialEntries with search query "John"
         const { result } = renderHook(() => useDashboard(), {
