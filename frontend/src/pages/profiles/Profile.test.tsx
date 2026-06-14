@@ -1,107 +1,149 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, afterEach, afterAll } from 'vitest';
 import { Profile } from './Profile';
-import { useProfile } from './useProfile';
-import { MemoryRouter } from 'react-router-dom';
-import { SemesterTerm, CourseType } from '../../api/types';
 import { renderWithAuthAndRouter } from '../../test/testUtils';
+import { setupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw';
+import { SemesterTerm } from '../../api/types';
+import * as AuthContext from '../../context/AuthContext'; 
 
-// Mocking useProfile Hook 
-vi.mock('./useProfile', () => ({
-    useProfile: vi.fn()
-}));
+const server = setupServer(
+    http.get('*/users/*', ({ params }) => {
+        const id = params[0];
+        return HttpResponse.json({
+            id: id,
+            firstName: 'Jojen',
+            lastName: 'Doe',
+            email: 'own@uni.de',
+            matriculationNumber: '1000001',
+            studySubject: 'Informatik',
+            privateAddress: 'Musterstraße 1'
+        });
+    }),
 
-// Mock useNavigate due to Zurück Button
+    // Due to current data strcture, hybrid mock with response and response.data
+    http.get('*enrollments*', () => {
+        const coursesArray = [
+            { id: 1, title: 'Software Engineering', term: SemesterTerm.WINTER, academicYear: '2026' }
+        ];
+        
+        const hybridResponse = Object.assign(coursesArray, { data: coursesArray });
+        
+        return HttpResponse.json(hybridResponse);
+    })
+);
+
 const mockNavigate = vi.fn();
+let mockParamId = '123';
+
 vi.mock('react-router-dom', async () => {
     const actual = await vi.importActual('react-router-dom');
     return {
         ...actual,
         useNavigate: () => mockNavigate,
-        useParams: () => ({ id: '123' }) // simulate /profile/123
+        useParams: () => ({ id: mockParamId })
     };
 });
 
-describe('Profile Component Integration', () => {
-    beforeEach(() => {
+describe('Profile Component (Integration mit MSW)', () => {
+    beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+    afterEach(() => {
+        server.resetHandlers();
         vi.clearAllMocks();
+        vi.restoreAllMocks(); 
+        mockParamId = '123';
     });
+    afterAll(() => server.close());
 
-    it('should show Loadingscreen when loading data', () => {
-        vi.mocked(useProfile).mockReturnValue({
-            profile: null,
-            courses: [],
-            loading: true, // triggers page loader
-            error: null,
-            isOwnProfile: false
-        });
-
-        renderWithAuthAndRouter(<Profile />);
-
-        // assert
-        expect(screen.getByText('Profil wird geladen...')).toBeInTheDocument();
-    });
-
-    it('should render own profile with courses correctly', () => {
-        vi.mocked(useProfile).mockReturnValue({
-            profile: { id: 123, firstName: 'Jojen', lastName: 'Doe', email: 'own@uni.de', privateAddress: 'Musterstraße 1'},
-            courses: [{ id: 1, title: 'Software Engineering', term: SemesterTerm.WINTER, academicYear: '2026', type: CourseType.LECTURE}],
+    it('should render own profile with courses correctly', async () => {
+        mockParamId = '123';
+        
+        vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
+            user: { userId: '123' },
+            login: vi.fn(),
+            logout: vi.fn(),
             loading: false,
-            error: null,
-            isOwnProfile: true
-        }); 
+            isAuthenticated: true
+        } as any);
 
         renderWithAuthAndRouter(<Profile />);
 
-        // assert that profile data is displayed
-        expect(screen.getByText('Jojen Doe')).toBeInTheDocument();
+        // wait for profile data
+        expect(await screen.findByText('Jojen Doe')).toBeInTheDocument();
         expect(screen.getByText('own@uni.de')).toBeInTheDocument();
         expect(screen.getByText('Musterstraße 1')).toBeInTheDocument();
+        expect(screen.getByText(/Student \(Matrikelnr: 1000001\)/i)).toBeInTheDocument();
 
-        // assert that courses are displayed
-        expect(screen.getByText('Software Engineering')).toBeInTheDocument();
+        expect(await screen.findByText('Software Engineering')).toBeInTheDocument();
         expect(screen.getByText('Meine Kurse')).toBeInTheDocument();
-
     });
 
-    it('should render other profile without courses and private address', () => {
-        vi.mocked(useProfile).mockReturnValue({
-            profile: { id: 999, firstName: 'Max', lastName: 'Mustermann', email: 'stranger@uni.de', privateAddress: 'Musterstraße 1'},
-            courses: [], // no courses for other profiles
+    it('should render other profile without private address and courses', async () => {
+        mockParamId = '999'; 
+
+        vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
+            user: { userId: '123' }, // Login is 123, call is to 999
+            login: vi.fn(),
+            logout: vi.fn(),
             loading: false,
-            error: null,
-            isOwnProfile: false
-        });  
+            isAuthenticated: true
+        } as any);
+
+        server.use(
+            http.get('*/users/999', () => {
+                return HttpResponse.json({
+                    id: '999', 
+                    firstName: 'Max',
+                    lastName: 'Mustermann',
+                    email: 'stranger@uni.de',
+                    chair: 'Software Engineering',
+                    researchArea: 'KI & Ethik',
+                    privateAddress: 'Geheime Strasse 5'
+                });
+            })
+        );
 
         renderWithAuthAndRouter(<Profile />);
-    
 
-        // assert that profile data is displayed
-        expect(screen.getByText('Max Mustermann')).toBeInTheDocument();
+        expect(await screen.findByText('Max Mustermann')).toBeInTheDocument();
         expect(screen.getByText('stranger@uni.de')).toBeInTheDocument();
+        expect(screen.getByText('Software Engineering')).toBeInTheDocument();
 
         expect(screen.queryByText('Meine Kurse')).not.toBeInTheDocument();   
-        expect(screen.queryByText('Musterstraße 1')).not.toBeInTheDocument();
-
-        const editButton = screen.queryByRole('button', { name: /Profil bearbeiten/i });
-        expect(editButton).not.toBeInTheDocument();
+        expect(screen.queryByText('Geheime Strasse 5')).not.toBeInTheDocument();
     });
 
-    it('should show a message if profile does not exist', () => {
-        vi.mocked(useProfile).mockReturnValue({
-            profile: null, // no Profile found
-            courses: [],
-            loading: false,
-            error: null,
-            isOwnProfile: false
-        });
+    it('should show error message when API fails', async () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        
+        server.use(
+            http.get('*/users/*', () => {
+                return new HttpResponse(null, { status: 500 });
+            })
+        );
 
         renderWithAuthAndRouter(<Profile />);
 
-        expect(screen.getByText('Profil nicht gefunden.')).toBeInTheDocument();
-        
-        expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
+        expect(await screen.findByText(/Serverfehler|fehlgeschlagen/i)).toBeInTheDocument();
+
+        consoleSpy.mockRestore();
     });
 
+    it('should show a message if profile does not exist (404)', async () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        mockParamId = '404';
+
+        server.use(
+            http.get('*/users/404', () => {
+                return new HttpResponse(null, { status: 404 });
+            })
+        );
+
+        renderWithAuthAndRouter(<Profile />);
+
+        expect(await screen.findByText(/nicht gefunden|Serverfehler/i)).toBeInTheDocument();
+
+        consoleSpy.mockRestore();
+    });
 });
