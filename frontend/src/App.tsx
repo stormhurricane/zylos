@@ -4,6 +4,8 @@ import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Navbar } from './components/Navbar';
 import { PageLoader } from './components/PageLoader';
+import { AuthGuardListener } from './context/AuthGuardListener';
+
 
 // Lazy Loading
 const Login = lazy(() => import('./pages/auth/Login').then(m => ({ default: m.Login })));
@@ -28,6 +30,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <AuthGuardListener />
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Public Routes */}
