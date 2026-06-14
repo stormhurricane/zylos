@@ -4,11 +4,16 @@ export const globalHandlers = [
     // Login-endpoint 
     http.post('*/users/login', async ({ request }) => {
         const body = (await request.json()) as any;
-        // wrong user
-        if (body.identifier === 'wrong@user.de') {
-            return new HttpResponse({ error: 'Ungültige Zugangsdaten' }, { status: 401 });
-        }
         return HttpResponse.json({ accessToken: 'mocked-jwt-token', role: 'STUDENT' });
+    }),
+
+    // happy path for register
+    http.post('*/users/register/student', async () => {
+        return HttpResponse.json({ success: true }, { status: 201 });
+    }),
+
+     http.post('*/users/register/teacher', async () => {
+        return HttpResponse.json({ success: true }, { status: 201 });
     }),
 
     http.get('*/courses/:id', () => {

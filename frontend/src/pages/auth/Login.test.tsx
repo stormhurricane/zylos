@@ -6,6 +6,7 @@ import { tokenService } from '../../utils/tokenService';
 import { renderWithAuthAndRouter } from '../../test/testUtils';
 import { setupServer } from 'msw/node';
 import { globalHandlers } from '../../test/handlers';
+import { http, HttpResponse } from 'msw';
 
 const server = setupServer(...globalHandlers);
 
@@ -64,6 +65,13 @@ describe('Login Component Integration', () => {
     });
 
     it('should display an error message on failed login', async () => {
+        server.use(
+            http.post('*/users/login', async ({ request }) => {
+                const body = (await request.json()) as any;
+                    return new HttpResponse({ error: 'Ungültige Zugangsdaten' }, { status: 401 });
+            })
+        );
+       
         const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
         await renderLogin();
