@@ -9,6 +9,7 @@ export const CourseDetail: React.FC = () => {
         participants,
         materials,
         loading,
+        error,
         uploadTitle,
         uploadStatus,
         studentSearch,
@@ -25,7 +26,7 @@ export const CourseDetail: React.FC = () => {
     } = useCourseDetail();
 
     if (loading) return <PageLoader message="Kursdetails werden geladen..." />;
-    if (!course) return <div className="text-center color-error">Kurs nicht gefunden.</div>;
+    if (error || !course) return <div className="text-center color-error">Kurs nicht gefunden.</div>;
 
     return (
         <div className="app-page">

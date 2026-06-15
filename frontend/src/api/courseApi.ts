@@ -7,7 +7,7 @@ export const courseApi = {
         api.get('/courses'),
     
     /** Gets details for a specific course via ID */
-    getCourseById: (id: number): Promise<Course> => 
+    getCourseById: (id: string): Promise<Course> => 
         api.get(`/courses/${id}`),
 
     /** Creates a new Course (Only teachers) */

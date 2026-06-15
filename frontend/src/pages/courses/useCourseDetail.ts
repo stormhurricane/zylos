@@ -14,8 +14,8 @@ export const useCourseDetail = () => {
     const [participants, setParticipants] = useState<ParticipantsResponse | null>(null);
     const [materials, setMaterials] = useState<Material[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<boolean>(false);
     
-    // Form & Search States
     const [uploadTitle, setUploadTitle] = useState('');
     const [uploadFile, setUploadFile] = useState<File | null>(null);
     const [uploadStatus, setUploadStatus] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -27,12 +27,17 @@ export const useCourseDetail = () => {
     const currentUserId = user?.userId;
 
     const loadData = useCallback(async () => {
-        if (isNaN(courseId)) {
+        if (!id || isNaN(courseId)) {
+            setError(true);
             setLoading(false);
             return;
         }
         try {
-            const courseRes = await courseApi.getCourseById(courseId);
+            setLoading(true);
+            setError(false);
+
+            // Holt die flachen Daten direkt aus dem neuen Axios Interceptor
+            const courseRes = await courseApi.getCourseById(String(courseId));
             setCourse(courseRes);
 
             const [partRes, matRes] = await Promise.allSettled([
@@ -44,10 +49,11 @@ export const useCourseDetail = () => {
             if (matRes.status === 'fulfilled') setMaterials(matRes.value);
         } catch (err) {
             console.error("Error loading course details", err);
+            setError(true);
         } finally {
             setLoading(false);
         }
-    }, [courseId]);
+    }, [courseId, id]);
 
     useEffect(() => {
         loadData();
@@ -62,8 +68,8 @@ export const useCourseDetail = () => {
         try {
             const res = await userApi.searchUsers(query);
             const filtered = (res as unknown as UserResponse[]).filter((u: UserResponse) =>
-                !participants?.students?.some(s => s.id === u.id) &&
-                !participants?.instructors?.some(i => i.id === u.id)
+                !participants?.students?.some(s => String(s.id) === String(u.id)) &&
+                !participants?.instructors?.some(i => String(i.id) === String(u.id))
             );
             setSearchResults(filtered);
         } catch (err) {
@@ -101,19 +107,20 @@ export const useCourseDetail = () => {
     };
 
     const handleDownload = async (materialId: number, fileName: string) => {
-    try {
-        const response = await courseApi.downloadMaterial(materialId);
-        triggerBinaryDownload(new Blob([response]), fileName);
-    } catch (err) {
-        alert("Download fehlgeschlagen.");
-    }
-};
+        try {
+            const response = await courseApi.downloadMaterial(materialId);
+            triggerBinaryDownload(new Blob([response]), fileName);
+        } catch (err) {
+            alert("Download fehlgeschlagen.");
+        }
+    };
 
     return {
         course,
         participants,
         materials,
         loading,
+        error,
         uploadTitle,
         uploadStatus,
         studentSearch,
