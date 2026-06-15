@@ -23,7 +23,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
-    if (requiredRole === 'TEACHER' && !isInstructor) {
+    if (requiredRole && user.role !== requiredRole) {
         return <Navigate to="/dashboard" replace />;
     }
 
