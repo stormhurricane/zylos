@@ -30,7 +30,6 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <AuthGuardListener />
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Public Routes */}

@@ -1,5 +1,18 @@
 import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
-import { tokenService } from '../utils/tokenService';
+import { sessionService } from '../utils/sessionService';
+
+declare module 'axios' {
+    export interface AxiosInstance {
+        request<T = any, R = T>(config: AxiosRequestConfig): Promise<R>;
+        get<T = any, R = T>(url: string, config?: AxiosRequestConfig): Promise<R>;
+        delete<T = any, R = T>(url: string, config?: AxiosRequestConfig): Promise<R>;
+        head<T = any, R = T>(url: string, config?: AxiosRequestConfig): Promise<R>;
+        options<T = any, R = T>(url: string, config?: AxiosRequestConfig): Promise<R>;
+        post<T = any, R = T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<R>;
+        put<T = any, R = T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<R>;
+        patch<T = any, R = T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<R>;
+    }
+}
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
@@ -10,7 +23,7 @@ const api = axios.create({
 
 // Request Interceptor for JWT
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    const token = tokenService.getToken();
+    const token = sessionService.getToken();
     if (token && config.headers) {
         config.headers.set('Authorization', `Bearer ${token}`);
     }
@@ -23,7 +36,7 @@ api.interceptors.response.use(
         return Promise.resolve(response.data);    },
     (error) => {
         if (error.response?.status === 401) {
-            tokenService.clearToken();
+            sessionService.clearSession();
             // trigger global event
             window.dispatchEvent(new Event('auth-unauthorized'));
         }

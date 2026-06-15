@@ -2,7 +2,7 @@ import { screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeAll, afterEach, afterAll } from 'vitest';
 import { Login } from './Login';
-import { tokenService } from '../../utils/tokenService';
+import { sessionService } from  '../../utils/sessionService';
 import { renderWithAuthAndRouter } from '../../test/testUtils';
 import { setupServer } from 'msw/node';
 import { globalHandlers } from '../../test/handlers';
@@ -10,11 +10,13 @@ import { http, HttpResponse } from 'msw';
 
 const server = setupServer(...globalHandlers);
 
-vi.mock('../../utils/tokenService', () => ({
-    tokenService: {
-        getToken: vi.fn(() => null), 
-        setToken: vi.fn(),
-        clearToken: vi.fn(),
+// EINMALIGER globaler Mock mit allen benötigten Funktionen
+vi.mock('../../utils/sessionService', () => ({
+    sessionService: {
+        saveSession: vi.fn(), 
+        getSavedUser: vi.fn(),
+        clearSession: vi.fn(),
+        getToken: vi.fn(() => 'mocked-jwt-token'), // Liefert standardmäßig ein Token
     },
 }));
 
@@ -42,7 +44,7 @@ describe('Login Component Integration', () => {
     afterEach(() => {
         server.resetHandlers();
         vi.clearAllMocks();
-        localStorage.clear();
+        // sessionService.clearSession();
     });
     afterAll(() => server.close());
 
@@ -87,6 +89,19 @@ describe('Login Component Integration', () => {
     });
 
     it('should show loading state and redirect on success', async () => {
+        // Wir faken die erfolgreiche API-Antwort passend zu deinem MSW-Handler
+        server.use(
+            http.post('*/users/login', async () => {
+                return HttpResponse.json({
+                    accessToken: 'mocked-jwt-token',
+                    userId: 1,
+                    firstName: 'Max',
+                    lastName: 'Mustermann',
+                    role: 'STUDENT'
+                }, { status: 200 });
+            })
+        );
+
         await renderLogin();
 
         fireEvent.change(screen.getByPlaceholderText('z.B. 1000001'), { target: { value: 'user@test.de' } });
@@ -96,10 +111,12 @@ describe('Login Component Integration', () => {
         fireEvent.click(loginButton);
 
         await waitFor(() => {
-            expect(screen.queryByText('Wird angemeldet...')).not.toBeInTheDocument();
+            expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
         });
 
-        expect(tokenService.setToken).toHaveBeenCalledWith('mocked-jwt-token');
-        expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
+        expect(sessionService.saveSession).toHaveBeenCalledWith(
+            'mocked-jwt-token',
+            expect.objectContaining({ userId: 1, role: 'STUDENT' })
+        );
     });
 });

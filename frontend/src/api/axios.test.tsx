@@ -1,6 +1,6 @@
 // src/api/axios.test.ts
 import api from './axios';
-import { tokenService } from '../utils/tokenService'; // Dein echter Import-Pfad
+import { sessionService } from '../utils/sessionService';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { globalHandlers } from '../test/handlers';
@@ -25,7 +25,7 @@ describe('Axios Interceptors', () => {
     afterAll(() => server.close());
 
     it('should inject Bearer token into headers if present', async () => {
-        const getTokenSpy = vi.spyOn(tokenService, 'getToken').mockReturnValue('valid-test-token');
+        const getTokenSpy = vi.spyOn(sessionService, 'getToken').mockReturnValue('valid-test-token');
         
         server.use(
             http.get(targetUrl, ({ request }) => {
@@ -43,7 +43,7 @@ describe('Axios Interceptors', () => {
     });
 
     it('should handle 401 errors, clear token and dispatch event', async () => {
-        const clearTokenSpy = vi.spyOn(tokenService, 'clearToken').mockImplementation(() => {});
+        const clearTokenSpy = vi.spyOn(sessionService, 'clearSession').mockImplementation(() => {});
 
         server.use(
             http.get(targetUrl, () => {

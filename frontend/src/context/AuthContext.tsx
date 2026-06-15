@@ -1,9 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AuthResponse, LoginRequest } from '../api/types';
 import { userApi } from '../api/userApi';
-import { tokenService } from '../utils/tokenService';
+import { sessionService } from '../utils/sessionService';
 
-// new type with everything from AuthResponse except 'accessToken' (which we handle separately for security)
 type UserData = Omit<AuthResponse, 'accessToken'>;
 
 interface AuthContextType {
@@ -24,26 +23,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticating, setIsAuthenticating] = useState(false);
 
     useEffect(() => {
-        const savedUserStr = localStorage.getItem('user');
-        const token = tokenService.getToken(); 
+        // Der tokenService liefert verifiziert, ob BEIDES (Token & User) da ist
+        const savedUser = sessionService.getSavedUser();
+        const token = sessionService.getToken();
 
-        if (savedUserStr && token) {
-            try {
-                const parsedUser: UserData = JSON.parse(savedUserStr);
-                setUser(parsedUser);
-            } catch (error) {
-                console.error('Fehler beim Parsen der Benutzersitzung:', error);
-                tokenService.clearToken();
-                localStorage.removeItem('user');
-                setUser(null);
-            }
+        if (savedUser && token) {
+            setUser(savedUser);
         } else {
-            tokenService.clearToken();
-            localStorage.removeItem('user');
+            // Wenn eins von beiden fehlt, jagen wir alles zum Teufel
+            sessionService.clearSession();
             setUser(null);
         }
-        
         setLoading(false);
+    }, []);
+
+    useEffect(() => {
+        const handleUnauthorized = () => {
+            setUser(null); 
+        };
+
+        window.addEventListener('auth-unauthorized', handleUnauthorized);
+        return () => {
+            window.removeEventListener('auth-unauthorized', handleUnauthorized);
+        };
     }, []);
 
     const login = async (credentials: LoginRequest) => {
@@ -52,14 +54,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const response = await userApi.login(credentials);
             const { accessToken, ...userData } = response;
             
-            tokenService.setToken(accessToken);
-            localStorage.setItem('user', JSON.stringify(userData));
+            // Atomare Operation: Alles wird über einen Kanal weggeschrieben
+            sessionService.saveSession(accessToken, userData);
             
-            // first local auth process must be fully completed BEFORE changing user state and triggering routing!
             setIsAuthenticating(false); 
             setUser(userData); 
         } catch (error) {
-            // reset in error case
             setIsAuthenticating(false);
             throw error;
         }
@@ -67,13 +67,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const logout = () => {
         setIsAuthenticating(true);
-        tokenService.clearToken();
-        localStorage.removeItem('user');
+        sessionService.clearSession(); // Kapselt clearToken und localStorage.removeItem
         setUser(null);
         setIsAuthenticating(false);
     };
 
-    // Compute derived state for easy access in components
     return (
         <AuthContext.Provider value={{ 
             user, 
