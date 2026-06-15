@@ -4,7 +4,6 @@ import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Navbar } from './components/Navbar';
 import { PageLoader } from './components/PageLoader';
-import { AuthGuardListener } from './context/AuthGuardListener';
 
 
 // Lazy Loading
