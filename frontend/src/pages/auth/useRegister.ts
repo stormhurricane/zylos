@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { userApi } from '../../api/userApi';
 import { convertFileToBase64 } from '../../utils/fileUtils';
 
@@ -8,6 +9,8 @@ export const useRegister = () => {
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
     const [success, setSuccess] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         firstName: '',
@@ -21,7 +24,16 @@ export const useRegister = () => {
         profilePicture: ''
     });
 
-    // handle input changes
+    useEffect(() => {
+        if (!success) return;
+
+        const timer = setTimeout(() => {
+            navigate('/login');
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, [success, navigate]);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         
@@ -32,11 +44,9 @@ export const useRegister = () => {
             });
         }
         
-        // BEST PRACTICE: use functional update to ensure we always have the latest state, especially important if multiple changes happen in quick succession
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // handle file upload
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -52,16 +62,14 @@ export const useRegister = () => {
         }
 
         try {
-            // use utility function to convert file to base64, this keeps the hook clean and focused on logic
             const base64 = await convertFileToBase64(file);
-            setFormData({ ...formData, profilePicture: base64 });
-            setError(''); // Eventuelle vorherige Fehler löschen
+            setFormData(prev => ({ ...prev, profilePicture: base64 }));
+            setError(''); 
         } catch (err) {
             setError('Fehler beim Lesen der Datei.');
         }
     };
 
-    // send form
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -88,7 +96,6 @@ export const useRegister = () => {
         setIsSubmitting(true);
         
         try {
-            // use destructuring to avoid sending unnecessary fields to the API, this keeps our payload clean and focused on the user type
             if (userType === 'student') {
                 const { chair, researchArea, ...studentPayload } = formData;
                 await userApi.registerStudent(studentPayload);
@@ -98,10 +105,6 @@ export const useRegister = () => {
             }
             
             setSuccess(true);
-            
-            // WICHTIG: Das Timeout lagern wir NICHT hier stumpf als Seiteneffekt旧 ein,
-            // sondern überlassen das der View oder einem sauberen useEffect, falls nötig.
-            // Fürs Erste triggern wir nur den Erfolg.
         } catch (err: any) {
             setError(err.response?.data?.error || 'Registrierung fehlgeschlagen.');
         } finally {

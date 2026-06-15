@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { LandingLayout } from '../../components/LandingLayout';
 import styles from './Register.module.css';
 import { useRegister } from './useRegister';
 
-export const Register = () => {
+export const Register: React.FC = () => {
     const {
         userType,
         setUserType,
@@ -16,21 +16,7 @@ export const Register = () => {
         handleChange,
         handleFileChange,
         handleSubmit 
-    } = useRegister();
-
-    const navigate = useNavigate();
-
-    useEffect(() => { 
-        if(!success) return;
-
-        // start timer
-        const timer = setTimeout(() => {
-            navigate('/login');
-        }, 3000);
-
-        // cleanup function to clear timer if component unmounts before timeout
-        return () => clearTimeout(timer);
-    }, [success, navigate]);
+    } = useRegister(); 
 
     if (success) {
         return (
@@ -52,6 +38,7 @@ export const Register = () => {
                 {/* User type toggle */}
                 <div className={styles.toggleContainer}>
                     <button 
+                        type="button"
                         onClick={() => setUserType('student')}
                         className={`btn-primary ${styles.toggleButton} ${
                             userType === 'student' ? styles.toggleButtonActive : ''
@@ -60,6 +47,7 @@ export const Register = () => {
                         Student
                     </button>
                     <button 
+                        type="button"
                         onClick={() => setUserType('teacher')}
                         className={`btn-primary ${styles.toggleButton} ${
                             userType === 'teacher' ? styles.toggleButtonActive : ''
@@ -150,12 +138,9 @@ export const Register = () => {
 
                 <p className={styles.footer}>
                     Bereits registriert?{' '}
-                    <span 
-                        onClick={() => navigate('/login')}
-                        className={styles.link}
-                    >
+                    <Link to="/login" className={styles.link}>
                         Zum Login
-                    </span>
+                    </Link>
                 </p>
             </div>
         </LandingLayout>
