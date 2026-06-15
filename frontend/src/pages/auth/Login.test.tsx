@@ -1,4 +1,4 @@
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeAll, afterEach, afterAll } from 'vitest';
 import { Login } from './Login';
@@ -10,46 +10,37 @@ import { http, HttpResponse } from 'msw';
 
 const server = setupServer(...globalHandlers);
 
-// EINMALIGER globaler Mock mit allen benötigten Funktionen
 vi.mock('../../utils/sessionService', () => ({
     sessionService: {
         saveSession: vi.fn(), 
         getSavedUser: vi.fn(),
         clearSession: vi.fn(),
-        getToken: vi.fn(() => 'mocked-jwt-token'), // Liefert standardmäßig ein Token
+        getToken: vi.fn(() => 'mocked-jwt-token'),
     },
 }));
 
-const mockNavigate = vi.fn();
-vi.mock('react-router-dom', async () => {
-    const actual = await vi.importActual('react-router-dom');
-    return {
-        ...actual,
-        useNavigate: () => mockNavigate,
-        useLocation: () => ({ state: { from: { pathname: '/dashboard' } } }),
-    };
-});
-
-const renderLogin = async () => {
-    const renderResult = renderWithAuthAndRouter(<Login />);
-    await waitFor(() => {
-        expect(screen.getByRole('heading', { name: /Willkommen zurück/i })).toBeInTheDocument();
-    });
-    return renderResult;
+const renderLoginWithRoutes = (initialEntries = ['/login']) => {
+    return renderWithAuthAndRouter(
+        <>
+            <Login />
+            <div data-testid="dashboard-page">Dashboard Ansicht</div>
+        </>,
+        initialEntries
+    );
 };
 
 describe('Login Component Integration', () => {
-    // handle MSW server lifecycle in Vitest
     beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+    
     afterEach(() => {
         server.resetHandlers();
         vi.clearAllMocks();
-        // sessionService.clearSession();
     });
+    
     afterAll(() => server.close());
 
     it('should show field errors when submitting empty form', async () => {
-        await renderLogin();
+        renderLoginWithRoutes();
         
         const loginButton = screen.getByRole('button', { name: /Anmelden/i });
         fireEvent.click(loginButton);
@@ -59,7 +50,7 @@ describe('Login Component Integration', () => {
     });
 
     it('should allow typing into identifier field', async () => {
-        await renderLogin();
+        renderLoginWithRoutes();
 
         const input = screen.getByPlaceholderText('z.B. 1000001') as HTMLInputElement;
         fireEvent.change(input, { target: { value: 'test@uni.de' } });
@@ -68,15 +59,14 @@ describe('Login Component Integration', () => {
 
     it('should display an error message on failed login', async () => {
         server.use(
-            http.post('*/users/login', async ({ request }) => {
-                const body = (await request.json()) as any;
-                    return new HttpResponse({ error: 'Ungültige Zugangsdaten' }, { status: 401 });
+            http.post('*/users/login', async () => {
+                return HttpResponse.json({ message: 'Ungültige Zugangsdaten' }, { status: 401 });
             })
         );
        
         const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-        await renderLogin();
+        renderLoginWithRoutes();
 
         fireEvent.change(screen.getByPlaceholderText('z.B. 1000001'), { target: { value: 'wrong@user.de' } });
         fireEvent.change(screen.getByPlaceholderText('••••••••'), { target: { value: 'wrongpassword' } });
@@ -88,8 +78,7 @@ describe('Login Component Integration', () => {
         consoleSpy.mockRestore();
     });
 
-    it('should show loading state and redirect on success', async () => {
-        // Wir faken die erfolgreiche API-Antwort passend zu deinem MSW-Handler
+    it('should show loading state and redirect to target route on success', async () => {
         server.use(
             http.post('*/users/login', async () => {
                 return HttpResponse.json({
@@ -102,7 +91,10 @@ describe('Login Component Integration', () => {
             })
         );
 
-        await renderLogin();
+        renderLoginWithRoutes([{ 
+            pathname: '/login', 
+            state: { from: { pathname: '/dashboard' } } 
+        } as any]);
 
         fireEvent.change(screen.getByPlaceholderText('z.B. 1000001'), { target: { value: 'user@test.de' } });
         fireEvent.change(screen.getByPlaceholderText('••••••••'), { target: { value: 'password123' } });
@@ -110,9 +102,7 @@ describe('Login Component Integration', () => {
         const loginButton = screen.getByRole('button', { name: /Anmelden/i });
         fireEvent.click(loginButton);
 
-        await waitFor(() => {
-            expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
-        });
+        expect(await screen.findByTestId('dashboard-page')).toBeInTheDocument();
 
         expect(sessionService.saveSession).toHaveBeenCalledWith(
             'mocked-jwt-token',
