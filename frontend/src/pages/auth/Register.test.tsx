@@ -1,4 +1,4 @@
-import { screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { act } from 'react';
 import { describe, it, expect, vi, beforeAll, afterEach, afterAll } from 'vitest';
@@ -8,28 +8,33 @@ import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
 import { globalHandlers } from '../../test/handlers';
 
-const mockNavigate = vi.fn();
-vi.mock('react-router-dom', async () => {
-    const actual = await vi.importActual('react-router-dom');
-    return {
-        ...actual,
-        useNavigate: () => mockNavigate,
-    };
-});
-
 const server = setupServer(...globalHandlers);
 
-describe('Register Component ', () => {
+import { Routes, Route } from 'react-router-dom';
+
+const renderRegisterWithRoutes = (initialEntries = ['/register']) => {
+    return renderWithAuthAndRouter(
+        <Routes>
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<div data-testid="login-page">Login Ansicht</div>} />
+        </Routes>,
+        initialEntries
+    );
+};
+
+describe('Register Component Integration', () => {
     beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+    
     afterEach(() => {
         server.resetHandlers();
         vi.clearAllMocks();
         vi.useRealTimers();
     });
+    
     afterAll(() => server.close());
 
     it('should toggle user type and render dynamic input fields accordingly', async () => {
-        renderWithAuthAndRouter(<Register />);
+        renderRegisterWithRoutes();
 
         expect(screen.getByLabelText(/Studienfach/i)).toBeInTheDocument();
         expect(screen.queryByLabelText(/Lehrstuhl/i)).not.toBeInTheDocument();
@@ -44,7 +49,7 @@ describe('Register Component ', () => {
 
     it('should display API error message when registration fails', async () => {
         const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-        renderWithAuthAndRouter(<Register />);
+        renderRegisterWithRoutes();
 
         fireEvent.change(screen.getByLabelText(/Vorname/i), { target: { value: 'Max' } });
         fireEvent.change(screen.getByLabelText(/Nachname/i), { target: { value: 'Mustermann' } });
@@ -52,7 +57,6 @@ describe('Register Component ', () => {
         fireEvent.change(screen.getByLabelText(/Passwort/i), { target: { value: 'Pass1234!' } });
         fireEvent.change(screen.getByLabelText(/Studienfach/i), { target: { value: 'Informatik' } });
 
-        // ovveride the register to create error
         server.use(
             http.post('*/users/register/student', () => {
                 return HttpResponse.json(
@@ -66,15 +70,12 @@ describe('Register Component ', () => {
         fireEvent.click(submitButton);
 
         expect(await screen.findByText(/bereits vergeben/i)).toBeInTheDocument();
-        
         consoleSpy.mockRestore();
     });
 
     it('should show success card on successful registration and redirect after 3 seconds', async () => {
-        // start fake timer before
         vi.useFakeTimers();
-
-        renderWithAuthAndRouter(<Register />);
+        renderRegisterWithRoutes();
 
         fireEvent.change(screen.getByLabelText(/Vorname/i), { target: { value: 'Max' } });
         fireEvent.change(screen.getByLabelText(/Nachname/i), { target: { value: 'Mustermann' } });
@@ -85,20 +86,17 @@ describe('Register Component ', () => {
         const submitButton = screen.getByRole('button', { name: /Jetzt registrieren/i });
         fireEvent.click(submitButton);
 
-        // as time is frozen, let async events be resolved
         await act(async () => {
             await vi.advanceTimersByTimeAsync(0);
         });
 
         expect(screen.getByText(/Registrierung erfolgreich!/i)).toBeInTheDocument();
-        expect(mockNavigate).not.toHaveBeenCalled();
+        expect(screen.queryByTestId('login-page')).not.toBeInTheDocument();
 
-        // trigger set timetout
         await act(async () => {
             await vi.advanceTimersByTimeAsync(3000);
         });
 
-        // Verifizieren, dass der Redirect geklappt hat
-        expect(mockNavigate).toHaveBeenCalledWith('/login');
+        expect(screen.getByTestId('login-page')).toBeInTheDocument();
     });
 });
