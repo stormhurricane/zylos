@@ -7,7 +7,11 @@ import { AuthProvider } from '../context/AuthContext';
  * Renders every component wrapped in AuthProvider and a v7-compatible Router.
  * Perfect for testing Login, Registration, or protected routes.
  */
-export const renderWithAuthAndRouter = (ui: React.ReactElement, initialEntries = ['/']) => {
+export const renderWithAuthAndRouter = (
+    ui: React.ReactElement, 
+    initialEntries = ['/'],
+    routePath = '*' 
+) => {
     const routerOptions = {
         initialEntries,
         future: {
@@ -17,7 +21,7 @@ export const renderWithAuthAndRouter = (ui: React.ReactElement, initialEntries =
     };
 
     const router = createMemoryRouter(
-        [{ path: '*', element: ui }], 
+        [{ path: routePath, element: ui }], 
         routerOptions
     );
 
