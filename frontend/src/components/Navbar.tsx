@@ -1,21 +1,18 @@
-import React, { useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import React from 'react';
+import { Link, NavLink } from 'react-router-dom';
+import { useNavbar } from './useNavbar';
 import styles from './Navbar.module.css';
 
 export const Navbar: React.FC = () => {
-    // Get authentication state and methods from context
-    const { user, logout, isInstructor } = useAuth();
-    const navigate = useNavigate();
-    const [searchQuery, setSearchQuery] = useState('');
+    
+    const { 
+        isInstructor, 
+        searchQuery, 
+        setSearchQuery, 
+        handleSearchSubmit, 
+        logout 
+    } = useNavbar();
 
-    const handleSearchSubmit = (e: React.FormEvent) => {
-        // Redirect to dashboard with the search query as a URL parameter
-        e.preventDefault();
-        navigate(`/dashboard?q=${encodeURIComponent(searchQuery)}`);
-    };
-
-    // Helper function to handle active class styling with CSS Modules
     const getNavLinkClass = ({ isActive }: { isActive: boolean }) => 
         isActive ? `${styles.link} ${styles.active}` : styles.link;
 
@@ -23,7 +20,6 @@ export const Navbar: React.FC = () => {
         <nav className={styles.nav}>
             <div className={styles.linksContainer}>
                 <Link to="/dashboard" style={{ textDecoration: 'none' }}>
-                    {/* Application Brand/Logo */}
                     <h2 className={styles.brand}>Zylos</h2>
                 </Link>
                 
@@ -31,7 +27,6 @@ export const Navbar: React.FC = () => {
                     <NavLink to="/courses" className={getNavLinkClass} end>
                         Alle Kurse
                     </NavLink>
-                    {/* Only show 'Create Course' for instructors */}
                     {isInstructor && (
                         <NavLink to="/courses/new" className={getNavLinkClass} end>
                             Kurs erstellen
