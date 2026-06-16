@@ -39,7 +39,7 @@ export const useCourseDetail = () => {
             setLoading(true);
             setError(null);
 
-            const courseRes = await courseApi.getCourseById(String(courseId));
+            const courseRes = await courseApi.getCourseById(courseId);
             setCourse(courseRes);
 
             const [partRes, matRes] = await Promise.allSettled([

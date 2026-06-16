@@ -4,7 +4,7 @@ import { userApi } from '../../api/userApi';
 import { Course, ProfileResponse } from '../../api/types';
 import { courseApi } from '../../api/courseApi';
 
-export const useProfile = (id: string | undefined) => {
+export const useProfile = (id: number | undefined) => {
     // States
     const [profile, setProfile] = useState<ProfileResponse | null>(null);
     const [courses, setCourses] = useState<Course[]>([]);
@@ -16,8 +16,8 @@ export const useProfile = (id: string | undefined) => {
     const currentUserId = user?.userId;
 
     // Derived State (Synchron calculated on every render, no need for useState)
-    const isOwnProfile = !id || (currentUserId !== undefined && String(id) === String(currentUserId));
-
+    const isOwnProfile = id === undefined || id === currentUserId;
+    
     useEffect(() => {
         const fetchData = async () => {
             try {

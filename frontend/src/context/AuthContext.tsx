@@ -23,14 +23,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticating, setIsAuthenticating] = useState(false);
 
     useEffect(() => {
-        // Der tokenService liefert verifiziert, ob BEIDES (Token & User) da ist
         const savedUser = sessionService.getSavedUser();
         const token = sessionService.getToken();
 
         if (savedUser && token) {
             setUser(savedUser);
         } else {
-            // Wenn eins von beiden fehlt, jagen wir alles zum Teufel
             sessionService.clearSession();
             setUser(null);
         }
@@ -54,7 +52,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const response = await userApi.login(credentials);
             const { accessToken, ...userData } = response;
             
-            // Atomare Operation: Alles wird über einen Kanal weggeschrieben
             sessionService.saveSession(accessToken, userData);
             
             setIsAuthenticating(false); 
@@ -67,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const logout = () => {
         setIsAuthenticating(true);
-        sessionService.clearSession(); // Kapselt clearToken und localStorage.removeItem
+        sessionService.clearSession(); 
         setUser(null);
         setIsAuthenticating(false);
     };

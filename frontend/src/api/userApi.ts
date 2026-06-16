@@ -15,7 +15,7 @@ export const userApi = {
         api.post('/users/login', credentials),
 
     /** Gets profile(own or ID) - or null at 404 */
-    getProfile: async (id?: string): Promise<ProfileResponse | null> => {
+    getProfile: async (id?: number): Promise<ProfileResponse | null> => {
         try {
             const endpoint = id ? `/users/${id}` : '/users/me';
             const response = await api.get<any, ProfileResponse>(endpoint);
