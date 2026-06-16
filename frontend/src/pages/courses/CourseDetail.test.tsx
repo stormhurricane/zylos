@@ -1,27 +1,26 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, beforeAll, afterEach, afterAll, vi } from 'vitest';
 import { CourseDetail } from './CourseDetail';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
-import { renderWithAuthAndRouter } from '../../test/testUtils'; // Pfad anpassen
+import { renderWithAuthAndRouter } from '../../test/testUtils';
 import * as AuthContext from '../../context/AuthContext';
 import { globalHandlers } from '../../test/handlers';
 
-
-
 const server = setupServer(...globalHandlers);
-
 
 describe('CourseDetail Integration', () => {
     beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+    
     afterEach(() => {
         server.resetHandlers();
         vi.restoreAllMocks();
     });
+    
     afterAll(() => server.close());
 
-   it('loads all data and highlights the current user', async () => {
+    it('loads all data and highlights the current user', async () => {
         server.use(
             http.get('**/api/courses/1/participants', () => {
                 return HttpResponse.json({
@@ -36,39 +35,43 @@ describe('CourseDetail Integration', () => {
             })
         );
 
-        const authSpy = vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
+        vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
             user: { userId: 1, firstName: 'Sascha', lastName: 'S.' },
             login: vi.fn(),
             logout: vi.fn(),
             loading: false,
-            isAuthenticated: true
+            isAuthenticated: true,
+            isInstructor: false
         } as any);
 
         renderWithAuthAndRouter(<CourseDetail />, ['/courses/1'], '/courses/:id');
 
         expect(await screen.findByText(/Generischer Kurs 1/i)).toBeInTheDocument();
         expect(screen.getByText(/Test Material/i)).toBeInTheDocument();
-
-        expect(await screen.findByText(/Sascha S\. \(Du\)/)).toBeInTheDocument();
+        expect(screen.getByText(/Sascha S\. \(Du\)/)).toBeInTheDocument();
     });
 
     it('shows an error message if the course api call fails', async () => {
         server.use(
-            http.get(`*/courses/1`, () => {
-                return new HttpResponse(null, { status: 404 });
+            http.get('*/api/courses/1', () => {
+                return HttpResponse.json(
+                    { error: 'Kurs existiert nicht oder ist archiviert.' }, 
+                    { status: 404 }
+                );
             })
         );
 
         vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
-            user: { userId: '1' },
+            user: { userId: 1 },
             login: vi.fn(),
             logout: vi.fn(),
             loading: false,
-            isAuthenticated: true
+            isAuthenticated: true,
+            isInstructor: false
         } as any);
 
-        renderWithAuthAndRouter(<CourseDetail />, ['/courses/1']);
+        renderWithAuthAndRouter(<CourseDetail />, ['/courses/1'], '/courses/:id');
 
-        expect(await screen.findByText(/Kurs nicht gefunden/i)).toBeInTheDocument();
+        expect(await screen.findByTestId('error-state')).toHaveTextContent('Kurs existiert nicht oder ist archiviert.');
     });
 });

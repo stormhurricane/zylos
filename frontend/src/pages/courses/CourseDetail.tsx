@@ -1,9 +1,8 @@
-import React from 'react';
 import { PageLoader } from '../../components/PageLoader';
 import styles from './CourseDetail.module.css';
 import { useCourseDetail } from './useCourseDetail';
 
-export const CourseDetail: React.FC = () => {
+export const CourseDetail = () => {
     const {
         course,
         participants,
@@ -26,12 +25,14 @@ export const CourseDetail: React.FC = () => {
     } = useCourseDetail();
 
     if (loading) return <PageLoader message="Kursdetails werden geladen..." />;
-    if (error || !course) return <div className="text-center color-error">Kurs nicht gefunden.</div>;
+    
+    if (error) return <div className="text-center color-error" data-testid="error-state">{error}</div>;
+    if (!course) return <div className="text-center color-error" data-testid="not-found-state">Kurs nicht gefunden.</div>;
 
     return (
         <div className="app-page">
             <div className={`container ${styles.container}`}>
-                {/* Left Column: Course Information & Materials */}
+                
                 <div className={styles.leftColumn}>
                     <section className={styles.header}>
                         <h1>{course.title}</h1>
@@ -58,8 +59,7 @@ export const CourseDetail: React.FC = () => {
                                     </div>
                                     <button 
                                         onClick={() => handleDownload(mat.id, mat.fileName)}
-                                        className="btn-primary"
-                                        style={{ width: 'auto' }}
+                                        className={`btn-primary ${styles.autoWidthButton}`}
                                     >
                                         Download
                                     </button>
@@ -68,7 +68,6 @@ export const CourseDetail: React.FC = () => {
                             {materials.length === 0 && <p className="text-muted italic">Noch keine Materialien hochgeladen.</p>}
                         </div>
 
-                        {/* Material Upload (Visible to instructors only) */}
                         {isInstructor && (
                             <form onSubmit={handleUpload} className={styles.uploadArea}>
                                 <h3 className={styles.uploadTitle}>Material bereitstellen</h3>
@@ -86,20 +85,20 @@ export const CourseDetail: React.FC = () => {
                                         onChange={e => setUploadFile(e.target.files?.[0] || null)}
                                         className="text-sm"
                                     />
-                                    <button type="submit" className="btn-primary" style={{ width: 'auto' }}>Hochladen</button>
+                                    <button type="submit" className={`btn-primary ${styles.autoWidthButton}`}>Hochladen</button>
                                 </div>
                             </form>
                         )}
                     </section>
                 </div>
-                {/* Right Column: Participant Lists */}
+
                 <aside className={styles.rightColumn}>
                     <section className="card">
                         <h3 className={styles.participantGroupTitle}>Lehrende</h3>
                         <div className={styles.participantList}>
                             {participants?.instructors.map(prof => (
-                                <div key={prof.id} className={String(prof.id) === String(currentUserId) ? styles.me : ''}>
-                                    {prof.firstName} {prof.lastName}{String(prof.id) === String(currentUserId) ? ' (Du)' : ''}
+                                <div key={prof.id} className={prof.id === currentUserId ? styles.me : ''}>
+                                    {prof.firstName} {prof.lastName}{prof.id === currentUserId ? ' (Du)' : ''}
                                 </div>
                             ))}
                         </div>
@@ -107,14 +106,13 @@ export const CourseDetail: React.FC = () => {
                         <h3 className={`${styles.participantGroupTitle} ${styles.studentGroupTitle} mt-8`}>Studierende</h3>
                         <div className={styles.participantList}>
                             {participants?.students.map(std => (
-                                <div key={std.id} className={String(std.id) === String(currentUserId) ? styles.me : ''}>
-                                    {std.firstName} {std.lastName}{String(std.id) === String(currentUserId) ? ' (Du)' : ''}
+                                <div key={std.id} className={std.id === currentUserId ? styles.me : ''}>
+                                    {std.firstName} {std.lastName}{std.id === currentUserId ? ' (Du)' : ''}
                                 </div>
                             ))}
                             {participants?.students.length === 0 && <p className="text-muted text-sm">Noch keine Studierenden.</p>}
                         </div>
 
-                        {/* Search and add participants (Instructors only) */}
                         {isInstructor && (
                             <div className={styles.addParticipantSection}>
                                 <h4 className={styles.addParticipantTitle}>Teilnehmer hinzufügen</h4>
@@ -138,6 +136,7 @@ export const CourseDetail: React.FC = () => {
                         )}
                     </section>
                 </aside>
+
             </div>
         </div>
     );

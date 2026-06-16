@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { courseApi } from '../../api/courseApi';
 import { userApi } from '../../api/userApi';
@@ -8,13 +8,12 @@ import { triggerBinaryDownload } from '../../utils/fileUtils';
 
 export const useCourseDetail = () => {
     const { id } = useParams<{ id: string }>();
-    const courseId = Number(id);
-
+    
     const [course, setCourse] = useState<Course | null>(null);
     const [participants, setParticipants] = useState<ParticipantsResponse | null>(null);
     const [materials, setMaterials] = useState<Material[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
     
     const [uploadTitle, setUploadTitle] = useState('');
     const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -25,18 +24,21 @@ export const useCourseDetail = () => {
 
     const { user, isInstructor } = useAuth();
     const currentUserId = user?.userId;
+    
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const loadData = useCallback(async () => {
+        const courseId = Number(id);
         if (!id || isNaN(courseId)) {
-            setError(true);
+            setError('Ungültige Kurs-ID angegeben.');
             setLoading(false);
             return;
         }
+        
         try {
             setLoading(true);
-            setError(false);
+            setError(null);
 
-            // Holt die flachen Daten direkt aus dem neuen Axios Interceptor
             const courseRes = await courseApi.getCourseById(String(courseId));
             setCourse(courseRes);
 
@@ -47,16 +49,20 @@ export const useCourseDetail = () => {
 
             if (partRes.status === 'fulfilled') setParticipants(partRes.value);
             if (matRes.status === 'fulfilled') setMaterials(matRes.value);
-        } catch (err) {
+        } catch (err: any) {
             console.error("Error loading course details", err);
-            setError(true);
+            setError(err.response?.data?.error || 'Fehler beim Laden der Kursdetails.');
         } finally {
             setLoading(false);
         }
-    }, [courseId, id]);
+    }, [id]); 
 
     useEffect(() => {
         loadData();
+        
+        return () => {
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        };
     }, [loadData]);
 
     const handleStudentSearch = async (query: string) => {
@@ -68,8 +74,8 @@ export const useCourseDetail = () => {
         try {
             const res = await userApi.searchUsers(query);
             const filtered = (res as unknown as UserResponse[]).filter((u: UserResponse) =>
-                !participants?.students?.some(s => String(s.id) === String(u.id)) &&
-                !participants?.instructors?.some(i => String(i.id) === String(u.id))
+                !participants?.students?.some(s => s.id === u.id) &&
+                !participants?.instructors?.some(i => i.id === u.id)
             );
             setSearchResults(filtered);
         } catch (err) {
@@ -78,6 +84,9 @@ export const useCourseDetail = () => {
     };
 
     const handleAddStudent = async (studentId: number) => {
+        const courseId = Number(id);
+        if (isNaN(courseId)) return;
+        
         try {
             await courseApi.addParticipant(courseId, studentId);
             setStudentSearch('');
@@ -85,13 +94,15 @@ export const useCourseDetail = () => {
             await loadData();
         } catch (err) {
             console.error("Hinzufügen des Teilnehmers fehlgeschlagen:", err);
-            alert(`Error 403: Permission denied or invalid course ID.`);
+            alert(`Aktion fehlgeschlagen: Keine Berechtigung oder ungültige ID.`);
         }
     };
 
     const handleUpload = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!uploadFile || !uploadTitle) return;
+        const courseId = Number(id);
+        if (isNaN(courseId) || !uploadFile || !uploadTitle) return;
+        
         try {
             await courseApi.uploadMaterial(courseId, uploadTitle, uploadFile);
             setUploadStatus({ type: 'success', text: 'Material erfolgreich hochgeladen!' });
@@ -100,7 +111,9 @@ export const useCourseDetail = () => {
             setFileInputKey(prev => prev + 1); 
             
             await loadData();
-            setTimeout(() => setUploadStatus(null), 3000);
+            
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+            timeoutRef.current = setTimeout(() => setUploadStatus(null), 3000);
         } catch (err) {
             setUploadStatus({ type: 'error', text: 'Upload fehlgeschlagen.' });
         }
