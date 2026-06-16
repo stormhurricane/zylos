@@ -9,6 +9,8 @@ import { triggerBinaryDownload } from '../../utils/fileUtils';
 export const useCourseDetail = () => {
     const { id } = useParams<{ id: string }>();
     
+    const courseId = id ? Number(id) : NaN;
+
     const [course, setCourse] = useState<Course | null>(null);
     const [participants, setParticipants] = useState<ParticipantsResponse | null>(null);
     const [materials, setMaterials] = useState<Material[]>([]);
@@ -28,7 +30,6 @@ export const useCourseDetail = () => {
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const loadData = useCallback(async () => {
-        const courseId = Number(id);
         if (!id || isNaN(courseId)) {
             setError('Ungültige Kurs-ID angegeben.');
             setLoading(false);
@@ -84,7 +85,6 @@ export const useCourseDetail = () => {
     };
 
     const handleAddStudent = async (studentId: number) => {
-        const courseId = Number(id);
         if (isNaN(courseId)) return;
         
         try {
@@ -100,7 +100,6 @@ export const useCourseDetail = () => {
 
     const handleUpload = async (e: React.FormEvent) => {
         e.preventDefault();
-        const courseId = Number(id);
         if (isNaN(courseId) || !uploadFile || !uploadTitle) return;
         
         try {
