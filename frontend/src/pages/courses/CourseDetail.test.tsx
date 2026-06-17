@@ -6,7 +6,7 @@ import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
 import { renderWithAuthAndRouter } from '../../test/testUtils';
 import * as AuthContext from '../../context/AuthContext';
-import { globalHandlers } from '../../test/handlers';
+import { globalHandlers, TEST_BASE_URL } from '../../test/handlers';
 
 const server = setupServer(...globalHandlers);
 
@@ -22,7 +22,7 @@ describe('CourseDetail Integration', () => {
 
     it('loads all data and highlights the current user', async () => {
         server.use(
-            http.get('**/api/courses/1/participants', () => {
+            http.get(`${TEST_BASE_URL}/courses/1/participants`, () => {
                 return HttpResponse.json({
                     instructors: [{ id: 99, firstName: 'Prof.', lastName: 'Zylos', email: 'prof@zylos.de' }],
                     students: [{ id: 1, firstName: 'Sascha', lastName: 'S.', email: 'sascha@test.de' }]
@@ -53,7 +53,7 @@ describe('CourseDetail Integration', () => {
 
     it('shows an error message if the course api call fails', async () => {
         server.use(
-            http.get('*/api/courses/1', () => {
+            http.get(`${TEST_BASE_URL}/courses/1`, () => {
                 return HttpResponse.json(
                     { error: 'Kurs existiert nicht oder ist archiviert.' }, 
                     { status: 404 }
