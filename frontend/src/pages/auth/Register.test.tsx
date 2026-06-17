@@ -6,7 +6,7 @@ import { Register } from './Register';
 import { renderWithAuthAndRouter } from '../../test/testUtils';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
-import { globalHandlers } from '../../test/handlers';
+import { globalHandlers, TEST_BASE_URL } from '../../test/handlers';
 
 const server = setupServer(...globalHandlers);
 
@@ -58,7 +58,7 @@ describe('Register Component Integration', () => {
         fireEvent.change(screen.getByLabelText(/Studienfach/i), { target: { value: 'Informatik' } });
 
         server.use(
-            http.post('*/users/register/student', () => {
+            http.post(`${TEST_BASE_URL}/users/register/student`, () => {
                 return HttpResponse.json(
                     { error: 'E-Mail Adresse bereits vergeben.' }, 
                     { status: 409 }

@@ -5,7 +5,7 @@ import { Login } from './Login';
 import { sessionService } from  '../../utils/sessionService';
 import { renderWithAuthAndRouter } from '../../test/testUtils';
 import { setupServer } from 'msw/node';
-import { globalHandlers } from '../../test/handlers';
+import { globalHandlers, TEST_BASE_URL } from '../../test/handlers';
 import { http, HttpResponse } from 'msw';
 
 const server = setupServer(...globalHandlers);
@@ -59,7 +59,7 @@ describe('Login Component Integration', () => {
 
     it('should display an error message on failed login', async () => {
         server.use(
-            http.post('*/users/login', async () => {
+            http.post(`${TEST_BASE_URL}/users/login`, async () => {
                 return HttpResponse.json({ message: 'Ungültige Zugangsdaten' }, { status: 401 });
             })
         );
@@ -80,7 +80,7 @@ describe('Login Component Integration', () => {
 
     it('should show loading state and redirect to target route on success', async () => {
         server.use(
-            http.post('*/users/login', async () => {
+            http.post(`${TEST_BASE_URL}/users/login`, async () => {
                 return HttpResponse.json({
                     accessToken: 'mocked-jwt-token',
                     userId: 1,

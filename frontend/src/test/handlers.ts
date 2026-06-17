@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { SemesterTerm } from '../api/types';
 
-const baseUrl = 'http://localhost:8080/api';
+export const TEST_BASE_URL = 'http://localhost:8080/api';
 
 export const globalHandlers = [
     // Login-endpoint 
