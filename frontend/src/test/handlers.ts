@@ -1,26 +1,27 @@
 import { http, HttpResponse } from 'msw';
-import { SemesterTerm } from '../api/types';
+import { SemesterTerm, Course, CourseType } from '../api/types';
+
 
 export const TEST_BASE_URL = 'http://localhost:8080/api';
 
 export const globalHandlers = [
     // Login-endpoint 
-    http.post(`${baseUrl}/users/login`, async ({ request }) => {
+    http.post(`${TEST_BASE_URL}/users/login`, async ({ request }) => {
         const body = (await request.json()) as any;
         return HttpResponse.json({ accessToken: 'mocked-jwt-token', role: 'STUDENT' });
     }),
 
     // happy path for register
-    http.post(`${baseUrl}/users/register/student`, async () => {
+    http.post(`${TEST_BASE_URL}/users/register/student`, async () => {
         return HttpResponse.json({ success: true }, { status: 201 });
     }),
 
-     http.post(`${baseUrl}/users/register/teacher`, async () => {
+     http.post(`${TEST_BASE_URL}/users/register/teacher`, async () => {
         return HttpResponse.json({ success: true }, { status: 201 });
     }),
 
     // global handler to get a profile
-    http.get(`${baseUrl}/users/:id`, ({ params }) => {
+    http.get(`${TEST_BASE_URL}/users/:id`, ({ params }) => {
         const { id } = params;
         return HttpResponse.json({
             id: id,
@@ -33,22 +34,20 @@ export const globalHandlers = [
         });
     }),
 
-    http.get(`${baseUrl}/courses/my-enrollments`, () => {
+    http.get(`${TEST_BASE_URL}/courses/my-enrollments`, () => {
         return HttpResponse.json([
             { id: 1, title: 'Software Engineering', term: SemesterTerm.WINTER, academicYear: '2026' }
         ]);
     }),
 
-    http.get(`${baseUrl}/courses/:id`, ({ params }) => {
+    http.get(`${TEST_BASE_URL}/courses/:id`, ({ params }) => {
         const { id } = params;
         
-        // Sicherheitsnetz: Falls das Routing im Test fehlschlägt und 'undefined' schickt
         if (id === 'undefined' || !id) {
             return new HttpResponse(null, { status: 404 });
         }
 
         return HttpResponse.json({
-            // WICHTIG: Als Number zurückgeben, weil dein Hook mit Number(id) arbeitet!
             id: Number(id), 
             title: `Generischer Kurs ${id}`,
             type: 'LECTURE',
@@ -57,7 +56,20 @@ export const globalHandlers = [
         });
     }),
 
-    http.get(`${baseUrl}/courses/:id`, () => {
+    http.post(`${TEST_BASE_URL}/courses`, async ({ request }) => {
+        const postData = await request.json() as Omit<Course, 'id'>;
+
+        const newCourse = {
+            title: postData.title,
+            type: postData.type,
+            term: postData.term,
+            academicYear: postData.academicYear,
+        };
+
+        return HttpResponse.json(newCourse);
+    }),
+
+    http.get(`${TEST_BASE_URL}/courses/:id`, () => {
         return HttpResponse.json({ id: 1, title: 'Standard Kurs' });
     })
 ];
