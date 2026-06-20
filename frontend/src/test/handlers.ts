@@ -4,6 +4,11 @@ import { SemesterTerm, Course, CourseType } from '../api/types';
 
 export const TEST_BASE_URL = 'http://localhost:8080/api';
 
+export const mockCoursesData = [
+    { id: 1, title: 'Software Engineering', type: 'LECTURE', term: 'SUMMER', academicYear: '2024' },
+    { id: 2, title: 'Database Systems', type: 'SEMINAR', term: 'WINTER', academicYear: '2024' }
+];
+
 export const globalHandlers = [
     // Login-endpoint 
     http.post(`${TEST_BASE_URL}/users/login`, async ({ request }) => {
@@ -56,6 +61,15 @@ export const globalHandlers = [
         });
     }),
 
+    http.get(`${TEST_BASE_URL}/courses`, () => {
+        return HttpResponse.json(mockCoursesData);
+    }),
+
+    http.post(`${TEST_BASE_URL}/courses/:id/enroll`, ({ params }) => {
+        return HttpResponse.json({status: 200});
+    }),
+    
+
     http.post(`${TEST_BASE_URL}/courses`, async ({ request }) => {
         const postData = await request.json() as Omit<Course, 'id'>;
 
@@ -69,7 +83,5 @@ export const globalHandlers = [
         return HttpResponse.json(newCourse);
     }),
 
-    http.get(`${TEST_BASE_URL}/courses/:id`, () => {
-        return HttpResponse.json({ id: 1, title: 'Standard Kurs' });
-    })
+
 ];

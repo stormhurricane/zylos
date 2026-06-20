@@ -1,91 +1,84 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CourseList } from './CourseList';
-import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from '../../context/AuthContext';
-import { courseApi } from '../../api/courseApi';
+import { http, HttpResponse } from 'msw';
+import { renderWithAuthAndRouter } from '../../test/testUtils';
+import { globalHandlers, TEST_BASE_URL, mockCoursesData } from '../../test/handlers';
+import { setupServer } from 'msw/node';
+import { act } from 'react';
 
-vi.mock('../../api/courseApi', () => ({
-    courseApi: {
-        getAllCourses: vi.fn(),
-        getMyCourses: vi.fn(),
-        enroll: vi.fn(),
-    },
-}));
-
-const mockedCourseApi = vi.mocked(courseApi);
-
-/**
- * Helper to render the CourseList with necessary providers.
- */
 const renderCourseList = () => {
-    return render(
-        <BrowserRouter>
-            <AuthProvider>
-                <CourseList />
-            </AuthProvider>
-        </BrowserRouter>
-    );
+    return renderWithAuthAndRouter(<CourseList/>);
 };
 
-describe('CourseList Component', () => {
+const server = setupServer(...globalHandlers);
+
+
+describe('CourseList Component mit MSW', () => {
+
+    beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+
     beforeEach(() => {
-        vi.clearAllMocks();
         window.alert = vi.fn();
     });
 
-    it('renders courses and handles enrollment', async () => {
-        const mockCourse = { id: 1, title: 'Software Engineering', type: 'LECTURE', term: 'SUMMER', academicYear: '2024' };
-        
-        mockedCourseApi.getAllCourses.mockResolvedValue([mockCourse]  as any);
-        mockedCourseApi.getMyCourses.mockResolvedValue([] as any);
-        mockedCourseApi.enroll.mockResolvedValue({} as any);
+    afterEach(() => server.resetHandlers());
 
+    afterAll(() => server.close());
+
+    it('should render courses and enroll in first', async () => {
+        const user = userEvent.setup();
         renderCourseList();
 
-        // Verify the course title is rendered
-        expect(await screen.findByText('Software Engineering')).toBeInTheDocument();
-        
-        // Button should show "Teilnehmen" (Enroll)
-        const enrollButton = screen.getByRole('button', { name: /Teilnehmen/i });
-        fireEvent.click(enrollButton);
+        expect(await screen.findByRole("link", {name: "Software Engineering"}));
+        expect(screen.getByRole("link", {name: "Database Systems"}));
 
-        await waitFor(() => {
-            expect(mockedCourseApi.enroll).toHaveBeenCalledWith(1);
+
+        const enrollButtons = screen.getAllByRole('button', { name: /Teilnehmen/i });
+        await act(async () => await user.click(enrollButtons[0])); 
+
+        await vi.waitFor(() => {
             expect(window.alert).toHaveBeenCalledWith('Erfolgreich eingeschrieben!');
         });
     });
 
-    it('shows "Ansehen" button if already enrolled', async () => {
-        const mockCourse = { id: 1, title: 'Software Engineering', type: 'LECTURE', term: 'SUMMER', academicYear: '2024' };
-        mockedCourseApi.getAllCourses.mockResolvedValue( [mockCourse]  as any);
-        mockedCourseApi.getMyCourses.mockResolvedValue( [mockCourse] as any);
+    it('should show "Ansehen" Button, if already enrolled', async () => {
+        server.use(
+            http.get(`${TEST_BASE_URL}/courses/my-enrollments`, () => {
+                return HttpResponse.json([mockCoursesData[0]]);
+            })
+        );
 
         renderCourseList();
 
-        // Button should show "Ansehen" (View) for enrolled courses
         expect(await screen.findByRole('button', { name: /Ansehen/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Teilnehmen/i })).toBeInTheDocument();
     });
 
-    it('shows empty state message when no courses are found', async () => {
-        mockedCourseApi.getAllCourses.mockResolvedValue( [] as any);
-        mockedCourseApi.getMyCourses.mockResolvedValue( [] as any);
+    it('should show empty if no courses returned by API', async () => {
+        server.use(
+            http.get(`${TEST_BASE_URL}/courses`, () => HttpResponse.json([])),
+            http.get(`${TEST_BASE_URL}/courses/my-enrollments`, () => HttpResponse.json([]))
+        );
 
         renderCourseList();
 
-        // Check for the "no courses found" message
         expect(await screen.findByText(/Keine Lehrveranstaltungen gefunden/i)).toBeInTheDocument();
     });
 
-    it('shows error message when API fails', async () => {
-        // Mock a rejection for the API call
-        mockedCourseApi.getAllCourses.mockRejectedValue(new Error('API Error'));
-        mockedCourseApi.getMyCourses.mockResolvedValue( [] as any);
+    it('should show an error message', async () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        server.use(
+            http.get(`${TEST_BASE_URL}/courses`, () => new HttpResponse(null, { status: 500 }))
+        );
 
         renderCourseList();
 
-        // Verify the error message is displayed to the user
         expect(await screen.findByText(/Fehler beim Laden der Kurse/i)).toBeInTheDocument();
+
+        consoleSpy.mockRestore();
     });
 });
