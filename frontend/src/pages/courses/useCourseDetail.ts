@@ -6,6 +6,8 @@ import { useAuth } from '../../context/AuthContext';
 import { Course, ParticipantsResponse, Material, UserResponse } from '../../api/types';
 import { triggerBinaryDownload } from '../../utils/fileUtils';
 
+// TODO refactor into three seperate hooks
+
 export const useCourseDetail = () => {
     const { id } = useParams<{ id: string }>();
     

@@ -40,22 +40,17 @@ export const useCourseCreate = () => {
 
     const handleCsvSubmit = async () => {
         if (!csvFile) return;
-        console.log("➡️ 1. handleCsvSubmit GESTARTET");
         setLoadingCsv(true);
         try {
-            console.log("➡️ 2. Schieße API-Request ab mit File:", csvFile.name);
             const res = await courseApi.importCsv(csvFile);
-            console.log("➡️ 3. API ERFOLGREICH:", res);
             triggerStatus('success', `${res.length} Lehrveranstaltungen erfolgreich importiert.`);
             setCsvFile(null);
             
             if (fileInputRef.current) fileInputRef.current.value = '';
         } catch (err) {
-            console.log("➡️ 3. API FEHLGESCHLAGEN:", err);
             console.error(err);
             triggerStatus('error', 'Fehler beim CSV-Import. Bitte Dateiformat prüfen.');
         } finally {
-            console.log("➡️ 4. FINALLY ERREICHT (loading -> false)");
             setLoadingCsv(false);
         }
     };

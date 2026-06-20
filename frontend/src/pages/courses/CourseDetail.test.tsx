@@ -52,6 +52,8 @@ describe('CourseDetail Integration', () => {
     });
 
     it('shows an error message if the course api call fails', async () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
         server.use(
             http.get(`${TEST_BASE_URL}/courses/1`, () => {
                 return HttpResponse.json(
@@ -73,5 +75,7 @@ describe('CourseDetail Integration', () => {
         renderWithAuthAndRouter(<CourseDetail />, ['/courses/1'], '/courses/:id');
 
         expect(await screen.findByTestId('error-state')).toHaveTextContent('Kurs existiert nicht oder ist archiviert.');
+
+        consoleSpy.mockRestore();
     });
 });
