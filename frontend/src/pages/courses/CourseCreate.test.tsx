@@ -1,12 +1,10 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
 import { CourseCreate } from './CourseCreate';
-import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from '../../context/AuthContext';
 import { globalHandlers, TEST_BASE_URL } from '../../test/handlers';
 import { renderWithAuthAndRouter } from '../../test/testUtils';
 import { act } from 'react';
@@ -29,9 +27,12 @@ const renderCourseCreate = () => {
 
 describe('CourseCreate Component mit MSW', () => {
 
-    beforeAll(() => server.listen({ onUnhandledRequest: 'error' })); // Fehler bei vergessenen Routen
-    beforeEach(() => server.resetHandlers()); // Setzt temporäre Handler pro Test zurück
-    afterAll(() => server.close()); // Server nach allen Tests runterfahren
+    beforeAll(() => server.listen({ onUnhandledRequest: 'error' })); 
+    beforeEach(() => {
+        server.resetHandlers()
+        vi.clearAllMocks();
+    }); 
+    afterAll(() => server.close()); 
 
    it('should create a course manually', async () => {
         const user = userEvent.setup();
@@ -66,7 +67,7 @@ describe('CourseCreate Component mit MSW', () => {
         expect(await screen.findByText(/Fehler beim manuellen Anlegen/i)).toBeInTheDocument();
     });
 
-    it.only('should import a csv file', async () => {
+    it('should import a csv file', async () => {
         const user = userEvent.setup();
         
        // JSDOM has bugs for FormData
