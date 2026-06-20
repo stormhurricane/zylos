@@ -1,46 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { courseApi} from '../../api/courseApi';
-import {Course} from '../../api/types';
-import { Link, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { PageLoader } from '../../components/PageLoader';
+import { useCourseList } from './useCourseList';
 import styles from './CourseList.module.css';
 
 export const CourseList: React.FC = () => {
-    const [courses, setCourses] = useState<Course[]>([]);
-    const [enrolledIds, setEnrolledIds] = useState<number[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const [allRes, myRes] = await Promise.all([
-                    courseApi.getAllCourses(),
-                    courseApi.getMyCourses()
-                ]);
-                setCourses(allRes);
-                setEnrolledIds(myRes.map(c => c.id));
-            } catch (err) {
-                console.error("Fehler beim Laden der Kurse", err);
-                setError("Fehler beim Laden der Kurse. Bitte versuche es später erneut.");
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchData();
-    }, []);
-
-    const handleEnroll = async (courseId: number) => {
-        try {
-            await courseApi.enroll(courseId);
-            setEnrolledIds(prev => [...prev, courseId]);
-            alert('Erfolgreich eingeschrieben!');
-        } catch (err) {
-            alert('Einschreibung fehlgeschlagen (evtl. bereits eingeschrieben).');
-        }
-    };
+    const { courses, enrolledIds, loading, error, handleButtonClick } = useCourseList();
 
     if (loading) return <PageLoader message="Loading courses..." />;
 
@@ -68,7 +33,7 @@ export const CourseList: React.FC = () => {
                                     </p>
                                 </div>
                                 <button 
-                                    onClick={() => isEnrolled ? navigate(`/courses/${course.id}`) : handleEnroll(course.id)}
+                                    onClick={() => handleButtonClick(course.id, isEnrolled)}
                                     className={`btn-primary ${styles.enrollBtn} ${isEnrolled ? styles.enrolledBtn : ''}`}
                                 >
                                     {isEnrolled ? 'Ansehen' : 'Teilnehmen'}
@@ -77,6 +42,7 @@ export const CourseList: React.FC = () => {
                         );
                     })}
                 </div>
+                
                 {courses.length === 0 && (
                     <div className="card text-center text-muted">
                         Keine Lehrveranstaltungen gefunden.
