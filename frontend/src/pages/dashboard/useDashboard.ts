@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { userApi } from '../../api/userApi';
 import { courseApi } from '../../api/courseApi';
 import { Course, ProfileResponse } from '../../api/types';
 
 export const useDashboard = () => {
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const { user } = useAuth();
     const [searchResults, setSearchResults] = useState<ProfileResponse[]>([]);
     const [myCourses, setMyCourses] = useState<Course[]>([]);
     const [isLoadingCourses, setIsLoadingCourses] = useState<boolean>(false);
@@ -27,7 +30,6 @@ export const useDashboard = () => {
         try {
             const res = await courseApi.getMyCourses();
             
-            // Clear separation of sort
             const sorted = res.sort((a, b) => {
                 const yearA = parseInt(a.academicYear.split('/')[0]);
                 const yearB = parseInt(b.academicYear.split('/')[0]);
@@ -54,10 +56,21 @@ export const useDashboard = () => {
         loadAndSortCourses();
     }, [searchParams]);
 
+    const handleViewProfile = (userId: number) => {
+        navigate(`/profile/${userId}`);
+    };
+
+    const handleViewCourse = (courseId: number) => {
+        navigate(`/courses/${courseId}`);
+    };
+
     return {
+        welcomeName: user?.firstName || 'Nutzer',
         searchResults,
         myCourses,
         isLoadingCourses,
-        searchError
+        searchError,
+        handleViewProfile,
+        handleViewCourse
     };
 };

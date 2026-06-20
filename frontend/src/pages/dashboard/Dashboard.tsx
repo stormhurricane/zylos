@@ -1,22 +1,24 @@
-import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { useDashboard } from './useDashboard';
 import styles from './Dashboard.module.css';
 
 const DEFAULT_AVATAR = "https://ui-avatars.com/api/?background=4CAF50&color=fff&name=";
 
 export const Dashboard = () => {
-    const { user } = useAuth();
-    const navigate = useNavigate();
-    
-    // Custom Hook for Dashboard Logic
-    const { searchResults, myCourses, isLoadingCourses, searchError } = useDashboard();
+    const {
+        welcomeName,
+        searchResults,
+        myCourses,
+        isLoadingCourses,
+        searchError,
+        handleViewProfile,
+        handleViewCourse
+    } = useDashboard();
 
     return (
         <div className="app-page">
             <main className={styles.main}>
                 <header className={styles.header}>
-                    <h1>Willkommen, {user?.firstName}!</h1>
+                    <h1>Willkommen, {welcomeName}!</h1>
                 </header>
 
                 <div className={styles.grid}>
@@ -41,7 +43,7 @@ export const Dashboard = () => {
                                                 {res.studySubject || res.chair || 'Nutzer'}
                                             </p>
                                             <button 
-                                                onClick={() => navigate(`/profile/${res.id}`)}
+                                                onClick={() => handleViewProfile(res.id)}
                                                 className={styles.profileBtn}
                                             >
                                                 Profil ansehen
@@ -68,7 +70,7 @@ export const Dashboard = () => {
                                     myCourses.map(course => (
                                         <div key={course.id} className={styles.courseItem}>
                                             <div 
-                                                onClick={() => navigate(`/courses/${course.id}`)}
+                                                onClick={() => handleViewCourse(course.id)}
                                                 className={styles.courseLink}                                            >
                                                 {course.title}
                                             </div>
