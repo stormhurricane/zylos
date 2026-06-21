@@ -1,34 +1,37 @@
 import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { userApi } from '../../api/userApi';
 import { Course, ProfileResponse } from '../../api/types';
 import { courseApi } from '../../api/courseApi';
 
-export const useProfile = (id: number | undefined) => {
-    // States
+export const useProfile = () => {
+    const { id: urlId } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    
+    const { user } = useAuth();
+    const currentUserId = user?.userId;
+
+    const targetUserId = urlId ? Number(urlId) : currentUserId;
+
     const [profile, setProfile] = useState<ProfileResponse | null>(null);
     const [courses, setCourses] = useState<Course[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Context 
-    const { user } = useAuth();
-    const currentUserId = user?.userId;
-
-    // Derived State (Synchron calculated on every render, no need for useState)
-    const isOwnProfile = id === undefined || id === currentUserId;
+    const isOwnProfile = !urlId || Number(urlId) === currentUserId;
     
     useEffect(() => {
+        if (!targetUserId) return;
+
         const fetchData = async () => {
             try {
                 setLoading(true);
                 setError(null);
                 
-                // 1: load profile data (depends directly on 'id')
-                const profileData = await userApi.getProfile(id);
+                const profileData = await userApi.getProfile(targetUserId);
                 setProfile(profileData);
 
-                // 2 load own courses (depends on 'isOwnProfile', which in turn depends on 'currentUserId' and 'id')
                 if (isOwnProfile && profileData) {
                     const coursesRes = await courseApi.getMyCourses();
                     setCourses(coursesRes);
@@ -45,13 +48,20 @@ export const useProfile = (id: number | undefined) => {
         
         fetchData();
 
-    }, [id, isOwnProfile]);
+    }, [targetUserId, isOwnProfile]);
+
+    const handleBack = () => navigate('/dashboard');
+    const handleEdit = () => navigate('/profile/edit');
+    const handleViewCourse = (courseId: number) => navigate(`/courses/${courseId}`);
 
     return {
         profile,
         courses,
         loading,
         error,
-        isOwnProfile
+        isOwnProfile,
+        handleBack,
+        handleEdit,
+        handleViewCourse
     };
 };

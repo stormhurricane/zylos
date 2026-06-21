@@ -1,4 +1,3 @@
-import { useParams, useNavigate } from 'react-router-dom';
 import { PageLoader } from '../../components/PageLoader';
 import styles from './Profile.module.css';
 import { useProfile } from './useProfile';
@@ -6,15 +5,16 @@ import { useProfile } from './useProfile';
 const DEFAULT_AVATAR = "https://ui-avatars.com/api/?background=4CAF50&color=fff&name=";
 
 export const Profile = () => {
-    const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
     const {
         profile,
         courses,
         loading,
         error,
-        isOwnProfile
-    } = useProfile(id);
+        isOwnProfile,
+        handleBack,
+        handleEdit,
+        handleViewCourse
+    } = useProfile();
 
 
     if (loading) return <PageLoader message="Profil wird geladen..." />;
@@ -25,11 +25,11 @@ export const Profile = () => {
         <div className="app-page">
             <div className="container">
                 <div className={styles.actionHeader}>
-                    <button onClick={() => navigate('/dashboard')} className={`btn-primary ${styles.backBtn}`}>
+                    <button onClick={handleBack} className={`btn-primary ${styles.backBtn}`}>
                         ← Zurück
                     </button>
                     {isOwnProfile && (
-                        <button onClick={() => navigate('/profile/edit')} className={`btn-primary ${styles.editBtn}`}>
+                        <button onClick={handleEdit} className={`btn-primary ${styles.editBtn}`}>
                             Profil bearbeiten
                         </button>
                     )}
@@ -96,7 +96,7 @@ export const Profile = () => {
                             {courses.length > 0 ? courses.map(course => (
                                 <div 
                                     key={course.id} 
-                                    onClick={() => navigate(`/courses/${course.id}`)}
+                                    onClick={() => {handleViewCourse(course.id)}}
                                     className={styles.courseCard}
                                 >
                                     <div className={styles.courseTitle}>{course.title}</div>
