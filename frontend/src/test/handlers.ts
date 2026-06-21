@@ -41,7 +41,7 @@ export const globalHandlers = [
 
     http.get(`${TEST_BASE_URL}/courses/my-enrollments`, () => {
         return HttpResponse.json([
-            { id: 1, title: 'Software Engineering', term: SemesterTerm.WINTER, academicYear: '2026' }
+            mockCoursesData[0]
         ]);
     }),
 
