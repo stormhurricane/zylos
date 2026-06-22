@@ -13,13 +13,15 @@ export const renderWithAuthAndRouter = (
         future: {
             v7_startTransition: true,
             v7_relativeSplatPath: true,
-        } as any
+        }
     };
 
-    const router = createMemoryRouter(
-        [{ path: routePath, element: ui }], 
-        routerOptions
-    );
+    const routes = [
+        { path: routePath, element: ui },
+        { path: '*', element: ui } // Fallback Sicherheitsnetz für redirects
+    ];
+
+    const router = createMemoryRouter(routes, routerOptions);
 
     return render(
         <AuthProvider>
@@ -34,11 +36,11 @@ export const renderWithRouter = (ui: React.ReactElement, initialEntries = ['/'])
         future: {
             v7_startTransition: true,
             v7_relativeSplatPath: true,
-        } as any 
+        }
     };
 
     const router = createMemoryRouter(
-        [{ path: '/', element: ui }, { path: '*', element: ui }], 
+        [{ path: '*', element: ui }], 
         routerOptions
     );
 
