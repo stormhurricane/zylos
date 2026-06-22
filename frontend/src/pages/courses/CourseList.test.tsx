@@ -5,28 +5,22 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CourseList } from './CourseList';
 import { http, HttpResponse } from 'msw';
 import { renderWithAuthAndRouter } from '../../test/testUtils';
-import { globalHandlers, TEST_BASE_URL, mockCoursesData } from '../../test/handlers';
-import { setupServer } from 'msw/node';
+import { TEST_BASE_URL, mockCoursesData } from '../../test/handlers';
 import { act } from 'react';
+import { server } from '../../test/server';
 
 const renderCourseList = () => {
     return renderWithAuthAndRouter(<CourseList/>);
 };
 
-const server = setupServer(...globalHandlers);
 
 
 describe('CourseList Component mit MSW', () => {
-
-    beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 
     beforeEach(() => {
         window.alert = vi.fn();
     });
 
-    afterEach(() => server.resetHandlers());
-
-    afterAll(() => server.close());
 
     it('should render courses and enroll in first', async () => {
         const user = userEvent.setup();

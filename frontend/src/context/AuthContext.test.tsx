@@ -1,7 +1,7 @@
-import React, { act } from 'react';
+import { act } from 'react';
 import { screen, render, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { AuthProvider, useAuth } from './AuthContext';
 import { sessionService } from '../utils/sessionService';
 import { userApi } from '../api/userApi';
@@ -37,9 +37,6 @@ const TestingComponent = () => {
 };
 
 describe('AuthContext & AuthProvider', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
 
     it('should initialize with user data if a valid session exists', () => {
         vi.mocked(sessionService.getSavedUser).mockReturnValue({

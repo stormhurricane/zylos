@@ -16,8 +16,6 @@ describe('Navbar Component', () => {
     const mockSetSearchQuery = vi.fn();
 
     beforeEach(() => {
-        vi.clearAllMocks();
-        
         mockUseNavbar.mockReturnValue({
             isInstructor: false,
             searchQuery: '',

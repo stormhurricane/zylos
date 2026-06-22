@@ -1,15 +1,12 @@
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { act } from 'react';
-import { describe, it, expect, vi, beforeAll, afterEach, afterAll } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { Register } from './Register';
 import { renderWithAuthAndRouter } from '../../test/testUtils';
-import { setupServer } from 'msw/node';
+import { server } from '../../test/server';
 import { http, HttpResponse } from 'msw';
-import { globalHandlers, TEST_BASE_URL } from '../../test/handlers';
-
-const server = setupServer(...globalHandlers);
-
+import { TEST_BASE_URL } from '../../test/handlers';
 import { Routes, Route } from 'react-router-dom';
 
 const renderRegisterWithRoutes = (initialEntries = ['/register']) => {
@@ -23,15 +20,9 @@ const renderRegisterWithRoutes = (initialEntries = ['/register']) => {
 };
 
 describe('Register Component Integration', () => {
-    beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-    
     afterEach(() => {
-        server.resetHandlers();
-        vi.clearAllMocks();
         vi.useRealTimers();
     });
-    
-    afterAll(() => server.close());
 
     it('should toggle user type and render dynamic input fields accordingly', async () => {
         renderRegisterWithRoutes();

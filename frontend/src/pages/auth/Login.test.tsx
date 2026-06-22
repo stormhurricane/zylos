@@ -1,14 +1,12 @@
 import { screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import { describe, it, expect, vi, beforeAll, afterEach, afterAll } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { Login } from './Login';
 import { sessionService } from  '../../utils/sessionService';
 import { renderWithAuthAndRouter } from '../../test/testUtils';
-import { setupServer } from 'msw/node';
-import { globalHandlers, TEST_BASE_URL } from '../../test/handlers';
+import { server } from '../../test/server';
+import { TEST_BASE_URL } from '../../test/handlers';
 import { http, HttpResponse } from 'msw';
-
-const server = setupServer(...globalHandlers);
 
 vi.mock('../../utils/sessionService', () => ({
     sessionService: {
@@ -30,14 +28,6 @@ const renderLoginWithRoutes = (initialEntries = ['/login']) => {
 };
 
 describe('Login Component Integration', () => {
-    beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-    
-    afterEach(() => {
-        server.resetHandlers();
-        vi.clearAllMocks();
-    });
-    
-    afterAll(() => server.close());
 
     it('should show field errors when submitting empty form', async () => {
         renderLoginWithRoutes();

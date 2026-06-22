@@ -1,17 +1,16 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/vitest';
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { setupServer } from 'msw/node';
+import { describe, it, expect } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { CourseCreate } from './CourseCreate';
-import { globalHandlers, TEST_BASE_URL } from '../../test/handlers';
+import { TEST_BASE_URL } from '../../test/handlers';
 import { renderWithAuthAndRouter } from '../../test/testUtils';
 import { act } from 'react';
 import { courseApi } from '../../api/courseApi';
 import { CourseType, SemesterTerm } from '../../api/types';
+import { server } from '../../test/server';
 
-const server = setupServer(...globalHandlers);
 vi.mock('../../context/AuthContext', () => ({
     useAuth: () => ({
         user: { userId: 1, role: 'teacher' }, 
@@ -26,13 +25,6 @@ const renderCourseCreate = () => {
 };
 
 describe('CourseCreate Component mit MSW', () => {
-
-    beforeAll(() => server.listen({ onUnhandledRequest: 'error' })); 
-    beforeEach(() => {
-        server.resetHandlers()
-        vi.clearAllMocks();
-    }); 
-    afterAll(() => server.close()); 
 
    it('should create a course manually', async () => {
         const user = userEvent.setup();

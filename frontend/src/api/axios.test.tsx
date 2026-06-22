@@ -1,11 +1,7 @@
-// src/api/axios.test.ts
 import api from './axios';
 import { sessionService } from '../utils/sessionService';
 import { http, HttpResponse } from 'msw';
-import { setupServer } from 'msw/node';
-import { globalHandlers } from '../test/handlers';
-
-const server = setupServer(...globalHandlers);
+import { server } from '../test/server';
 
 vi.mock('../utils/tokenService', () => ({
     tokenService: {
@@ -16,13 +12,6 @@ vi.mock('../utils/tokenService', () => ({
 
 describe('Axios Interceptors', () => {
     const targetUrl = 'http://localhost:8080/api/test-endpoint';
-
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
-    beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-    afterEach(() => server.resetHandlers());
-    afterAll(() => server.close());
 
     it('should inject Bearer token into headers if present', async () => {
         const getTokenSpy = vi.spyOn(sessionService, 'getToken').mockReturnValue('valid-test-token');

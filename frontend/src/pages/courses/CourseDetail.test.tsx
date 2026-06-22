@@ -1,24 +1,15 @@
 import { screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import { describe, it, expect, beforeAll, afterEach, afterAll, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { CourseDetail } from './CourseDetail';
-import { setupServer } from 'msw/node';
+import { server } from '../../test/server';
 import { http, HttpResponse } from 'msw';
 import { renderWithAuthAndRouter } from '../../test/testUtils';
 import * as AuthContext from '../../context/AuthContext';
-import { globalHandlers, TEST_BASE_URL } from '../../test/handlers';
+import { TEST_BASE_URL } from '../../test/handlers';
 
-const server = setupServer(...globalHandlers);
 
 describe('CourseDetail Integration', () => {
-    beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-    
-    afterEach(() => {
-        server.resetHandlers();
-        vi.restoreAllMocks();
-    });
-    
-    afterAll(() => server.close());
 
     it('loads all data and highlights the current user', async () => {
         server.use(

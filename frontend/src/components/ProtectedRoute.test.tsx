@@ -1,15 +1,11 @@
-import React from 'react';
 import { screen, render } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ProtectedRoute } from './ProtectedRoute';
 import * as AuthModule from '../context/AuthContext';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 
 describe('ProtectedRoute Component', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
 
     it('should render PageLoader when auth is loading', () => {
         vi.spyOn(AuthModule, 'useAuth').mockReturnValue({
