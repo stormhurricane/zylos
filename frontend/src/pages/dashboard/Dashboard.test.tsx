@@ -1,17 +1,12 @@
 import { screen } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect} from 'vitest';
 import { Dashboard } from './Dashboard';
 import { http, HttpResponse } from 'msw';
-import { globalHandlers, mockCoursesData, TEST_BASE_URL } from '../../test/handlers';
-import { setupServer } from 'msw/node';
+import { mockCoursesData, TEST_BASE_URL } from '../../test/handlers';
 import { renderWithAuthAndRouter } from '../../test/testUtils';
-
-const server = setupServer(...globalHandlers);
+import { server } from '../../test/server';
 
 describe('Dashboard Component Integration', () => {
-    beforeAll(() => server.listen({ onUnhandledRequest: 'error' })); 
-    afterEach(() => server.resetHandlers());                        
-    afterAll(() => server.close());
     
     it('should render courses of the user and show them sorted', async () => {
         server.use(

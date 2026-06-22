@@ -1,6 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import { SemesterTerm, Course, CourseType } from '../api/types';
-
+import { Course } from '../api/types';
 
 export const TEST_BASE_URL = 'http://localhost:8080/api';
 
@@ -12,30 +11,59 @@ export const mockCoursesData = [
 export const globalHandlers = [
     // Login-endpoint 
     http.post(`${TEST_BASE_URL}/users/login`, async ({ request }) => {
-        const body = (await request.json()) as any;
         return HttpResponse.json({ accessToken: 'mocked-jwt-token', role: 'STUDENT' });
     }),
 
-    // happy path for register
+    // Happy Path Registration
     http.post(`${TEST_BASE_URL}/users/register/student`, async () => {
         return HttpResponse.json({ success: true }, { status: 201 });
     }),
 
-     http.post(`${TEST_BASE_URL}/users/register/teacher`, async () => {
+    http.post(`${TEST_BASE_URL}/users/register/teacher`, async () => {
         return HttpResponse.json({ success: true }, { status: 201 });
     }),
 
-    // global handler to get a profile
-    http.get(`${TEST_BASE_URL}/users/:id`, ({ params }) => {
-        const { id } = params;
+    // Global handler own profile
+    http.get(`${TEST_BASE_URL}/users/me`, () => {
         return HttpResponse.json({
-            id: id,
+            id: 123, // Nativ als Number
             firstName: 'Jojen',
             lastName: 'Doe',
             email: 'own@uni.de',
             matriculationNumber: '1000001',
             studySubject: 'Informatik',
             privateAddress: 'Musterstraße 1'
+        });
+    }),
+
+    http.put(`${TEST_BASE_URL}/users/me`, async ({ request }) => {
+        const body = await request.json() as Record<string, any>;
+        return HttpResponse.json({ success: true, ...body });
+    }),
+
+    http.get(`${TEST_BASE_URL}/users/:id`, ({ params }) => {
+        const { id } = params;
+        
+        // 123 is own user
+        if (id === '123' || id === 'me') {
+            return HttpResponse.json({
+                id: 123,
+                firstName: 'Jojen',
+                lastName: 'Doe',
+                email: 'own@uni.de',
+                matriculationNumber: '1000001',
+                studySubject: 'Informatik',
+                privateAddress: 'Musterstraße 1'
+            });
+        }
+
+        return HttpResponse.json({
+            id: Number(id),
+            firstName: 'Fremder',
+            lastName: 'Nutzer',
+            email: 'stranger@uni.de',
+            chair: 'Software Engineering',
+            researchArea: 'KI & Ethik'
         });
     }),
 
@@ -65,15 +93,15 @@ export const globalHandlers = [
         return HttpResponse.json(mockCoursesData);
     }),
 
-    http.post(`${TEST_BASE_URL}/courses/:id/enroll`, ({ params }) => {
-        return HttpResponse.json({status: 200});
+    http.post(`${TEST_BASE_URL}/courses/:id/enroll`, () => {
+        return HttpResponse.json({ status: 200 });
     }),
     
-
     http.post(`${TEST_BASE_URL}/courses`, async ({ request }) => {
         const postData = await request.json() as Omit<Course, 'id'>;
 
         const newCourse = {
+            id: 99,
             title: postData.title,
             type: postData.type,
             term: postData.term,
@@ -82,6 +110,4 @@ export const globalHandlers = [
 
         return HttpResponse.json(newCourse);
     }),
-
-
 ];

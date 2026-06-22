@@ -1,23 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import { describe, it, expect, vi, beforeAll, afterEach, afterAll } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { Profile } from './Profile';
 import { renderWithAuthAndRouter } from '../../test/testUtils';
 import { http, HttpResponse } from 'msw';
-import { setupServer } from 'msw/node';
 import * as AuthContext from '../../context/AuthContext'; 
-import { globalHandlers, TEST_BASE_URL } from '../../test/handlers';
+import { TEST_BASE_URL } from '../../test/handlers';
+import { server } from '../../test/server';
 
-const server = setupServer(...globalHandlers);
-
-describe('Profile Component (Integration mit MSW)', () => {
-    beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
-    afterEach(() => {
-        server.resetHandlers();
-        vi.clearAllMocks();
-        vi.restoreAllMocks(); 
-    });
-    afterAll(() => server.close());
+describe('Profile Component', () => {
 
     it('should render own profile with courses correctly', async () => {
         vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
@@ -26,11 +17,13 @@ describe('Profile Component (Integration mit MSW)', () => {
             isAuthenticated: true
         } as any);
 
-        renderWithAuthAndRouter(
-            <Profile />,
-            ['/profile/123'],  
-            '/profile/:id'     
-        );
+       renderWithAuthAndRouter(
+        <Profile />,
+        ['/profile/123'],  
+        '/profile/:id'     
+    );
+
+        screen.logTestingPlaygroundURL();
 
         expect(await screen.findByText('Jojen Doe')).toBeInTheDocument();
         expect(screen.getByText('own@uni.de')).toBeInTheDocument();
