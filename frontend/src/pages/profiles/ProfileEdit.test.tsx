@@ -1,108 +1,125 @@
-import { screen } from '@testing-library/react';
-import '@testing-library/jest-dom/vitest';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeAll, afterEach, afterAll } from 'vitest';
 import { ProfileEdit } from './ProfileEdit';
-import { useProfileEdit } from './useProfileEdit';
-import { renderWithRouter } from '../../test/testUtils'; 
+import { renderWithAuthAndRouter } from '../../test/testUtils';
+import { setupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw';
+import { globalHandlers, TEST_BASE_URL } from '../../test/handlers';
+import { act } from 'react';
 
-vi.mock('./useProfileEdit', () => ({
-    useProfileEdit: vi.fn()
-}));
+const server = setupServer(...globalHandlers);
 
-describe('ProfileEdit Component UI', () => {
-    beforeEach(() => {
+describe('ProfileEdit Component Integration', () => {
+    beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+    afterEach(() => {
+        server.resetHandlers();
         vi.clearAllMocks();
     });
+    afterAll(() => server.close());
 
-    it('should render the ProfileEdit component with loading state', () => {
-        vi.mocked(useProfileEdit).mockReturnValue({
-            loading: true,
-        } as any);
+    // Testfall 1: Loading State (Nativ über MSW verzögert)
+    it('should render the ProfileEdit component with loading state', async () => {
+        server.use(
+            http.get(`${TEST_BASE_URL}/users/me`, async () => {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                return HttpResponse.json({ id: 123 });
+            })
+        );
 
-        renderWithRouter(<ProfileEdit />);
-
+        renderWithAuthAndRouter(<ProfileEdit />, ['/profile/edit'], '/profile/edit');
         expect(screen.getByText('Einstellungen werden geladen...')).toBeInTheDocument();
-        
     });
 
-    it('should display the specific fields for a student', () => {
-        vi.mocked(useProfileEdit).mockReturnValue({
-            loading: false,
-            isStudent: true,
-            displayName: { firstName: 'Max', lastName: 'Mustermann' },
-            formData: { studySubject: 'Informatik', privateAddress: 'Musterweg 5' }
-        } as any);
-        
-        renderWithRouter(<ProfileEdit />);
+    it('should display the specific fields for a student', async () => {
+        server.use(
+            http.get(`${TEST_BASE_URL}/users/me`, () => {
+                return HttpResponse.json({
+                    id: 123,
+                    firstName: 'Max',
+                    lastName: 'Mustermann',
+                    matriculationNumber: '1000001', 
+                    studySubject: 'Informatik'
+                });
+            })
+        );
 
+        renderWithAuthAndRouter(<ProfileEdit />, ['/profile/edit'], '/profile/edit');
+
+        const input = await screen.findByDisplayValue('Informatik');
+        expect(input).toBeInTheDocument();
+        
         expect(screen.getByText('Studienfach')).toBeInTheDocument();
         expect(screen.queryByText('Lehrstuhl')).not.toBeInTheDocument();
     });
 
-    it('should display the specific fields for a lecturer/employee', () => {
-        vi.mocked(useProfileEdit).mockReturnValue({
-            loading: false,
-            isStudent: false,
-            displayName: { firstName: 'Dr.', lastName: 'Schmidt' },
-            formData: { chair: 'Informatik', researchArea: 'KI', privateAddress: 'Lehrstuhlweg 1' }
-        } as any);
-        
-        renderWithRouter(<ProfileEdit />);
+    it('should display the specific fields for a lecturer/employee', async () => {
+        server.use(
+            http.get(`${TEST_BASE_URL}/users/me`, () => {
+                return HttpResponse.json({
+                    id: 123,
+                    firstName: 'Dr.',
+                    lastName: 'Schmidt',
+                    matriculationNumber: null,
+                    chair: 'Praktische Informatik',
+                    researchArea: 'KI'
+                });
+            })
+        );
+
+        renderWithAuthAndRouter(<ProfileEdit />, ['/profile/edit'], '/profile/edit');
+
+        await screen.findByDisplayValue('Praktische Informatik');
 
         expect(screen.getByText('Lehrstuhl')).toBeInTheDocument();
         expect(screen.getByText('Forschungsgebiet')).toBeInTheDocument();
         expect(screen.queryByText('Studienfach')).not.toBeInTheDocument();
     });
 
-    it('should display an error message when the hook returns an error', () => {
-        // TIPP: Setze loading: false und error: 'Update fehlgeschlagen.'
-        // Prüfe, ob der Fehlertext auf dem Bildschirm gerendert wird.
-        vi.mocked(useProfileEdit).mockReturnValue({
-            loading: false,
-            isStudent: true,
-            displayName: { firstName: 'Max', lastName: 'Mustermann' },
-            formData: {},
-            error: 'Update fehlgeschlagen.' // <--- Hier provozieren wir den Fehler
-        } as any);
+    it('should display an error message when the hook returns an error', async () => {
+        server.use(
+            http.get(`${TEST_BASE_URL}/users/me`, () => {
+                return HttpResponse.json({ id: 123 });
+            }),
+            http.put(`${TEST_BASE_URL}/users/me`, () => {
+                return new HttpResponse(null, { status: 400 });
+            })
+        );
 
-        renderWithRouter(<ProfileEdit />);
+        renderWithAuthAndRouter(<ProfileEdit />, ['/profile/edit'], '/profile/edit');
 
-        // [Certain] Prüfen, ob der Fehlertext im Dokument auftaucht
-        expect(screen.getByText('Update fehlgeschlagen.')).toBeInTheDocument();
-        // Optionale Zusatzabsicherung: Hat der Text die richtige CSS-Klasse?
-        expect(screen.getByText('Update fehlgeschlagen.')).toHaveClass('error-message');
+        const submitButton = await screen.findByRole('button', { name: /änderungen speichern/i });
+        await act(async () => {
+            await userEvent.click(submitButton);
+        });
+
+        const errorField = await screen.findByText('Update fehlgeschlagen.');
+        expect(errorField).toBeInTheDocument();
+        expect(errorField).toHaveClass('error-message');
     });
 
-    it('should forward submits and cancels to the hook', () => {
-        // TIPP: Erstelle Spione für die Funktionen: const mockSubmit = vi.fn(); const mockCancel = vi.fn();
-        // Übergib diese im mockReturnValue an handleSubmit und cancel.
-        // Simuliere Klicks auf die Buttons (fireEvent oder userEvent) und prüfe, ob die Mocks aufgerufen wurden.
+    it('should forward submits and cancels to the hook', async () => {
+        let putPayload: any = null;
+        
+        server.use(
+            http.get(`${TEST_BASE_URL}/users/me`, () => {
+                return HttpResponse.json({ id: 123, firstName: 'Max', privateAddress: 'Musterweg 5' });
+            }),
+            http.put(`${TEST_BASE_URL}/users/me`, async ({ request }) => {
+                putPayload = await request.json();
+                return HttpResponse.json({ id: 123 });
+            })
+        );
 
-        const mockSubmit = vi.fn();
-        const mockCancel = vi.fn();
+        renderWithAuthAndRouter(<ProfileEdit />, ['/profile/edit'], '*');
 
-        vi.mocked(useProfileEdit).mockReturnValue({
-            loading: false,
-            isStudent: true,
-            displayName: { firstName: 'Max', lastName: 'Mustermann' },
-            formData: {},
-            error: '',
-            handleChange: vi.fn(),
-            handleFileChange: vi.fn(),
-            handleSubmit: mockSubmit, // Spion verdrahten
-            cancel: mockCancel         // Spion verdrahten
-        } as any);
+        const submitButton = await screen.findByRole('button', { name: /änderungen speichern/i });
+        
+        await act(async () => { await userEvent.click(submitButton) });
 
-        renderWithRouter(<ProfileEdit />);
-
-        // 1. Cancel-Button testen
-        const cancelButton = screen.getByRole('button', { name: /abbrechen/i });
-        cancelButton.click(); // Ein simpler nackter Klick reicht bei synchronen Mocks vollkommen aus
-        expect(mockCancel).toHaveBeenCalledTimes(1);
-
-        // 2. Submit-Button testen
-        const submitButton = screen.getByRole('button', { name: /änderungen speichern/i });
-        submitButton.click();
-        expect(mockSubmit).toHaveBeenCalledTimes(1);
+        await waitFor(() => {
+            expect(putPayload).not.toBeNull();
+        });
+        expect(putPayload.privateAddress).toBe('Musterweg 5');
     });
 });
