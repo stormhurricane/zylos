@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userApi } from '../../api/userApi';
 import { ProfileUpdateRequest } from '../../api/types';
-import { convertFileToBase64 } from '../../utils/fileUtils'; // Pfad ggf. anpassen
+import { convertFileToBase64 } from '../../utils/fileUtils';
 
 export const useProfileEdit = () => {
     const [formData, setFormData] = useState<ProfileUpdateRequest>({
@@ -31,16 +31,19 @@ export const useProfileEdit = () => {
                 }
                 
                 setDisplayName({ firstName: profile.firstName, lastName: profile.lastName });
+                
                 setFormData({
-                    password: '',
+                    password: '', 
                     privateAddress: profile.privateAddress || '',
                     profilePicture: profile.profilePicture || '',
                     studySubject: profile.studySubject || '',
                     chair: profile.chair || '',
                     researchArea: profile.researchArea || ''
                 });
+                
                 setIsStudent(!!profile.matriculationNumber);
             } catch (err) {
+                console.error("Fehler beim Laden des Edit-Profils", err);
                 setError('Profil konnte nicht geladen werden.');
             } finally {
                 setLoading(false);
@@ -74,6 +77,7 @@ export const useProfileEdit = () => {
             await userApi.updateProfile(formData);
             navigate('/profile');
         } catch (err) {
+            console.error("Profil-Update fehlgeschlagen", err);
             setError('Update fehlgeschlagen.');
         } finally {
             setIsSubmitting(false);
