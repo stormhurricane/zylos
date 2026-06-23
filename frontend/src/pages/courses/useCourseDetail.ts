@@ -29,7 +29,7 @@ export const useCourseDetail = () => {
     const { user, isInstructor } = useAuth();
     const currentUserId = user?.userId;
     
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const loadData = useCallback(async () => {
         if (!id || isNaN(courseId)) {

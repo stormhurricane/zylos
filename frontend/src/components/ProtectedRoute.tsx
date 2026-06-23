@@ -10,7 +10,7 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
-    const { user, isInstructor, loading } = useAuth();
+    const { user, loading } = useAuth();
     const location = useLocation();
 
     // 1. Prevents the "redirect flash" while the session is being loaded

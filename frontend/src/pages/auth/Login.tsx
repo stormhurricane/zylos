@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { LandingLayout } from '../../components/LandingLayout';
 import styles from './Register.module.css';

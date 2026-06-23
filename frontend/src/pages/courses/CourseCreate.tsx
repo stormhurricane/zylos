@@ -1,4 +1,3 @@
-import React from 'react';
 import styles from './CourseCreate.module.css';
 import { CourseType, SemesterTerm } from '../../api/types';
 import { useCourseCreate } from './useCourseCreate';

@@ -14,7 +14,7 @@ export const useCourseCreate = () => {
     const [loadingManual, setLoadingManual] = useState(false);
     const [loadingCsv, setLoadingCsv] = useState(false);
 
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const triggerStatus = (type: 'success' | 'error', text: string) => {
