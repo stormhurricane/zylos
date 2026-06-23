@@ -5,7 +5,6 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { Navbar } from './components/Navbar';
 import { PageLoader } from './components/PageLoader';
 
-
 // Lazy Loading
 const Login = lazy(() => import('./pages/auth/Login').then(m => ({ default: m.Login })));
 const Register = lazy(() => import('./pages/auth/Register').then(m => ({ default: m.Register })));
@@ -20,7 +19,9 @@ const MainLayout = () => (
   <div className="app-layout">
     <Navbar />
     <main>
-      <Outlet />
+      <Suspense fallback={<PageLoader />}>
+        <Outlet />
+      </Suspense>
     </main>
   </div>
 );
@@ -29,34 +30,35 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={
+            <Suspense fallback={<PageLoader />}><Login /></Suspense>
+          } />
+          <Route path="/register" element={
+            <Suspense fallback={<PageLoader />}><Register /></Suspense>
+          } />
 
-            {/* Protected Area with Layout */}
-            <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              {/* Consolidated: A single path with an optional ID parameter would be possible here, 
-                  but we'll stick to two explicit paths for better readability */}
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/profile/:id" element={<Profile />} />
-              <Route path="/profile/edit" element={<ProfileEdit />} />
-              
-              <Route path="/courses" element={<CourseList />} />
-              <Route 
-                path="/courses/new" 
-                element={<ProtectedRoute requiredRole="TEACHER"><CourseCreate /></ProtectedRoute>} 
-              />
-              <Route path="/courses/:id" element={<CourseDetail />} />
-            </Route>
+          {/* Protected Area with Layout */}
+          <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/edit" element={<ProfileEdit />} />
+            <Route path="/profile/:id" element={<Profile />} />
+            
+            <Route path="/courses" element={<CourseList />} />
+            <Route 
+              path="/courses/new" 
+              element={<ProtectedRoute requiredRole="TEACHER"><CourseCreate /></ProtectedRoute>} 
+            />
+            <Route path="/courses/:id" element={<CourseDetail />} />
+          </Route>
 
-            {/* Standard-Rerouting */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </Suspense>
+          {/* Standard-Rerouting */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
       </Router>
     </AuthProvider>
   );

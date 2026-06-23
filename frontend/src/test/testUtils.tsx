@@ -18,7 +18,7 @@ export const renderWithAuthAndRouter = (
 
     const routes = [
         { path: routePath, element: ui },
-        { path: '*', element: ui } // Fallback Sicherheitsnetz für redirects
+        { path: '*', element: ui } 
     ];
 
     const router = createMemoryRouter(routes, routerOptions);

@@ -12,11 +12,24 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    globals: true,
+    globals: true, 
     setupFiles: './src/test/setup.ts',
+    
+    server: {
+      deps: {
+        inline: ['msw'],
+      },
+    },
+    
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
+      exclude: [
+        'src/test/**',
+        'src/mocks/**',
+        'node_modules/**',
+        '**/*.d.ts'
+      ]
     },
   },
 })

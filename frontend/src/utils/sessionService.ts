@@ -33,7 +33,7 @@ export const sessionService = {
             _user = JSON.parse(savedUserStr);
             return _user;
         } catch (error) {
-            console.error('Fehler beim Parsen der Usersession im tokenService:', error);
+            console.error('Fehler beim Parsen der Usersession im sessionService:', error);
             sessionService.clearSession();
             return null;
         }
