@@ -29,35 +29,35 @@ public class CourseEvaluationController {
     @Autowired
     StatisticService statisticService;
 
-    @PostMapping(path="/create") // TODO: leerer path für Post 
+    @PostMapping(path="/create") 
     public boolean createCourseEvaluation(@RequestBody CreateCourseEvaluationRequest request) {
         return testService.createCourseEvaluation(request);
     }
 
-    @GetMapping(path="/showQuestions/{id}") // TODO (path="/questions/{id}"
+    @GetMapping(path="/showQuestions/{id}") 
     public List<QuestionResponse> getCourseEvaluationQuestions(@PathVariable ("id") int lvId) {
         return testService.getCourseEvaluationQuestions(lvId);
     }
 
-    @PostMapping(path="/check/{id}") // TODO /attempts/ und alles in RequestBody
+    @PostMapping(path="/check/{id}") 
     public int createEvaluationAttempt(@PathVariable ("id") int userId,
                                           @RequestBody CreateEvaluationAttemptRequest request) {
         return attemptService.createEvaluationAttempt(userId, request.courseId());
     }
 
-    @PostMapping(path="/createFeedback") // TODO path /feedbacks
+    @PostMapping(path="/createFeedback") 
     public boolean createEvaluationFeedbackForAttempt(@RequestBody List<CreateEvaluationFeedbackRequest> feedbackRequests) {
         return evaluationFeedbackService.createEvaluationFeedbackForAttempt(feedbackRequests);
     }
 
     // Erläuterung int filterStatus: -1 nicht bestanden, 0 kein Filter, 1 bestanden
-    @PostMapping(path="/createFeedbackStatistics/{id}") // TODO path /statistics (mit testId in RequestBody) Änderung auf GET,  filterStatus als QUeryParameter
+    @PostMapping(path="/createFeedbackStatistics/{id}") 
     public List<EvaluationStatisticResponse> getEvaluationStatistics(@PathVariable("id") int testId,
                                                    @RequestBody int filterStatus){
         return statisticService.getEvaluationStatistics(testId, filterStatus);
     }
 
-    @PostMapping(path="/checkParticipation/{id}") // TODO path, änderung in GET
+    @PostMapping(path="/checkParticipation/{id}") 
     public boolean checkStudentParticipation(@PathVariable("id") int studentId,
                                                  @RequestBody int lvId) {
         return statisticService.checkStudentParticipation(lvId, studentId);

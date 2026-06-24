@@ -1,10 +1,8 @@
 package com.zylos.backend.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.zylos.backend.database.Student_old;
-import com.zylos.backend.repository.StudentRepository;
 
 import java.util.List;
 
@@ -12,8 +10,7 @@ import java.util.List;
 @Deprecated(since="2024-06", forRemoval=true)
 public class StudentService {
 
-    @Autowired
-    StudentRepository studentRepository;
+
 
 
     public Student_old findeStudent(int id) {

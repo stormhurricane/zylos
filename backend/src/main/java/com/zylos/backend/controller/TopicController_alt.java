@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @Deprecated(since = "2026-04", forRemoval = true)
-@RequestMapping(path="api/v3/topic") //TODO: path anpassen /api/topics
+@RequestMapping(path="api/v3/topic") 
 public class TopicController_alt {
 
     private final TopicService_alt topicService;
@@ -23,12 +23,12 @@ public class TopicController_alt {
     }
 
 
-    @PostMapping(path="/addTopic") //TODO: path anpassen (KEIN PATH)
+    @PostMapping(path="/addTopic")
     public boolean createTopic(@RequestBody CreateTopicRequest request){
         return topicService.createTopic(request);
     }
 
-    @GetMapping(path="/showAllTopics/{id}") // TODO path anpassen ?teacherId={id}
+    @GetMapping(path="/showAllTopics/{id}") 
     public List<TopicResponse> getTopicsByTeacherId(@PathVariable("id") int teacherId) {
         return topicService.getTopicsByTeacherId(teacherId);
     }
