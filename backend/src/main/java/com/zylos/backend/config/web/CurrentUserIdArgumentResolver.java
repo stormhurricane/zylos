@@ -13,8 +13,9 @@ public class CurrentUserIdArgumentResolver implements HandlerMethodArgumentResol
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
+        Class<?> paramType = parameter.getParameterType();
         return parameter.hasParameterAnnotation(CurrentUserId.class) 
-                && parameter.getParameterType().equals(long.class);
+                && (paramType.equals(long.class) || paramType.equals(Long.class));
     }
 
     @Override
