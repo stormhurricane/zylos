@@ -14,17 +14,12 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.naming.AuthenticationException;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
-    // Catches all general RuntimeExceptions (e.g. Course not found)
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiError> handleRuntimeException(RuntimeException ex) {
-        logger.error("Unexpected runtime exception occurred: ", ex);
-        return createResponse(ex.getMessage(), null, HttpStatus.BAD_REQUEST);
-    }
 
     // Catches validation errors that occur due to @Valid
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -37,6 +32,20 @@ public class GlobalExceptionHandler {
         return createResponse("Validation failed", errors, HttpStatus.BAD_REQUEST);
     }
 
+    // catches errors from SecurityConfig.authenticationEntryPoint (no token or broken)
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiError> handleAuthenticationException(AuthenticationException ex) {
+        logger.warn("Authentication failed: {}", ex.getMessage());
+        return createResponse("Authentification failed: invalid or missing token.", null, HttpStatus.UNAUTHORIZED);
+    }
+
+    // Catches Spring Security AccessDeniedException to return 403 Forbidden
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiError> handleAccessDeniedException(AccessDeniedException ex) {
+        logger.warn("Access denied: {}", ex.getMessage());
+        return createResponse("Zugriff verweigert: Sie haben nicht die erforderlichen Rechte.", null, HttpStatus.FORBIDDEN);
+    }
+
     // Special Case for @Valid annotated login endpoint, where we want to return 401 instead of 400 for invalid credentials
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiError> handleIllegalArgument(IllegalArgumentException ex) {
@@ -44,12 +53,17 @@ public class GlobalExceptionHandler {
         return createResponse(ex.getMessage(), null, HttpStatus.UNAUTHORIZED);
     }
 
-    // Catches Spring Security AccessDeniedException to return 403 Forbidden
-    // Catches Spring Security AccessDeniedException to return 403 Forbidden
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiError> handleAccessDeniedException(AccessDeniedException ex) {
-        logger.warn("Access denied: {}", ex.getMessage());
-        return createResponse("Zugriff verweigert: Sie haben nicht die erforderlichen Rechte.", null, HttpStatus.FORBIDDEN);
+    // Catches all general RuntimeExceptions (e.g. Course not found)
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiError> handleRuntimeException(RuntimeException ex) {
+        logger.warn("Business or runtime exception occurred: {}", ex.getMessage());
+        return createResponse(ex.getMessage(), null, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleAllUncaughtExceptions(Exception ex) {
+        logger.error("An unexpected server error occurred: ", ex);
+        return createResponse("An internal server error occurred.", null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<ApiError> createResponse(String message, Map<String, String> errors, HttpStatus status) {
