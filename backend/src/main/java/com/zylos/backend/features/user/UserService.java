@@ -92,7 +92,7 @@ class UserService {
                 role = "TEACHER";
             }
             
-            String token = jwtService.generateToken(user.getEmail(), Map.of("role", role, "userId", user.getId()));
+            String token = jwtService.generateToken(user.getEmail(), user.getId(), List.of(role));
             return new AuthResponse(token, user.getId(), role, user.getFirstName(), user.getLastName());
         }
 

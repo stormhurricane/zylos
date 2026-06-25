@@ -1,8 +1,9 @@
 package com.zylos.backend.config.security;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,8 +16,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.util.List;
+
+/**
+ * TODO: ARCHITECTURE UPGRADE - Switch from JWT LocalStorage to HttpOnly Cookies
+ * 1. Change JwtAuthenticationFilter to read token from HttpServletRequest.getCookies() instead of Authorization Header.
+ * 2. Update AuthController to return token via ResponseCookie.httpOnly(true).secure(true).path("/").build().
+ * 3. RE-ENABLE CSRF protection (.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))) 
+ * since cookies are vulnerable to Cross-Site Request Forgery, unlike the current stateless header approach.
+ */
 
 @Configuration
 @EnableWebSecurity
@@ -24,17 +34,21 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final HandlerExceptionResolver resolver;
+    private final List<String> allowedOrigins;
 
-    @Value("${app.cors.allowed-origins}")
-    private List<String> allowedOrigins;
-
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthFilter,
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver,
+            @Value("${app.cors.allowed-origins}") List<String> allowedOrigins
+    ) {
         this.jwtAuthFilter = jwtAuthFilter;
+        this.resolver = resolver;
+        this.allowedOrigins = allowedOrigins;
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // BCrypt ist der Industriestandard für Password-Hashing
         return new BCryptPasswordEncoder();
     }
 
@@ -42,22 +56,28 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            // CSRF deaktivieren wir für die REST-API (wird später über JWT/Tokens gelöst)
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                // Registrierungs-Endpunkte müssen öffentlich zugänglich sein
                 .requestMatchers("/api/users/register/**").permitAll()
-                // Login muss öffentlich zugänglich sein
                 .requestMatchers("/api/users/login").permitAll()
-                // H2-Console (falls für Tests genutzt) freigeben
+                // TODO: SECURITY RISK - H2 Console is publicly accessible.
+                // Move this to a separate DevSecurityConfig active only under @Profile("dev"),
+                // or ensure this endpoint is completely disabled/removed in production deployment
+                // to prevent remote database access vulnerabilities.
                 .requestMatchers("/h2-console/**").permitAll()
-                // Alle anderen Anfragen erfordern Authentifizierung
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            // Erlaubt das Anzeigen der H2-Console in einem Frame
-            .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+            .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+            .exceptionHandling(exception -> exception
+                .accessDeniedHandler((request, response, accessDeniedException) -> 
+                    resolver.resolveException(request, response, null, accessDeniedException)
+                )
+                .authenticationEntryPoint((request, response, authException) -> 
+                    resolver.resolveException(request, response, null, authException)
+                )
+            );
 
         return http.build();
     }

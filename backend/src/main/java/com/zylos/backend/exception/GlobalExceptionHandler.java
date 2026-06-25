@@ -8,6 +8,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -44,14 +45,17 @@ public class GlobalExceptionHandler {
     }
 
     // Catches Spring Security AccessDeniedException to return 403 Forbidden
+    // Catches Spring Security AccessDeniedException to return 403 Forbidden
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiError> handleAccessDeniedException(AccessDeniedException ex) {
         logger.warn("Access denied: {}", ex.getMessage());
-        return createResponse("You do not have permission to perform this action", null, HttpStatus.FORBIDDEN);
+        return createResponse("Zugriff verweigert: Sie haben nicht die erforderlichen Rechte.", null, HttpStatus.FORBIDDEN);
     }
 
     private ResponseEntity<ApiError> createResponse(String message, Map<String, String> errors, HttpStatus status) {
         ApiError apiError = new ApiError(message, errors, LocalDateTime.now());
         return new ResponseEntity<>(apiError, status);
     }
+
+
 }
