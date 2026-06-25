@@ -1,6 +1,7 @@
 package com.zylos.backend.features.user;
 
 import com.zylos.backend.config.security.JwtService;
+import com.zylos.backend.config.security.Role;
 import com.zylos.backend.features.user.dto.AuthResponse;
 import com.zylos.backend.features.user.dto.LoginRequest;
 import com.zylos.backend.features.user.dto.ProfileResponse;
@@ -106,13 +107,13 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password123", "hashedPassword")).thenReturn(true);
         when(teacherRepository.existsByUserId(1L)).thenReturn(false); // Ergo: Ist Student
-        when(jwtService.generateToken(anyString(), anyMap())).thenReturn("fake-jwt-token");
+        when(jwtService.generateToken(anyString(), anyLong(), anyList())).thenReturn("fake-jwt-token");
 
         // When
         AuthResponse response = userService.login(loginRequest);
 
         // Then
-        assertEquals("STUDENT", response.role());
+        assertEquals(Role.STUDENT, response.role());
         assertEquals("fake-jwt-token", response.accessToken());
         assertEquals("Max", response.firstName());
     }
@@ -130,13 +131,13 @@ class UserServiceTest {
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password123", "hashedPassword")).thenReturn(true);
         when(teacherRepository.existsByUserId(5L)).thenReturn(true); // Ergo: Ist Teacher
-        when(jwtService.generateToken(anyString(), anyMap())).thenReturn("fake-jwt-token");
+        when(jwtService.generateToken(anyString(), anyLong(), anyList())).thenReturn("fake-jwt-token");
 
         // When
         AuthResponse response = userService.login(loginRequest);
 
         // Then
-        assertEquals("TEACHER", response.role());
+        assertEquals(Role.INSTRUCTOR, response.role());
         assertEquals("fake-jwt-token", response.accessToken());
         assertEquals("Prof.", response.firstName());
     }

@@ -77,7 +77,7 @@ describe('AuthContext & AuthProvider', () => {
             userId: 2,
             firstName: 'Prof',
             lastName: 'X',
-            role: 'TEACHER'
+            role: 'INSTRUCTOR'
         });
 
         render(
@@ -94,7 +94,7 @@ describe('AuthContext & AuthProvider', () => {
         await waitFor(() => {
             expect(sessionService.saveSession).toHaveBeenCalledWith(
                 'new-jwt-token',
-                { userId: 2, firstName: 'Prof', lastName: 'X', role: 'TEACHER' }
+                { userId: 2, firstName: 'Prof', lastName: 'X', role: 'INSTRUCTOR' }
             );
         });
 

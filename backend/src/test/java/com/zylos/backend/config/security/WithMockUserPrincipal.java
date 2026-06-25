@@ -9,5 +9,5 @@ import java.lang.annotation.RetentionPolicy;
 public @interface WithMockUserPrincipal {
     long id() default 1L;
     String email() default "instructor@test.com";
-    String role() default "TEACHER";
+    String role() default "INSTRUCTOR";
 }

@@ -1,6 +1,7 @@
 package com.zylos.backend.features.user;
 
 import com.zylos.backend.config.security.JwtService;
+import com.zylos.backend.config.security.Role;
 import com.zylos.backend.features.user.dto.AuthResponse;
 import com.zylos.backend.features.user.dto.LoginRequest;
 import com.zylos.backend.features.user.dto.ProfileResponse;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -87,9 +87,9 @@ class UserService {
 
         if (user != null && passwordEncoder.matches(request.password(), user.getPassword())) {
             // Rolle über die Existenz in den Sub-Tabellen ermitteln
-            String role = "STUDENT";
+            Role role = Role.STUDENT;
             if (teacherRepository.existsByUserId(user.getId())) {
-                role = "TEACHER";
+                role = Role.INSTRUCTOR;
             }
             
             String token = jwtService.generateToken(user.getEmail(), user.getId(), List.of(role));

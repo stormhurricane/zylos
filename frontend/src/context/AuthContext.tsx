@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             isAuthenticated: !!user,
             loading,
             isAuthenticating,
-            isInstructor: user?.role === 'TEACHER'
+            isInstructor: user?.role === 'INSTRUCTOR'
         }}>
             {!loading && children}
         </AuthContext.Provider>

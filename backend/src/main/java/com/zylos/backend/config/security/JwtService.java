@@ -21,14 +21,14 @@ public class JwtService {
     private final SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
     private final long expirationTime = 86400000; // 24 hours
 
-    public String generateToken(String email, long userId, List<String> roles) {
-        List<String> normalizedRoles = roles.stream()
-                .map(this::normalizeRole)
-                .collect(Collectors.toList());
+    public String generateToken(String email, long userId, List<Role> roles) {
+        List<String> authorities = roles.stream()
+            .map(Role::getAuthority)
+            .collect(Collectors.toList());
 
         return Jwts.builder()
                 .claim("userId", userId)
-                .claim("roles", normalizedRoles)
+                .claim("roles", authorities)
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expirationTime))
@@ -56,12 +56,12 @@ public class JwtService {
 
         List<SimpleGrantedAuthority> authorities = List.of();
         if (roles instanceof String roleStr) {
-            authorities = List.of(new SimpleGrantedAuthority("ROLE_" + normalizeRole(roleStr)));
+            authorities = List.of(new SimpleGrantedAuthority(ensureRolePrefix(roleStr)));
         } else if (roles instanceof List<?> roleList) {
             authorities = roleList.stream()
-                    .filter(String.class::isInstance)
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + normalizeRole((String) role)))
-                    .collect(Collectors.toList());
+                .filter(String.class::isInstance)
+                .map(role -> new SimpleGrantedAuthority(ensureRolePrefix((String) role)))
+                .collect(Collectors.toList());
         }
 
         return new ClaimsData(principal, authorities);
@@ -87,10 +87,12 @@ public class JwtService {
                 .getPayload();
     }
 
-    private String normalizeRole(String role) {
-        String r = role.toUpperCase();
-        if ("TEACHER".equals(r)) return "INSTRUCTOR";
-        return r;
+    private String ensureRolePrefix(String role) {
+        String upperRole = role.toUpperCase();
+        if (!upperRole.startsWith("ROLE_")) {
+            return "ROLE_" + upperRole;
+        }
+        return upperRole;
     }
 
     public record ClaimsData(UserPrincipal principal, List<SimpleGrantedAuthority> authorities) {}

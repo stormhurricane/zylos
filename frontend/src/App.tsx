@@ -50,7 +50,7 @@ function App() {
             <Route path="/courses" element={<CourseList />} />
             <Route 
               path="/courses/new" 
-              element={<ProtectedRoute requiredRole="TEACHER"><CourseCreate /></ProtectedRoute>} 
+              element={<ProtectedRoute requiredRole="INSTRUCTOR"><CourseCreate /></ProtectedRoute>} 
             />
             <Route path="/courses/:id" element={<CourseDetail />} />
           </Route>

@@ -62,7 +62,7 @@ describe('ProtectedRoute Component', () => {
             <MemoryRouter initialEntries={['/teacher-only']}>
                 <Routes>
                     <Route path="/teacher-only" element={
-                        <ProtectedRoute requiredRole="TEACHER">
+                        <ProtectedRoute requiredRole="INSTRUCTOR">
                             <div data-testid="teacher-content">Dozenten Dashboard</div>
                         </ProtectedRoute>
                     } />
@@ -77,7 +77,7 @@ describe('ProtectedRoute Component', () => {
 
     it('should render children if user has the correct role', () => {
         vi.spyOn(AuthModule, 'useAuth').mockReturnValue({
-            user: { userId: 1, firstName: 'Prof', lastName: 'X', role: 'TEACHER' },
+            user: { userId: 1, firstName: 'Prof', lastName: 'X', role: 'INSTRUCTOR' },
             loading: false,
             isInstructor: true,
             logout: vi.fn(),
@@ -88,7 +88,7 @@ describe('ProtectedRoute Component', () => {
             <MemoryRouter initialEntries={['/teacher-only']}>
                 <Routes>
                     <Route path="/teacher-only" element={
-                        <ProtectedRoute requiredRole="TEACHER">
+                        <ProtectedRoute requiredRole="INSTRUCTOR">
                             <div data-testid="teacher-content">Dozenten Dashboard</div>
                         </ProtectedRoute>
                     } />
