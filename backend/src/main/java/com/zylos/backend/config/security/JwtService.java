@@ -16,10 +16,15 @@ import java.util.stream.Collectors;
 @Service
 public class JwtService {
 
-    @Value("${app.jwt.secret}")
-    private String secret;
-    private final SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
+    private final SecretKey key;
     private final long expirationTime = 86400000; // 24 hours
+
+    public JwtService(@Value("${app.jwt.secret}") String secret){
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalArgumentException("JWT Secret key must not be null or empty");
+        }
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
     public String generateToken(String email, long userId, List<Role> roles) {
         List<String> authorities = roles.stream()
