@@ -18,6 +18,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -66,10 +68,10 @@ class UserServiceTest {
         assertEquals("hashedPassword", userCaptor.getValue().getPassword());
 
         ArgumentCaptor<Student> studentCaptor = ArgumentCaptor.forClass(Student.class);
-        verify(studentRepository).save(studentCaptor.capture());
+        verify(userRepository).save(studentCaptor.capture());
         
         Student savedStudent = studentCaptor.getValue();
-        assertEquals(42L, savedStudent.getUserId());
+        assertEquals(42L, savedStudent.getId());
         assertEquals("1000006", savedStudent.getMatriculationNumber());
     }
 
@@ -80,7 +82,7 @@ class UserServiceTest {
                 "Max", "Mustermann", "duplicate@test.de", "password", "Address", null, "IT"
         );
 
-        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(new User()));
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(new Student()));
 
         // When & Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -98,15 +100,12 @@ class UserServiceTest {
         String matNr = "1234567";
         LoginRequest loginRequest = new LoginRequest(matNr, "password123");
         
-        Student student = new Student(1L, matNr, "IT");
-        User user = new User("Max", "Mustermann", "max@test.de", "Address", "hashedPassword", null);
-        user.setId(1L);
+        Student student = new Student("Max", "Mustermann", "max@test.de", "Address", "hashedPassword", null, matNr, "IT");
+        student.setId(1L);
 
         // [Certain] Die neue Login-Kette abbilden
         when(studentRepository.findByMatriculationNumber(matNr)).thenReturn(Optional.of(student));
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password123", "hashedPassword")).thenReturn(true);
-        when(teacherRepository.existsByUserId(1L)).thenReturn(false); // Ergo: Ist Student
         when(jwtService.generateToken(anyString(), anyLong(), anyList())).thenReturn("fake-jwt-token");
 
         // When
@@ -124,13 +123,11 @@ class UserServiceTest {
         String email = "prof@test.de";
         LoginRequest loginRequest = new LoginRequest(email, "password123");
         
-        User user = new User("Prof.", "Lehrer", email, "Address", "hashedPassword", null);
-        user.setId(5L);
+        Teacher teacher = new Teacher("Prof.", "Lehrer", email, "Address", "hashedPassword", null, "", "");
+        teacher.setId(1L);
 
-        when(studentRepository.findByMatriculationNumber(email)).thenReturn(Optional.empty());
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(teacher));
         when(passwordEncoder.matches("password123", "hashedPassword")).thenReturn(true);
-        when(teacherRepository.existsByUserId(5L)).thenReturn(true); // Ergo: Ist Teacher
         when(jwtService.generateToken(anyString(), anyLong(), anyList())).thenReturn("fake-jwt-token");
 
         // When
@@ -146,12 +143,10 @@ class UserServiceTest {
     void getUserProfile_WithFullProfileTrue_ShouldIncludeAddress() {
         // Given
         long userId = 1L; // Long-IDs nutzen!
-        User user = new User("Max", "Mustermann", "max@test.de", "Musterweg 5", "pass", null);
-        user.setId(userId);
-        Student student = new Student(userId, "1234567", "IT");
+        Student student = new Student("Max", "Mustermann", "max@test.de", "Musterweg 5", "pass", null, "1234567", "IT");
+        student.setId(userId);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(studentRepository.findByUserId(userId)).thenReturn(Optional.of(student));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(student));
 
         // When
         ProfileResponse response = userService.getUserProfile(userId, true);
@@ -166,12 +161,10 @@ class UserServiceTest {
     void getUserProfile_WithFullProfileFalse_ShouldMaskAddress() {
         // Given
         long userId = 1L;
-        User user = new User("Max", "Mustermann", "max@test.de", "Musterweg 5", "pass", null);
-        user.setId(userId);
-        Student student = new Student(userId, "1234567", "IT");
+        Student student = new Student("Max", "Mustermann", "max@test.de", "Musterweg 5", "pass", null, "1234567", "IT");
+        student.setId(userId);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(studentRepository.findByUserId(userId)).thenReturn(Optional.of(student));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(student));
 
         // When
         ProfileResponse response = userService.getUserProfile(userId, false);

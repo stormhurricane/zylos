@@ -43,9 +43,9 @@ class CourseUserClientImpl implements CourseUserClient {
             UserResponse responseDto = new UserResponse(user);
 
             // Prüfen, ob der User als Teacher oder Student existiert
-            if (teacherRepository.existsByUserId(user.getId())) {
+            if (user instanceof Teacher){
                 instructors.add(responseDto);
-            } else if (studentRepository.existsByUserId(user.getId())) {
+            } else if (user instanceof Student){
                 students.add(responseDto);
             } else {
                 // TODO: Fallback: if neither student nor teacher, log an error?

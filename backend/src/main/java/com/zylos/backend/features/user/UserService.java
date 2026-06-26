@@ -15,14 +15,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor // Macht den fetten @Autowired-Konstruktor überflüssig!
+@RequiredArgsConstructor
 class UserService {
 
     private final StudentRepository studentRepository;
-    private final TeacherRepository teacherRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -31,67 +29,55 @@ class UserService {
     public void registerTeacher(TeacherRegistrationRequest request) {
         validateEmailUniqueness(request.email());
 
-        // 1. Basis-User anlegen
-        User user = new User(
+        Teacher teacher = new Teacher(
             request.firstName(),
             request.lastName(),
             request.email(),
             request.privateAddress(),
             passwordEncoder.encode(request.password()),
-            request.profilePicture()
-        );
-        user = userRepository.save(user);
-
-        // 2. Teacher-spezifische Erweiterung speichern
-        Teacher teacher = new Teacher(
-            user.getId(), // Nutzt die generierte Long-ID als Shared Primary Key
+            request.profilePicture(), 
             request.researchArea(),
             request.chair()
         );
-        teacherRepository.save(teacher);
+
+        userRepository.save(teacher);
     }
 
     @Transactional
     public void registerStudent(StudentRegistrationRequest request) {
         validateEmailUniqueness(request.email());
 
-        // 1. Basis-User anlegen
-        User user = new User(
+        String matriculationNumber = generateUniqueMatriculationNumber();
+
+        Student student = new Student(
             request.firstName(),
             request.lastName(),
             request.email(),
             request.privateAddress(),
             passwordEncoder.encode(request.password()),
-            request.profilePicture()
-        );
-        user = userRepository.save(user);
-
-        String matriculationNumber = generateUniqueMatriculationNumber();
-
-        // 2. Student-spezifische Erweiterung speichern
-        Student student = new Student(
-            user.getId(), // Nutzt die generierte Long-ID als Shared Primary Key
+            request.profilePicture(),
             matriculationNumber,
             request.studySubject()
         );
-        studentRepository.save(student);
+
+        userRepository.save(student);
     }
 
     public AuthResponse login(LoginRequest request) {
         String identifier = request.identifier();
 
-        // [Certain] Strategie-Wechsel: Erst nach Matrikelnummer suchen, sonst nach Email
-        User user = studentRepository.findByMatriculationNumber(identifier)
-                .flatMap(student -> userRepository.findById(student.getUserId()))
-                .orElseGet(() -> userRepository.findByEmail(identifier).orElse(null));
+        User user = userRepository.findByEmail(identifier).orElse(null);
+
+        if (user == null) {
+            user = studentRepository.findByMatriculationNumber(identifier).orElse(null);
+        }
 
         if (user != null && passwordEncoder.matches(request.password(), user.getPassword())) {
-            // Rolle über die Existenz in den Sub-Tabellen ermitteln
             Role role = Role.STUDENT;
-            if (teacherRepository.existsByUserId(user.getId())) {
+            if (user instanceof Teacher) {
                 role = Role.INSTRUCTOR;
             }
-            
+
             String token = jwtService.generateToken(user.getEmail(), user.getId(), List.of(role));
             return new AuthResponse(token, user.getId(), role, user.getFirstName(), user.getLastName());
         }
@@ -104,30 +90,18 @@ class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         
-        // Gemeinsame Felder aktualisieren
         if (request.password() != null && !request.password().isBlank()) user.setPassword(passwordEncoder.encode(request.password()));
         if (request.privateAddress() != null) user.setPrivateAddress(request.privateAddress());
         if (request.profilePicture() != null) user.setProfilePicture(request.profilePicture());
-        userRepository.save(user);
 
-        // Rollenspezifische Felder über getrennte Repositories aktualisieren
-        Optional<Teacher> teacherOpt = teacherRepository.findByUserId(userId);
-        if (teacherOpt.isPresent()) {
-            Teacher teacher = teacherOpt.get();
+        if (user instanceof Teacher teacher) {
             if (request.chair() != null) teacher.setChair(request.chair());
             if (request.researchArea() != null) teacher.setResearchArea(request.researchArea());
-            teacherRepository.save(teacher);
-            return true;
-        }
-
-        Optional<Student> studentOpt = studentRepository.findByUserId(userId);
-        if (studentOpt.isPresent()) {
-            Student student = studentOpt.get();
+        } else if (user instanceof Student student) {
             if (request.studySubject() != null) student.setStudySubject(request.studySubject());
-            studentRepository.save(student);
-            return true;
         }
 
+        userRepository.save(user); 
         return true;
     }
 
@@ -148,10 +122,7 @@ class UserService {
         String address = includeSensitiveData ? user.getPrivateAddress() : null;
         long userId = user.getId();
 
-        // Versuche die Sub-Profile zu laden, um das DTO flach zusammenzubauen
-        Optional<Student> studentOpt = studentRepository.findByUserId(userId);
-        if (studentOpt.isPresent()) {
-            Student s = studentOpt.get();
+        if (user instanceof Student s) {
             return new ProfileResponse(
                     userId, user.getFirstName(), user.getLastName(), user.getEmail(), address,
                     user.getProfilePicture(), s.getMatriculationNumber(), s.getStudySubject(),
@@ -159,17 +130,14 @@ class UserService {
             );
         }
 
-        Optional<Teacher> teacherOpt = teacherRepository.findByUserId(userId);
-        if (teacherOpt.isPresent()) {
-            Teacher t = teacherOpt.get();
+        if (user instanceof Teacher t) {
             return new ProfileResponse(
                     userId, user.getFirstName(), user.getLastName(), user.getEmail(), address,
                     user.getProfilePicture(), null, null,
                     t.getResearchArea(), t.getChair()
-                );
+            );
         }
 
-        // Fallback für unkategorisierte Basis-User
         return new ProfileResponse(
                 userId, user.getFirstName(), user.getLastName(), user.getEmail(), address,
                 user.getProfilePicture(), null, null, null, null
