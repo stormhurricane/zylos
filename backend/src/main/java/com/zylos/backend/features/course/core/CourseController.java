@@ -1,9 +1,12 @@
-package com.zylos.backend.features.course;
+package com.zylos.backend.features.course.core;
 
 import com.zylos.backend.config.web.CurrentUserId;
-import com.zylos.backend.features.course.dto.CourseRequest;
-import com.zylos.backend.features.course.dto.CourseResponse;
-import com.zylos.backend.features.course.dto.MaterialResponse;
+import com.zylos.backend.features.course.core.dto.CourseRequest;
+import com.zylos.backend.features.course.core.dto.CourseResponse;
+import com.zylos.backend.features.course.material.CourseMaterial;
+import com.zylos.backend.features.course.material.CourseMaterialService;
+import com.zylos.backend.features.course.material.dto.MaterialResponse;
+
 import jakarta.validation.Valid;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;

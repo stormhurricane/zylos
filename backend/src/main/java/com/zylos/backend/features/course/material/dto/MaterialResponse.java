@@ -1,4 +1,4 @@
-package com.zylos.backend.features.course.dto;
+package com.zylos.backend.features.course.material.dto;
 
 public record MaterialResponse(
     Long id,

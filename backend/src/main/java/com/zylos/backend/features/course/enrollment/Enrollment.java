@@ -1,8 +1,11 @@
-package com.zylos.backend.features.course; 
+package com.zylos.backend.features.course.enrollment; 
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+
+import com.zylos.backend.features.course.core.Course;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;

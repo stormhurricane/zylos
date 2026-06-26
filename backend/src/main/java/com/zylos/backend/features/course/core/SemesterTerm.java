@@ -1,4 +1,4 @@
-package com.zylos.backend.features.course;
+package com.zylos.backend.features.course.core;
 
 public enum SemesterTerm {
     SUMMER,

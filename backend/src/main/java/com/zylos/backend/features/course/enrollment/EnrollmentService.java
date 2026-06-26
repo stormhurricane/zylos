@@ -1,7 +1,10 @@
-package com.zylos.backend.features.course;
+package com.zylos.backend.features.course.enrollment;
 
-import com.zylos.backend.features.course.dto.CourseParticipantsResponse;
-import com.zylos.backend.features.course.dto.CourseResponse;
+import com.zylos.backend.features.course.CourseUserClient;
+import com.zylos.backend.features.course.core.Course;
+import com.zylos.backend.features.course.core.CourseRepository;
+import com.zylos.backend.features.course.core.dto.CourseResponse;
+import com.zylos.backend.features.course.enrollment.dto.CourseParticipantsResponse;
 import com.zylos.backend.features.user.dto.UserResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -16,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-class EnrollmentService {
+public class EnrollmentService {
 
     private static final Logger logger = LoggerFactory.getLogger(EnrollmentService.class);
     

@@ -1,7 +1,13 @@
-package com.zylos.backend.features.course;
+package com.zylos.backend.features.course.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zylos.backend.features.course.dto.CourseRequest;
+import com.zylos.backend.features.course.core.Course;
+import com.zylos.backend.features.course.core.CourseRepository;
+import com.zylos.backend.features.course.core.CourseType;
+import com.zylos.backend.features.course.core.SemesterTerm;
+import com.zylos.backend.features.course.core.dto.CourseRequest;
+import com.zylos.backend.features.course.enrollment.EnrollmentRepository;
+import com.zylos.backend.features.course.material.CourseMaterialRepository;
 import com.zylos.backend.config.security.UserPrincipal; // Dein Record
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +25,7 @@ import java.util.Map;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -32,6 +39,12 @@ class CourseControllerIntegrationTest {
     private CourseRepository courseRepository;
 
     @Autowired
+    private EnrollmentRepository enrollmentRepository;
+
+    @Autowired
+    private CourseMaterialRepository courseMaterialRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
@@ -41,6 +54,9 @@ class CourseControllerIntegrationTest {
 
     @BeforeEach
     void setup() throws Exception {
+        enrollmentRepository.deleteAll(); 
+        courseMaterialRepository.deleteAll();
+
         courseRepository.deleteAll();
 
         Map<String, Object> teacherRequest = Map.of(
@@ -83,6 +99,7 @@ class CourseControllerIntegrationTest {
                 .with(mockUser(generatedTeacherId, "instructor@test.com", "INSTRUCTOR")) // <-- SAUBER!
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
+                .andDo(print()) // <-- FÜGE DIESE ZEILE EIN
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         

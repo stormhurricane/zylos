@@ -1,4 +1,4 @@
-package com.zylos.backend.features.course.dto;
+package com.zylos.backend.features.course.enrollment.dto;
 
 import java.util.List;
 

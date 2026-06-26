@@ -1,9 +1,10 @@
-package com.zylos.backend.features.course;
+package com.zylos.backend.features.course.enrollment;
 
 import com.zylos.backend.config.web.CurrentUserId;
-import com.zylos.backend.features.course.dto.CourseParticipantsResponse;
-import com.zylos.backend.features.course.dto.CourseResponse;
-import com.zylos.backend.features.course.dto.EnrollmentRequest;
+import com.zylos.backend.features.course.core.dto.CourseResponse;
+import com.zylos.backend.features.course.enrollment.dto.CourseParticipantsResponse;
+import com.zylos.backend.features.course.enrollment.dto.EnrollmentRequest;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;

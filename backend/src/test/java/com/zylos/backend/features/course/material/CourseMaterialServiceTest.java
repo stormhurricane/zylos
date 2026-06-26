@@ -1,6 +1,13 @@
-package com.zylos.backend.features.course;
+package com.zylos.backend.features.course.material;
 
-import com.zylos.backend.features.course.dto.MaterialResponse;
+import com.zylos.backend.features.course.core.Course;
+import com.zylos.backend.features.course.core.CourseRepository;
+import com.zylos.backend.features.course.core.CourseType;
+import com.zylos.backend.features.course.core.SemesterTerm;
+import com.zylos.backend.features.course.material.CourseMaterial;
+import com.zylos.backend.features.course.material.CourseMaterialRepository;
+import com.zylos.backend.features.course.material.CourseMaterialService;
+import com.zylos.backend.features.course.material.dto.MaterialResponse;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

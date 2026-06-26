@@ -1,10 +1,11 @@
-package com.zylos.backend.features.course;
+package com.zylos.backend.features.course.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zylos.backend.features.course.dto.CourseRequest;
-import com.zylos.backend.features.course.dto.CourseResponse;
+import com.zylos.backend.features.course.core.dto.CourseRequest;
+import com.zylos.backend.features.course.core.dto.CourseResponse;
+import com.zylos.backend.features.course.enrollment.EnrollmentService;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

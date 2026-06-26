@@ -1,6 +1,8 @@
-package com.zylos.backend.features.course;
+package com.zylos.backend.features.course.material;
 
-import com.zylos.backend.features.course.dto.MaterialResponse;
+import com.zylos.backend.features.course.core.Course;
+import com.zylos.backend.features.course.core.CourseRepository;
+import com.zylos.backend.features.course.material.dto.MaterialResponse;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-class CourseMaterialService {
+public class CourseMaterialService {
 
     private final CourseMaterialRepository materialRepository;
     private final CourseRepository courseRepository;
