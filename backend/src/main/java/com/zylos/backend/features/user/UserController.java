@@ -9,7 +9,6 @@ import com.zylos.backend.features.user.dto.StudentRegistrationRequest;
 import com.zylos.backend.features.user.dto.TeacherRegistrationRequest;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +21,6 @@ public class UserController {
 
     private final UserService userService;
 
-    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
@@ -50,7 +48,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProfileResponse> getPublicProfile(@PathVariable("id") int id) {
+    public ResponseEntity<ProfileResponse> getPublicProfile(@PathVariable("id") long id) { // FIX: int -> long
         return ResponseEntity.ok(userService.getUserProfile(id, false));
     }
 
@@ -61,11 +59,7 @@ public class UserController {
 
     @PutMapping("/me")
     public ResponseEntity<Void> updateProfile(@RequestBody ProfileUpdateRequest request, @CurrentUserId long currentUserId) {
-        boolean updated = userService.updateProfile(currentUserId, request);
-
-        if (updated) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        userService.updateProfile(currentUserId, request);
+        return ResponseEntity.noContent().build();
     }
 }

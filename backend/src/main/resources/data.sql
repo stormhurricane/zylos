@@ -1,3 +1,5 @@
+CREATE SEQUENCE IF NOT EXISTS student_matriculation_seq START WITH 10000000 INCREMENT BY 1;
+
 -- BASIC USERS
 INSERT INTO users (id, first_name, last_name, email, password, private_address, user_type) VALUES
 (1, 'Bruce', 'Banner', 'b.banner@zylos.com', '$2a$10$uVHDLl1nFDvP0wUS2Shfi.QZYT4pXWLPk0qc89BgsH1gxLeGPABfS', 'Australien', 'TEACHER'),
@@ -10,8 +12,8 @@ VALUES (1, 'Genetik', 'Spontan-Mutation');
 
 -- Student Flags
 INSERT INTO students (id, matriculation_number, study_subject) VALUES
-(2, '1000000', 'Genetik'),
-(3, '1000001', 'Sport');
+(2, 9999998, 'Genetik'),
+(3, 9999999, 'Sport');
 
 -- COURSES
 INSERT INTO courses (id, title, type, term, academic_year) VALUES

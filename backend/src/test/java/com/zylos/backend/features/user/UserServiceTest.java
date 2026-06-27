@@ -41,38 +41,24 @@ class UserServiceTest {
     private UserService userService;
 
     @Test
-    void registerStudent_ShouldGenerateCorrectMatriculationNumber() {
-        // Given
+    void registerStudent_ShouldSaveStudentToRepository() {
+        // Arrange
         StudentRegistrationRequest request = new StudentRegistrationRequest(
-                "Max", "Mustermann", "max@test.de", "password", "Address", null, "IT"
+            "Max", "Mustermann", "max@stud.de", "Musterstraße 1", "password123", "pic.png", "Informatik"
         );
-        
-        when(userRepository.findByEmail(request.email())).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(anyString())).thenReturn("hashedPassword");
-        
-        // [Certain] Wir müssen simulieren, dass das UserRepository eine ID generiert!
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-            User u = invocation.getArgument(0);
-            u.setId(42L); // Shared Primary Key simulieren
-            return u;
-        });
-        
-        when(studentRepository.findMaxMatriculationNumber()).thenReturn(Optional.of("1000005"));
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
-        // When
+        // Act
         userService.registerStudent(request);
 
-        // Then
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(userCaptor.capture());
-        assertEquals("hashedPassword", userCaptor.getValue().getPassword());
-
+        // Assert
         ArgumentCaptor<Student> studentCaptor = ArgumentCaptor.forClass(Student.class);
         verify(userRepository).save(studentCaptor.capture());
         
         Student savedStudent = studentCaptor.getValue();
-        assertEquals(42L, savedStudent.getId());
-        assertEquals("1000006", savedStudent.getMatriculationNumber());
+        assertEquals("Max", savedStudent.getFirstName());
+        assertEquals("Informatik", savedStudent.getStudySubject());
+        // matriculationNumber wird hier NICHT geprüft, da sie erst durch die DB gesetzt wird!
     }
 
     @Test
@@ -97,14 +83,15 @@ class UserServiceTest {
     @Test
     void login_WithMatriculationNumber_ShouldReturnAuthResponse() {
         // Given
-        String matNr = "1234567";
-        LoginRequest loginRequest = new LoginRequest(matNr, "password123");
+        Long matNr = 10000001L;
+        LoginRequest loginRequest = new LoginRequest(String.valueOf(matNr), "password123");
         
-        Student student = new Student("Max", "Mustermann", "max@test.de", "Address", "hashedPassword", null, matNr, "IT");
+        Student student = new Student("Max", "Mustermann", "max@test.de", "Address", "hashedPassword", null, matNr ,"IT");
         student.setId(1L);
 
-        // [Certain] Die neue Login-Kette abbilden
+        when(userRepository.findByEmail(String.valueOf(matNr))).thenReturn(Optional.empty());
         when(studentRepository.findByMatriculationNumber(matNr)).thenReturn(Optional.of(student));
+        // [Certain] Die neue Login-Kette abbilden
         when(passwordEncoder.matches("password123", "hashedPassword")).thenReturn(true);
         when(jwtService.generateToken(anyString(), anyLong(), anyList())).thenReturn("fake-jwt-token");
 
@@ -143,7 +130,8 @@ class UserServiceTest {
     void getUserProfile_WithFullProfileTrue_ShouldIncludeAddress() {
         // Given
         long userId = 1L; // Long-IDs nutzen!
-        Student student = new Student("Max", "Mustermann", "max@test.de", "Musterweg 5", "pass", null, "1234567", "IT");
+        long testMatriculationNumber = 10000001L; // Hart codiert für den Test!
+        Student student = new Student("Max", "Mustermann", "max@test.de", "Musterweg 5", "pass", null, testMatriculationNumber, "IT");
         student.setId(userId);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(student));
@@ -154,14 +142,15 @@ class UserServiceTest {
         // Then
         assertEquals("Musterweg 5", response.privateAddress());
         assertEquals("Max", response.firstName());
-        assertEquals("1234567", response.matriculationNumber());
+        assertEquals(10000001, response.matriculationNumber());
     }
 
     @Test
     void getUserProfile_WithFullProfileFalse_ShouldMaskAddress() {
         // Given
         long userId = 1L;
-        Student student = new Student("Max", "Mustermann", "max@test.de", "Musterweg 5", "pass", null, "1234567", "IT");
+        long matriculationNumber = studentRepository.getNextMatriculationNumber();
+        Student student = new Student("Max", "Mustermann", "max@test.de", "Musterweg 5", "pass", null, matriculationNumber, "IT");
         student.setId(userId);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(student));

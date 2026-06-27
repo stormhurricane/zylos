@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 
 interface StudentRepository extends JpaRepository<Student, Long> {
 
-    Optional<Student> findByMatriculationNumber(String matriculationNumber);
+    Optional<Student> findByMatriculationNumber(Long matriculationNumber);
     
-    @Query("SELECT MAX(s.matriculationNumber) FROM Student s")
-    Optional<String> findMaxMatriculationNumber();
+    @Query(value = "SELECT NEXTVAL('student_matriculation_seq')", nativeQuery = true)
+    Long getNextMatriculationNumber();
 }

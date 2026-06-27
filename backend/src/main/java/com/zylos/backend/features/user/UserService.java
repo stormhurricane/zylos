@@ -47,7 +47,7 @@ class UserService {
     public void registerStudent(StudentRegistrationRequest request) {
         validateEmailUniqueness(request.email());
 
-        String matriculationNumber = generateUniqueMatriculationNumber();
+        Long nextMatriculationNumber = studentRepository.getNextMatriculationNumber();
 
         Student student = new Student(
             request.firstName(),
@@ -56,7 +56,7 @@ class UserService {
             request.privateAddress(),
             passwordEncoder.encode(request.password()),
             request.profilePicture(),
-            matriculationNumber,
+            nextMatriculationNumber,
             request.studySubject()
         );
 
@@ -64,17 +64,24 @@ class UserService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        String identifier = request.identifier();
+        String identifier = request.identifier().trim();
 
         User user = userRepository.findByEmail(identifier).orElse(null);
 
         if (user == null) {
-            user = studentRepository.findByMatriculationNumber(identifier).orElse(null);
+            try {
+                // Konvertiert den String-Identifier in einen Long für die DB-Abfrage
+                long matNum = Long.parseLong(identifier);
+                user = studentRepository.findByMatriculationNumber(matNum).orElse(null);
+            } catch (NumberFormatException e) {
+                // Wenn der Identifier keine Zahl ist (und keine gültige E-Mail war), bleibt user null
+            }
         }
 
         if (user != null && passwordEncoder.matches(request.password(), user.getPassword())) {
+            // Check against Hibernate Proxies
             Role role = Role.STUDENT;
-            if (user instanceof Teacher) {
+            if (user.getClass().equals(Teacher.class)) {
                 role = Role.INSTRUCTOR;
             }
 
@@ -86,9 +93,9 @@ class UserService {
     }
 
     @Transactional
-    public boolean updateProfile(long userId, ProfileUpdateRequest request) {
+    public void updateProfile(long userId, ProfileUpdateRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found")); 
         
         if (request.password() != null && !request.password().isBlank()) user.setPassword(passwordEncoder.encode(request.password()));
         if (request.privateAddress() != null) user.setPrivateAddress(request.privateAddress());
@@ -102,12 +109,11 @@ class UserService {
         }
 
         userRepository.save(user); 
-        return true;
     }
 
     public ProfileResponse getUserProfile(long userId, boolean isFullProfile) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
         return convertToResponse(user, isFullProfile);
     }
 
@@ -148,17 +154,6 @@ class UserService {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new IllegalArgumentException("Email already in use");
         }
-    }
-
-    private synchronized String generateUniqueMatriculationNumber() {
-        String nextNumber = studentRepository.findMaxMatriculationNumber()
-                .map(max -> String.valueOf(Long.parseLong(max) + 1))
-                .orElse("1000000");
-
-        if (nextNumber.length() > 7) {
-            throw new IllegalStateException("Matriculation number limit reached (max 7 digits)");
-        }
-        return nextNumber;
     }
 
     boolean isDatabaseEmpty() {

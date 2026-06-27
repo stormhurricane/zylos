@@ -29,3 +29,18 @@
 - [ ] **PDF Viewer:** Materialien direkt im Browser anzeigen anstatt Download-Zwang. [Medium]
 - [ ] **Profile-UX:** Cursor/Mouse-Zeiger bei Kursliste im eigenen Profil anpassen. [Low]
 - [ ] **Dark Mode:** Design-Erweiterung. [Low]
+
+## TICKET: Infra - Schema-Migration mit Flyway & DB-Sequence für Produktion absichern
+
+### Beschreibung
+Aktuell läuft die Anwendung lokal auf 'create-drop' mit einer 'data.sql'. Für die Concurrency-Sicherheit der Matrikelnummern wurde das Design im `UserService` auf eine native DB-Sequence umgestellt. Diese Sequence existiert aktuell nur temporär im lokalen Speicher. Für den Produktionsbetrieb muss eine versionierte Schema-Migration eingeführt werden.
+
+### Akzeptanzkriterien (Definition of Done)
+1. [ ] 'flyway-core' Dependency ist in der `pom.xml` integriert.
+2. [ ] Die erste Migrationsdatei `V1__init_schema.sql` (bzw. Basisschema) ist unter `src/main/resources/db/migration/` angelegt.
+3. [ ] Die Datei `V2__add_matriculation_sequence.sql` ist angelegt und enthält den Befehl:
+   `CREATE SEQUENCE IF NOT EXISTS student_matriculation_seq START WITH 10000000 INCREMENT BY 1;`
+4. [ ] Die Profile sind getrennt: 
+   - `application-dev.yml` nutzt weiterhin `ddl-auto: create-drop` und führt `data.sql` aus.
+   - `application-prod.yml` nutzt `ddl-auto: validate` und aktiviert Flyway (`spring.flyway.enabled: true`).
+5. [ ] Ein lokaler Test-Build läuft mit aktiviertem Flyway-Profil fehlerfrei gegen eine Test-DB durch.

@@ -14,13 +14,14 @@ import lombok.Setter;
 public class Student extends User {
 
     @Column(unique = true)
-    private String matriculationNumber;
+    private Long matriculationNumber;
 
     private String studySubject;
 
-    public Student(String firstName, String lastName, String email, String privateAddress, String password, String profilePicture, String matriculationNumber, String studySubject) {
+    // Für die Registrierung (Datenbank generiert die Nummer)
+    public Student(String firstName, String lastName, String email, String privateAddress, String password, String profilePicture, Long matriculationNumber, String studySubject) {
         super(firstName, lastName, email, privateAddress, password, profilePicture);
-        this.matriculationNumber = matriculationNumber;
         this.studySubject = studySubject;
+        this.matriculationNumber = matriculationNumber;
     }
 }

@@ -92,10 +92,10 @@ class UserControllerIntegrationTest {
         // 2. Get the generated matriculation number from the database
         User user91 = userRepository.findByEmail("erika@uni.de").orElseThrow();          
         Student student = studentRepository.findById(user91.getId()).orElseThrow();        
-        String matNr = student.getMatriculationNumber();
+        Long matNr = student.getMatriculationNumber();
 
         // 3. Login with matriculation number instead of email
-        LoginRequest loginRequest = new LoginRequest(matNr, "securePass");
+        LoginRequest loginRequest = new LoginRequest(String.valueOf(matNr), "securePass");
 
         mockMvc.perform(post("/api/users/login")
                 .contentType(MediaType.APPLICATION_JSON)

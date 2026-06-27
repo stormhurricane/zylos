@@ -7,7 +7,7 @@ public record ProfileResponse(
     String email,
     String privateAddress,
     String profilePicture,
-    String matriculationNumber,
+    Long matriculationNumber,
     String studySubject,
     String researchArea,
     String chair
