@@ -12,6 +12,7 @@
 ## 3. Refactoring & Code Quality (Technische Schulden)
 - [ ] **useCourseDetails aufteilen:** In 3 spezialisierte Hooks trennen (Frontend-Clean-Code). [Medium]
 - [ ] **Backend Mocking für Frontend Dev:** Ermöglicht paralleles Arbeiten ohne laufendes Java-Backend. [Low]
+- [ ] **CSV-Import Fehlerbehandlung:** Fehler pro Zeile loggen statt lautlos verschlucken. Option prüfen, fehlgeschlagene Zeilen im Response-Body zu sammeln, damit der User Feedback erhält. [Medium]
 
 ## 4. Neue Features & UI-Optimierungen
 

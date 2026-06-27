@@ -3,6 +3,7 @@ package com.zylos.backend.features.course.core;
 import com.zylos.backend.config.web.CurrentUserId;
 import com.zylos.backend.features.course.core.dto.CourseRequest;
 import com.zylos.backend.features.course.core.dto.CourseResponse;
+import com.zylos.backend.features.course.enrollment.EnrollmentService;
 import com.zylos.backend.features.course.material.CourseMaterial;
 import com.zylos.backend.features.course.material.CourseMaterialService;
 import com.zylos.backend.features.course.material.dto.MaterialResponse;
@@ -25,10 +26,12 @@ public class CourseController {
 
     private final CourseService courseService;
     private final CourseMaterialService materialService;
+    private final EnrollmentService enrollmentService;
 
-    public CourseController(CourseService courseService, CourseMaterialService materialService) {
+    public CourseController(CourseService courseService, CourseMaterialService materialService, EnrollmentService enrollmentService) {
         this.courseService = courseService;
         this.materialService = materialService;
+        this.enrollmentService = enrollmentService;
     }
 
     @GetMapping
@@ -48,14 +51,28 @@ public class CourseController {
 
     @PostMapping
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<CourseResponse> create(@Valid @RequestBody CourseRequest request, Authentication authentication, @CurrentUserId long currentUserId) {
-        return ResponseEntity.ok(courseService.createCourse(request, currentUserId));
+    public ResponseEntity<CourseResponse> create(@Valid @RequestBody CourseRequest request, @CurrentUserId long currentUserId) {
+        // 1. Kurs erstellen
+        CourseResponse course = courseService.createCourse(request);
+        
+        // 2. Ersteller automatisch einschreiben
+        enrollmentService.enrollUser(course.id(), currentUserId);
+        
+        return ResponseEntity.ok(course);
     }
 
     @PostMapping("/import")
     @PreAuthorize("hasRole('INSTRUCTOR')")
-    public ResponseEntity<List<CourseResponse>> importCsv(@RequestParam("file") MultipartFile file, Authentication authentication, @CurrentUserId long currentUserId) {
-        return ResponseEntity.ok(courseService.importFromCsv(file, currentUserId));
+    public ResponseEntity<List<CourseResponse>> importCsv(@RequestParam("file") MultipartFile file, @CurrentUserId long currentUserId) {
+        // 1. Kurse via Service importieren (liefert Liste der erstellten Kurse)
+        List<CourseResponse> importedCourses = courseService.importFromCsv(file);
+        
+        // 2. Für jeden importierten Kurs den Dozenten einschreiben
+        for (CourseResponse course : importedCourses) {
+            enrollmentService.enrollUser(course.id(), currentUserId);
+        }
+        
+        return ResponseEntity.ok(importedCourses);
     }
 
     @GetMapping("/{id}/materials")

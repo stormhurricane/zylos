@@ -30,8 +30,7 @@ class CourseServiceTest {
     @BeforeEach
     void setUp() {
         courseRepository = Mockito.mock(CourseRepository.class);
-        enrollmentService = Mockito.mock(EnrollmentService.class);
-        courseService = new CourseService(courseRepository, enrollmentService);
+        courseService = new CourseService(courseRepository);
     }
 
     @Test
@@ -46,13 +45,12 @@ class CourseServiceTest {
         });
 
         // Act
-        CourseResponse response = courseService.createCourse(request, 1);
+        CourseResponse response = courseService.createCourse(request);
 
         // Assert
         assertNotNull(response.id());
         assertEquals("Software Engineering", response.title());
         verify(courseRepository, times(1)).save(any(Course.class));
-        verify(enrollmentService, times(1)).enrollUser(eq(1L), eq(1L)); // <-- HIER das L angehängt!
     }
 
     @Test
@@ -62,7 +60,7 @@ class CourseServiceTest {
         when(courseRepository.findByTitle(anyString())).thenReturn(Optional.of(new Course()));
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> courseService.createCourse(request, 1));
+        assertThrows(RuntimeException.class, () -> courseService.createCourse(request));
     }
 
     @Test
@@ -79,7 +77,7 @@ class CourseServiceTest {
         });
 
         // Act
-        List<CourseResponse> imported = courseService.importFromCsv(file, 1);
+        List<CourseResponse> imported = courseService.importFromCsv(file);
 
         // Assert
         assertEquals(2, imported.size());
@@ -93,7 +91,7 @@ class CourseServiceTest {
         MockMultipartFile file = new MockMultipartFile("file", "empty.csv", "text/csv", "".getBytes());
 
         // Act
-        List<CourseResponse> imported = courseService.importFromCsv(file, 1);
+        List<CourseResponse> imported = courseService.importFromCsv(file);
 
         // Assert
         assertTrue(imported.isEmpty());

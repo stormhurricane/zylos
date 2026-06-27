@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import com.zylos.backend.features.course.core.dto.CourseRequest;
 import com.zylos.backend.features.course.core.dto.CourseResponse;
-import com.zylos.backend.features.course.enrollment.EnrollmentService;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,27 +17,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-class CourseService {
+public class CourseService {
 
     private static final Logger logger = LoggerFactory.getLogger(CourseService.class);
     private final CourseRepository courseRepository;
-    private final EnrollmentService enrollmentService;
 
-    public CourseService(CourseRepository courseRepository, EnrollmentService enrollmentService) {
+    public CourseService(CourseRepository courseRepository) {
         this.courseRepository = courseRepository;
-        this.enrollmentService = enrollmentService;
     }
 
     @Transactional
-    public CourseResponse createCourse(CourseRequest request, long creatorId) {
+    public CourseResponse createCourse(CourseRequest request) {
         if (courseRepository.findByTitle(request.title()).isPresent()) {
             throw new RuntimeException("Course with title '" + request.title() + "' already exists.");
         }
         Course course = new Course(request.title(), request.type(), request.term(), request.academicYear());
         Course savedCourse = courseRepository.save(course);
-        
-        // Creator automatically enrolled
-        enrollmentService.enrollUser(savedCourse.getId(), creatorId);
         
         return mapToResponse(savedCourse);
     }
@@ -66,7 +60,7 @@ class CourseService {
     }
 
     @Transactional
-    public List<CourseResponse> importFromCsv(MultipartFile file, long creatorId) {
+    public List<CourseResponse> importFromCsv(MultipartFile file) {
         List<CourseResponse> results = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
@@ -84,8 +78,8 @@ class CourseService {
                         data[3].trim()
                     );
                     try {
-                        results.add(createCourse(request, creatorId));
-                    } catch (Exception e) {
+                        results.add(createCourse(request));
+                    } catch (Exception e) { 
                         // TODO: Log the error for this line, but continue processing the rest of the file
                         // TODO/IDEA: Consider collecting errors in a list and returning them in the response, so the user knows which lines failed and why
                         // Skip duplicates or errors in CSV, but continue processing
