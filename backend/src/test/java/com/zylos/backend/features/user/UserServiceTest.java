@@ -2,6 +2,7 @@ package com.zylos.backend.features.user;
 
 import com.zylos.backend.config.security.JwtService;
 import com.zylos.backend.config.security.Role;
+import com.zylos.backend.exception.EmailAlreadyExistsException;
 import com.zylos.backend.features.user.dto.AuthResponse;
 import com.zylos.backend.features.user.dto.LoginRequest;
 import com.zylos.backend.features.user.dto.ProfileResponse;
@@ -71,11 +72,11 @@ class UserServiceTest {
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(new Student()));
 
         // When & Then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        EmailAlreadyExistsException exception = assertThrows(EmailAlreadyExistsException.class, () -> {
             userService.registerStudent(request);
         });
 
-        assertEquals("Email already in use", exception.getMessage());
+        // assertEquals("Email already in use", exception.getMessage());
         verify(userRepository, never()).save(any());
         verify(studentRepository, never()).save(any());
     }

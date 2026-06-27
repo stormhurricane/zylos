@@ -2,6 +2,7 @@ package com.zylos.backend.features.user;
 
 import com.zylos.backend.config.security.JwtService;
 import com.zylos.backend.config.security.Role;
+import com.zylos.backend.exception.EmailAlreadyExistsException;
 import com.zylos.backend.features.user.dto.AuthResponse;
 import com.zylos.backend.features.user.dto.LoginRequest;
 import com.zylos.backend.features.user.dto.ProfileResponse;
@@ -152,7 +153,7 @@ class UserService {
 
     private void validateEmailUniqueness(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
-            throw new IllegalArgumentException("Email already in use");
+            throw new EmailAlreadyExistsException(email);
         }
     }
 
