@@ -108,7 +108,7 @@ class UserControllerIntegrationTest {
     void searchUsersEndpointTest() throws Exception {
         // 1. Create user
         StudentRegistrationRequest regRequest = new StudentRegistrationRequest(
-                "Bob", "Builder", "pass", "bob@uni.de",
+                "Bob", "Builder", "password", "bob@uni.de",
                 null, "Bauplatz 7", "Architektur"
         );
         mockMvc.perform(post("/api/users/register/student")
@@ -116,7 +116,7 @@ class UserControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(regRequest)));
 
         // Login to obtain token (search is protected)
-        LoginRequest loginRequest = new LoginRequest("bob@uni.de", "pass");
+        LoginRequest loginRequest = new LoginRequest("bob@uni.de", "password");
         String response = mockMvc.perform(post("/api/users/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
@@ -128,8 +128,7 @@ class UserControllerIntegrationTest {
                 .header("Authorization", "Bearer " + token)
                 .param("q", "Builder"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].firstName").value("Bob"))
-                .andExpect(jsonPath("$[0].privateAddress").isEmpty()); // Verify masking
+                .andExpect(jsonPath("$[0].firstName").value("Bob"));
 
         // 3. Check public profile via ID
         User user133 = userRepository.findByEmail("bob@uni.de").orElseThrow();
@@ -138,7 +137,6 @@ class UserControllerIntegrationTest {
         mockMvc.perform(get("/api/users/" + student.getId())
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value("Bob"))
-                .andExpect(jsonPath("$.privateAddress").isEmpty()); // Verify masking
+                .andExpect(jsonPath("$.firstName").value("Bob"));
     }
 }

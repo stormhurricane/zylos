@@ -8,6 +8,14 @@ export interface AuthResponse {
     lastName: string;
 }
 
+export interface UserSearchResponse {
+    id: number,
+    firstName: string,
+    lastName: string,
+    profilePicture?: string,
+    subInfo: string
+}
+
 export interface ProfileResponse {
     id: number;
     firstName: string;

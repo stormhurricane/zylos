@@ -6,7 +6,8 @@ import {
     ProfileResponse, 
     ProfileUpdateRequest, 
     StudentRegistrationRequest,
-    TeacherRegistrationRequest 
+    TeacherRegistrationRequest, 
+    UserSearchResponse
 } from './types';
 
 export const userApi = {
@@ -33,7 +34,7 @@ export const userApi = {
         api.put('/users/me', data),
 
     /** Searches for users */
-    searchUsers: (query: string): Promise<ProfileResponse[]> =>
+    searchUsers: (query: string): Promise<UserSearchResponse[]> =>
         api.get('/users/search', { params: { q: query } }),
 
     /** Registers a new student */

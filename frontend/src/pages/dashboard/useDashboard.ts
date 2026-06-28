@@ -3,13 +3,13 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { userApi } from '../../api/userApi';
 import { courseApi } from '../../api/courseApi';
-import { Course, ProfileResponse } from '../../api/types';
+import { Course, ProfileResponse, UserSearchResponse } from '../../api/types';
 
 export const useDashboard = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const { user } = useAuth();
-    const [searchResults, setSearchResults] = useState<ProfileResponse[]>([]);
+    const [searchResults, setSearchResults] = useState<UserSearchResponse[]>([]);
     const [myCourses, setMyCourses] = useState<Course[]>([]);
     const [isLoadingCourses, setIsLoadingCourses] = useState<boolean>(false);
     const [searchError, setSearchError] = useState<string | null>(null);

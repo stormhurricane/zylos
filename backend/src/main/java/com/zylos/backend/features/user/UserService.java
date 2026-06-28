@@ -98,11 +98,18 @@ public class UserService { // FIX: Sichtbarkeit auf public gesetzt, falls Contro
         return convertToResponse(user, isFullProfile);
     }
 
-    public List<ProfileResponse> searchUsers(String searchTerm) {
+    public List<UserSearchResponse> searchUsers(String searchTerm) {
         return userRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(searchTerm, searchTerm)
-                .stream()
-                .map(user -> convertToResponse(user, false))
-                .toList();
+            .stream()
+            .map(user -> new UserSearchResponse(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getProfilePicture(),
+                (user instanceof Student student) ? student.getStudySubject() : 
+                (user instanceof Teacher teacher) ? teacher.getChair() : null
+            ))
+            .toList();
     }
 
     private ProfileResponse convertToResponse(User user, boolean includeSensitiveData) {

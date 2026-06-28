@@ -7,6 +7,7 @@ import com.zylos.backend.features.user.dto.ProfileResponse;
 import com.zylos.backend.features.user.dto.ProfileUpdateRequest;
 import com.zylos.backend.features.user.dto.StudentRegistrationRequest;
 import com.zylos.backend.features.user.dto.TeacherRegistrationRequest;
+import com.zylos.backend.features.user.dto.UserSearchResponse;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -53,7 +54,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ProfileResponse>> searchUsers(@RequestParam("q") String q) {
+    public ResponseEntity<List<UserSearchResponse>> searchUsers(@RequestParam("q") String q) {
         return ResponseEntity.ok(userService.searchUsers(q));
     }
 

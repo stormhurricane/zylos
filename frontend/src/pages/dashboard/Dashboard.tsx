@@ -40,7 +40,7 @@ export const Dashboard = () => {
                                             />
                                             <h4 style={{ margin: '5px 0' }}>{res.firstName} {res.lastName}</h4>
                                             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                                                {res.studySubject || res.chair || 'Nutzer'}
+                                                {res.subInfo || ''}
                                             </p>
                                             <button 
                                                 onClick={() => handleViewProfile(res.id)}
