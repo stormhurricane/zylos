@@ -4,6 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.zylos.backend.features.course.dto.CourseRequest;
 import com.zylos.backend.features.course.dto.CourseResponse;
+import com.zylos.backend.features.course.exceptions.CourseAlreadyExistsException;
+import com.zylos.backend.features.course.exceptions.CourseNotFoundException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,11 +26,10 @@ public class CourseService {
         this.courseRepository = courseRepository;
     }
 
-    // FIX: @Transactional entfernt, da die Hoheit beim Orchestrator liegt
     public CourseResponse createCourse(CourseRequest request) {
         if (courseRepository.findByTitle(request.title()).isPresent()) {
-            // TODO: In der nächsten Session durch CourseAlreadyExistsException(409) ersetzen!
-            throw new RuntimeException("Course with title '" + request.title() + "' already exists.");
+            // FIX: Typisierte Business-Exception statt unsauberer RuntimeException
+            throw new CourseAlreadyExistsException(request.title());
         }
         Course course = new Course(request.title(), request.type(), request.term(), request.academicYear());
         Course savedCourse = courseRepository.save(course);
@@ -41,8 +43,8 @@ public class CourseService {
                 .map(this::mapToResponse)
                 .orElseThrow(() -> {
                     logger.error("Service: Course with ID {} not found in database", id);
-                    // TODO: In der nächsten Session durch CourseNotFoundException(404) ersetzen!
-                    return new RuntimeException("Course not found");
+                    // FIX: Typisierte Business-Exception statt unsauberer RuntimeException
+                    return new CourseNotFoundException(id);
                 });
     }
 
@@ -58,7 +60,6 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
-    // FIX: @Transactional entfernt. Der Orchestrator steuert die atomare Klammer.
     public List<CourseResponse> importFromCsv(MultipartFile file) {
         List<CourseResponse> results = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
@@ -70,20 +71,23 @@ public class CourseService {
                 if (data.length >= 4) {
                     String title = data[0].trim();
                     
-                    // FIX: Defensiver Check vorab! Verhindert das Zerstören der Orchestrator-Transaktion.
                     if (courseRepository.findByTitle(title).isPresent()) {
                         logger.warn("CSV-Import: Course with title '{}' already exists. Skipping line.", title);
                         continue; 
                     }
 
-                    CourseRequest request = new CourseRequest(
-                        title,
-                        CourseType.valueOf(data[1].trim().toUpperCase()),
-                        SemesterTerm.valueOf(data[2].trim().toUpperCase()),
-                        data[3].trim()
-                    );
-                    
-                    results.add(createCourse(request));
+                    // FIX: Defensives Enum-Parsing schützt vor korrupten CSV-Zeilen!
+                    try {
+                        CourseType type = CourseType.valueOf(data[1].trim().toUpperCase());
+                        SemesterTerm term = SemesterTerm.valueOf(data[2].trim().toUpperCase());
+                        String academicYear = data[3].trim();
+
+                        CourseRequest request = new CourseRequest(title, type, term, academicYear);
+                        results.add(createCourse(request));
+                    } catch (IllegalArgumentException e) {
+                        logger.error("CSV-Import: Invalid Enum value in line: '{}'. Skipping.", line);
+                        // Ignoriert die fehlerhafte Zeile, bricht aber nicht den gesamten Import ab!
+                    }
                 }
             }
         } catch (Exception e) {
@@ -101,8 +105,5 @@ public class CourseService {
             course.getAcademicYear()
         );
     }
-
-    boolean isDatabaseEmpty() {
-        return courseRepository.count() == 0;
-    }
+    // FIX: isDatabaseEmpty() restlos eliminiert
 }

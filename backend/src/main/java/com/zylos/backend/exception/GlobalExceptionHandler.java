@@ -10,6 +10,12 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
+import com.zylos.backend.features.course.exceptions.CourseAlreadyExistsException;
+import com.zylos.backend.features.course.exceptions.CourseNotFoundException;
+import com.zylos.backend.features.user.exceptions.BadCredentialsException;
+import com.zylos.backend.features.user.exceptions.EmailAlreadyExistsException;
+import com.zylos.backend.features.user.exceptions.UserNotFoundException;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,26 +27,26 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // 1. HTTP 409 Conflict - Für bereits existierende E-Mails
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<ApiError> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
+    // FIX: Matcht jetzt perfekt deinen ApiError-Record für 404 Fehler
+    @ExceptionHandler({CourseNotFoundException.class/*, UserNotFoundException.class*/})
+    public ResponseEntity<ApiError> handleNotFoundException(RuntimeException ex) {
         ApiError error = new ApiError(
-            ex.getMessage(),
-            null, // Keine Feldfehler (Map) nötig, da es ein globaler Konflikt ist
-            LocalDateTime.now()
+                ex.getMessage(),
+                null, // Keine spezifischen Feldfehler bei 404
+                LocalDateTime.now()
         );
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    // 2. HTTP 404 Not Found - Wenn ein User im Profil/Update nicht existiert
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ApiError> handleUserNotFound(UserNotFoundException ex) {
+    // FIX: Matcht jetzt perfekt deinen ApiError-Record für 409 Konflikte
+    @ExceptionHandler({CourseAlreadyExistsException.class/*, EmailAlreadyExistsException.class*/})
+    public ResponseEntity<ApiError> handleConflictException(RuntimeException ex) {
         ApiError error = new ApiError(
-            ex.getMessage(),
-            null,
-            LocalDateTime.now()
+                ex.getMessage(),
+                null, // Keine spezifischen Feldfehler bei 409
+                LocalDateTime.now()
         );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     // 3. HTTP 401 Unauthorized - Für falsche Login-Daten

@@ -2,11 +2,12 @@ package com.zylos.backend.features.user;
 
 import com.zylos.backend.config.security.JwtService;
 import com.zylos.backend.config.security.Role;
-import com.zylos.backend.exception.EmailAlreadyExistsException;
 import com.zylos.backend.features.user.dto.AuthResponse;
 import com.zylos.backend.features.user.dto.LoginRequest;
 import com.zylos.backend.features.user.dto.ProfileResponse;
 import com.zylos.backend.features.user.dto.StudentRegistrationRequest;
+import com.zylos.backend.features.user.exceptions.EmailAlreadyExistsException;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

@@ -1,4 +1,4 @@
-package com.zylos.backend.exception;
+package com.zylos.backend.features.user.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

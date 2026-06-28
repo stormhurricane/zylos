@@ -2,10 +2,10 @@ package com.zylos.backend.features.user;
 
 import com.zylos.backend.config.security.JwtService;
 import com.zylos.backend.config.security.Role;
-import com.zylos.backend.exception.EmailAlreadyExistsException;
-import com.zylos.backend.exception.UserNotFoundException; 
-import com.zylos.backend.exception.BadCredentialsException;
 import com.zylos.backend.features.user.dto.*;
+import com.zylos.backend.features.user.exceptions.BadCredentialsException;
+import com.zylos.backend.features.user.exceptions.EmailAlreadyExistsException;
+import com.zylos.backend.features.user.exceptions.UserNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
