@@ -2,9 +2,7 @@ package com.zylos.backend.features.user.client;
 
 import com.zylos.backend.features.course.CourseUserClient;
 import com.zylos.backend.features.user.Student;
-import com.zylos.backend.features.user.StudentRepository;
 import com.zylos.backend.features.user.Teacher;
-import com.zylos.backend.features.user.TeacherRepository;
 import com.zylos.backend.features.user.User;
 import com.zylos.backend.features.user.UserRepository;
 import com.zylos.backend.features.user.dto.UserResponse;
@@ -18,11 +16,9 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor 
-class CourseUserClientImpl implements CourseUserClient {
+public class CourseUserClientImpl implements CourseUserClient {
 
-    private final UserRepository userRepository;
-    private final StudentRepository studentRepository;
-    private final TeacherRepository teacherRepository;
+    private final UserRepository userRepository; 
 
     @Override
     public boolean existsById(long userId) {
@@ -41,20 +37,15 @@ class CourseUserClientImpl implements CourseUserClient {
             return result;
         }
 
-        // get all user data from DB
-        List<User> users = userRepository.findAllById(userIds);
+        List<User> users = userRepository.findAllByIdWithSubtypes(userIds);
 
-        // categorize by existence in sub tables
         for (User user : users) {
             UserResponse responseDto = new UserResponse(user);
 
-            // Prüfen, ob der User als Teacher oder Student existiert
-            if (user instanceof Teacher){
+            if (user instanceof Teacher) {
                 instructors.add(responseDto);
-            } else if (user instanceof Student){
+            } else if (user instanceof Student) {
                 students.add(responseDto);
-            } else {
-                // TODO: Fallback: if neither student nor teacher, log an error?
             }
         }
 
