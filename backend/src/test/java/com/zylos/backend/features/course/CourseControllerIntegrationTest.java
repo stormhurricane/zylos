@@ -100,7 +100,7 @@ class CourseControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andDo(print()) // <-- FÜGE DIESE ZEILE EIN
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
         
         Long courseId = objectMapper.readTree(courseJson).get("id").asLong();

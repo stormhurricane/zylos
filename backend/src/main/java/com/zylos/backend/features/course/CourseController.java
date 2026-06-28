@@ -3,17 +3,16 @@ package com.zylos.backend.features.course;
 import com.zylos.backend.config.web.CurrentUserId;
 import com.zylos.backend.features.course.dto.CourseRequest;
 import com.zylos.backend.features.course.dto.CourseResponse;
-import com.zylos.backend.features.course.enrollment.EnrollmentService;
-import com.zylos.backend.features.course.material.CourseMaterial;
+import com.zylos.backend.features.course.material.CourseMaterial; // Vorerst behalten
 import com.zylos.backend.features.course.material.CourseMaterialService;
 import com.zylos.backend.features.course.material.dto.MaterialResponse;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,12 +25,15 @@ public class CourseController {
 
     private final CourseService courseService;
     private final CourseMaterialService materialService;
-    private final EnrollmentService enrollmentService;
+    private final CourseCreationOrchestrator courseOrchestrator;
 
-    public CourseController(CourseService courseService, CourseMaterialService materialService, EnrollmentService enrollmentService) {
+    public CourseController(
+            CourseService courseService, 
+            CourseMaterialService materialService, 
+            CourseCreationOrchestrator courseOrchestrator) {
         this.courseService = courseService;
         this.materialService = materialService;
-        this.enrollmentService = enrollmentService;
+        this.courseOrchestrator = courseOrchestrator;
     }
 
     @GetMapping
@@ -52,27 +54,15 @@ public class CourseController {
     @PostMapping
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<CourseResponse> create(@Valid @RequestBody CourseRequest request, @CurrentUserId long currentUserId) {
-        // 1. Kurs erstellen
-        CourseResponse course = courseService.createCourse(request);
-        
-        // 2. Ersteller automatisch einschreiben
-        enrollmentService.enrollUser(course.id(), currentUserId);
-        
-        return ResponseEntity.ok(course);
+        CourseResponse course = courseOrchestrator.createCourseWithInstructor(request, currentUserId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(course);
     }
 
     @PostMapping("/import")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<List<CourseResponse>> importCsv(@RequestParam("file") MultipartFile file, @CurrentUserId long currentUserId) {
-        // 1. Kurse via Service importieren (liefert Liste der erstellten Kurse)
-        List<CourseResponse> importedCourses = courseService.importFromCsv(file);
-        
-        // 2. Für jeden importierten Kurs den Dozenten einschreiben
-        for (CourseResponse course : importedCourses) {
-            enrollmentService.enrollUser(course.id(), currentUserId);
-        }
-        
-        return ResponseEntity.ok(importedCourses);
+        List<CourseResponse> importedCourses = courseOrchestrator.importFromCsvWithInstructor(file, currentUserId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(importedCourses);
     }
 
     @GetMapping("/{id}/materials")
@@ -89,6 +79,7 @@ public class CourseController {
         return ResponseEntity.ok(materialService.uploadMaterial(id, title, file));
     }
 
+    // Baustelle eingefroren: Nutzt vorerst weiter die Entity, bis wir hierfür bereit sind
     @GetMapping("/materials/{materialId}/download")
     public ResponseEntity<byte[]> downloadMaterial(@PathVariable Long materialId) {
         CourseMaterial material = materialService.getMaterialEntity(materialId);
@@ -103,5 +94,4 @@ public class CourseController {
                 .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(material.getData().length))
                 .body(material.getData());
     }
-
 }

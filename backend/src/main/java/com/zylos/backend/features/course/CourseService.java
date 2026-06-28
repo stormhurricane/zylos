@@ -2,12 +2,9 @@ package com.zylos.backend.features.course;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.zylos.backend.features.course.dto.CourseRequest;
 import com.zylos.backend.features.course.dto.CourseResponse;
-
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
@@ -26,9 +23,10 @@ public class CourseService {
         this.courseRepository = courseRepository;
     }
 
-    @Transactional
+    // FIX: @Transactional entfernt, da die Hoheit beim Orchestrator liegt
     public CourseResponse createCourse(CourseRequest request) {
         if (courseRepository.findByTitle(request.title()).isPresent()) {
+            // TODO: In der nächsten Session durch CourseAlreadyExistsException(409) ersetzen!
             throw new RuntimeException("Course with title '" + request.title() + "' already exists.");
         }
         Course course = new Course(request.title(), request.type(), request.term(), request.academicYear());
@@ -43,6 +41,7 @@ public class CourseService {
                 .map(this::mapToResponse)
                 .orElseThrow(() -> {
                     logger.error("Service: Course with ID {} not found in database", id);
+                    // TODO: In der nächsten Session durch CourseNotFoundException(404) ersetzen!
                     return new RuntimeException("Course not found");
                 });
     }
@@ -59,7 +58,7 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    // FIX: @Transactional entfernt. Der Orchestrator steuert die atomare Klammer.
     public List<CourseResponse> importFromCsv(MultipartFile file) {
         List<CourseResponse> results = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
@@ -69,21 +68,22 @@ public class CourseService {
                 String[] data = line.split(separator);
                 
                 if (data.length >= 4) {
-                    // Expected format: title;type;term;year
-                    // type: LECTURE/SEMINAR, term: SUMMER/WINTER
+                    String title = data[0].trim();
+                    
+                    // FIX: Defensiver Check vorab! Verhindert das Zerstören der Orchestrator-Transaktion.
+                    if (courseRepository.findByTitle(title).isPresent()) {
+                        logger.warn("CSV-Import: Course with title '{}' already exists. Skipping line.", title);
+                        continue; 
+                    }
+
                     CourseRequest request = new CourseRequest(
-                        data[0].trim(),
+                        title,
                         CourseType.valueOf(data[1].trim().toUpperCase()),
                         SemesterTerm.valueOf(data[2].trim().toUpperCase()),
                         data[3].trim()
                     );
-                    try {
-                        results.add(createCourse(request));
-                    } catch (Exception e) { 
-                        // TODO: Log the error for this line, but continue processing the rest of the file
-                        // TODO/IDEA: Consider collecting errors in a list and returning them in the response, so the user knows which lines failed and why
-                        // Skip duplicates or errors in CSV, but continue processing
-                    }
+                    
+                    results.add(createCourse(request));
                 }
             }
         } catch (Exception e) {
