@@ -58,7 +58,7 @@ public class UserController {
     }
 
     @PutMapping("/me")
-    public ResponseEntity<Void> updateProfile(@RequestBody ProfileUpdateRequest request, @CurrentUserId long currentUserId) {
+    public ResponseEntity<Void> updateProfile(@Valid @RequestBody ProfileUpdateRequest request, @CurrentUserId long currentUserId) {
         userService.updateProfile(currentUserId, request);
         return ResponseEntity.noContent().build();
     }

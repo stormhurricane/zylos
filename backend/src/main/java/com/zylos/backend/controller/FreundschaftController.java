@@ -3,7 +3,7 @@ package com.zylos.backend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.zylos.backend.features.user.dto.FriendshipDecisionRequest;
+import com.zylos.backend.model.dto.FriendshipDecisionRequest;
 import com.zylos.backend.model.dto.NutzerResponse;
 import com.zylos.backend.service.FreundschaftService;
 
