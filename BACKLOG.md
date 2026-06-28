@@ -44,3 +44,18 @@ Aktuell läuft die Anwendung lokal auf 'create-drop' mit einer 'data.sql'. Für 
    - `application-dev.yml` nutzt weiterhin `ddl-auto: create-drop` und führt `data.sql` aus.
    - `application-prod.yml` nutzt `ddl-auto: validate` und aktiviert Flyway (`spring.flyway.enabled: true`).
 5. [ ] Ein lokaler Test-Build läuft mit aktiviertem Flyway-Profil fehlerfrei gegen eine Test-DB durch.
+
+
+## TICKET: FE - Globales API-Error-Handling & UI-Notification-System
+
+### Beschreibung
+Das Backend liefert bei Fehlern nun ein standardisiertes `ApiError`-Format mit passenden HTTP-Statuscodes (401 Unauthorized, 404 Not Found, 409 Conflict). Das Frontend muss diese Fehler zentral abfangen, das JSON auswerten und dem Benutzer über verständliche UI-Komponenten (Toasts / Banner) ausgeben, anstatt in der Konsole zu sterben.
+
+### Akzeptanzkriterien (Definition of Done)
+1. [ ] **Zentraler HTTP-Interceptor / Middleware:** - Ein globaler Interceptor (z. B. Axios Interceptor oder Fetch-Wrapper) fängt alle Response-Fehler (!= 2xx) ab.
+2. [ ] **Parsing des `ApiError`-Formats:** - Die Fehlermeldung aus dem Feld `message` des Backend-JSONs wird extrahiert.
+3. [ ] **Spezifisches Routing / UI-Logik je nach Statuscode:**
+   - **401 Unauthorized:** Benutzer wird automatisch ausgeloggt und auf die `/login`-Seite geleitet (Toast: "Sitzung abgelaufen oder Daten falsch").
+   - **409 Conflict:** Die Fehlermeldung (z. B. "Email already exists") wird als rotes Banner direkt über dem Registrierungsformular angezeigt.
+   - **404 Not Found:** Weiterleitung auf eine `/404` Error-Page oder Anzeige eines "Ressource nicht gefunden"-Toasts.
+4. [ ] **Globales Toast-System:** - Integration einer Notification-Library (z. B. react-toastify, HotToasts oder UI-Framework-Toasts) für generische Fehler (HTTP 500 etc.).
