@@ -1,9 +1,9 @@
 package com.zylos.backend.features.course.material;
 
-import com.zylos.backend.features.course.core.Course;
-import com.zylos.backend.features.course.core.CourseRepository;
-import com.zylos.backend.features.course.core.CourseType;
-import com.zylos.backend.features.course.core.SemesterTerm;
+import com.zylos.backend.features.course.Course;
+import com.zylos.backend.features.course.CourseRepository;
+import com.zylos.backend.features.course.CourseType;
+import com.zylos.backend.features.course.SemesterTerm;
 import com.zylos.backend.features.course.material.CourseMaterial;
 import com.zylos.backend.features.course.material.CourseMaterialRepository;
 import com.zylos.backend.features.course.material.CourseMaterialService;

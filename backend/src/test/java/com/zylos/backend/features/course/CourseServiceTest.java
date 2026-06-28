@@ -1,12 +1,12 @@
-package com.zylos.backend.features.course.core;
+package com.zylos.backend.features.course;
 
-import com.zylos.backend.features.course.core.Course;
-import com.zylos.backend.features.course.core.CourseRepository;
-import com.zylos.backend.features.course.core.CourseService;
-import com.zylos.backend.features.course.core.CourseType;
-import com.zylos.backend.features.course.core.SemesterTerm;
-import com.zylos.backend.features.course.core.dto.CourseRequest;
-import com.zylos.backend.features.course.core.dto.CourseResponse;
+import com.zylos.backend.features.course.Course;
+import com.zylos.backend.features.course.CourseRepository;
+import com.zylos.backend.features.course.CourseService;
+import com.zylos.backend.features.course.CourseType;
+import com.zylos.backend.features.course.SemesterTerm;
+import com.zylos.backend.features.course.dto.CourseRequest;
+import com.zylos.backend.features.course.dto.CourseResponse;
 import com.zylos.backend.features.course.enrollment.EnrollmentService;
 
 import org.junit.jupiter.api.BeforeEach;

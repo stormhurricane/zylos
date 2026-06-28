@@ -1,6 +1,6 @@
 package com.zylos.backend.features.course.material;
 
-import com.zylos.backend.features.course.core.Course;
+import com.zylos.backend.features.course.Course;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

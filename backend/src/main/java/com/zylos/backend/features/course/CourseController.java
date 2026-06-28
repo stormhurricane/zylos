@@ -1,8 +1,8 @@
-package com.zylos.backend.features.course.core;
+package com.zylos.backend.features.course;
 
 import com.zylos.backend.config.web.CurrentUserId;
-import com.zylos.backend.features.course.core.dto.CourseRequest;
-import com.zylos.backend.features.course.core.dto.CourseResponse;
+import com.zylos.backend.features.course.dto.CourseRequest;
+import com.zylos.backend.features.course.dto.CourseResponse;
 import com.zylos.backend.features.course.enrollment.EnrollmentService;
 import com.zylos.backend.features.course.material.CourseMaterial;
 import com.zylos.backend.features.course.material.CourseMaterialService;

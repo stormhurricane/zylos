@@ -1,4 +1,4 @@
-package com.zylos.backend.features.course.core;
+package com.zylos.backend.features.course;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

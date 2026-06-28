@@ -1,7 +1,7 @@
 package com.zylos.backend.features.course.material;
 
-import com.zylos.backend.features.course.core.Course;
-import com.zylos.backend.features.course.core.CourseRepository;
+import com.zylos.backend.features.course.Course;
+import com.zylos.backend.features.course.CourseRepository;
 import com.zylos.backend.features.course.material.dto.MaterialResponse;
 
 import org.springframework.stereotype.Service;

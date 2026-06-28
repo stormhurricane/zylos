@@ -1,4 +1,4 @@
-package com.zylos.backend.features.course.core;
+package com.zylos.backend.features.course;
 
 public enum CourseType {
     LECTURE,

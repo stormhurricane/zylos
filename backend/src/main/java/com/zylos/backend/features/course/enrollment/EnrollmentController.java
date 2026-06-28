@@ -1,7 +1,7 @@
 package com.zylos.backend.features.course.enrollment;
 
 import com.zylos.backend.config.web.CurrentUserId;
-import com.zylos.backend.features.course.core.dto.CourseResponse;
+import com.zylos.backend.features.course.dto.CourseResponse;
 import com.zylos.backend.features.course.enrollment.dto.CourseParticipantsResponse;
 import com.zylos.backend.features.course.enrollment.dto.EnrollmentRequest;
 

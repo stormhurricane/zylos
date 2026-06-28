@@ -1,11 +1,11 @@
-package com.zylos.backend.features.course.core;
+package com.zylos.backend.features.course;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zylos.backend.features.course.core.Course;
-import com.zylos.backend.features.course.core.CourseRepository;
-import com.zylos.backend.features.course.core.CourseType;
-import com.zylos.backend.features.course.core.SemesterTerm;
-import com.zylos.backend.features.course.core.dto.CourseRequest;
+import com.zylos.backend.features.course.Course;
+import com.zylos.backend.features.course.CourseRepository;
+import com.zylos.backend.features.course.CourseType;
+import com.zylos.backend.features.course.SemesterTerm;
+import com.zylos.backend.features.course.dto.CourseRequest;
 import com.zylos.backend.features.course.enrollment.EnrollmentRepository;
 import com.zylos.backend.features.course.material.CourseMaterialRepository;
 import com.zylos.backend.config.security.UserPrincipal; // Dein Record

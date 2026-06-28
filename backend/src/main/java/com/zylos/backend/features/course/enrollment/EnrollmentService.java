@@ -1,9 +1,9 @@
 package com.zylos.backend.features.course.enrollment;
 
+import com.zylos.backend.features.course.Course;
+import com.zylos.backend.features.course.CourseRepository;
 import com.zylos.backend.features.course.CourseUserClient;
-import com.zylos.backend.features.course.core.Course;
-import com.zylos.backend.features.course.core.CourseRepository;
-import com.zylos.backend.features.course.core.dto.CourseResponse;
+import com.zylos.backend.features.course.dto.CourseResponse;
 import com.zylos.backend.features.course.enrollment.dto.CourseParticipantsResponse;
 import com.zylos.backend.features.user.dto.UserResponse;
 

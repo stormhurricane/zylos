@@ -1,7 +1,7 @@
-package com.zylos.backend.features.course.core.dto;
+package com.zylos.backend.features.course.dto;
 
-import com.zylos.backend.features.course.core.CourseType;
-import com.zylos.backend.features.course.core.SemesterTerm;
+import com.zylos.backend.features.course.CourseType;
+import com.zylos.backend.features.course.SemesterTerm;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

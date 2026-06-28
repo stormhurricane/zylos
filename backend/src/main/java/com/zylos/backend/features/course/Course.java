@@ -1,4 +1,4 @@
-package com.zylos.backend.features.course.core;
+package com.zylos.backend.features.course;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
