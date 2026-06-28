@@ -21,6 +21,39 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    // 1. HTTP 409 Conflict - Für bereits existierende E-Mails
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
+        ApiError error = new ApiError(
+            ex.getMessage(),
+            null, // Keine Feldfehler (Map) nötig, da es ein globaler Konflikt ist
+            LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    // 2. HTTP 404 Not Found - Wenn ein User im Profil/Update nicht existiert
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiError> handleUserNotFound(UserNotFoundException ex) {
+        ApiError error = new ApiError(
+            ex.getMessage(),
+            null,
+            LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    // 3. HTTP 401 Unauthorized - Für falsche Login-Daten
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex) {
+        ApiError error = new ApiError(
+            ex.getMessage(),
+            null,
+            LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
     // Catches validation errors that occur due to @Valid
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex) {
