@@ -1,6 +1,12 @@
-package com.zylos.backend.features.user;
+package com.zylos.backend.features.user.client;
 
 import com.zylos.backend.features.course.CourseUserClient;
+import com.zylos.backend.features.user.Student;
+import com.zylos.backend.features.user.StudentRepository;
+import com.zylos.backend.features.user.Teacher;
+import com.zylos.backend.features.user.TeacherRepository;
+import com.zylos.backend.features.user.User;
+import com.zylos.backend.features.user.UserRepository;
 import com.zylos.backend.features.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

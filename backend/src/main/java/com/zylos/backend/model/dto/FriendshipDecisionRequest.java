@@ -1,4 +1,4 @@
-package com.zylos.backend.features.user.dto;
+package com.zylos.backend.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
