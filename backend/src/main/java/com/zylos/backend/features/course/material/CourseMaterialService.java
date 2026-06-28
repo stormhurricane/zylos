@@ -2,7 +2,10 @@ package com.zylos.backend.features.course.material;
 
 import com.zylos.backend.features.course.Course;
 import com.zylos.backend.features.course.CourseRepository;
+import com.zylos.backend.features.course.exceptions.CourseNotFoundException; // FIX: Importierte Exception
+import com.zylos.backend.features.course.material.dto.MaterialDownloadResponse; // FIX: Neues DTO
 import com.zylos.backend.features.course.material.dto.MaterialResponse;
+import com.zylos.backend.features.course.material.exceptions.MaterialNotFoundException; // FIX: Neue Exception
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,8 +28,9 @@ public class CourseMaterialService {
 
     @Transactional
     public MaterialResponse uploadMaterial(Long courseId, String title, MultipartFile file) throws IOException {
+        // FIX: Nutzt jetzt unsere typisierte CourseNotFoundException
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
+                .orElseThrow(() -> new CourseNotFoundException(courseId));
 
         CourseMaterial material = new CourseMaterial(
                 title,
@@ -40,15 +44,24 @@ public class CourseMaterialService {
         return mapToResponse(saved);
     }
 
+    @Transactional(readOnly = true)
     public List<MaterialResponse> getMaterialsByCourse(Long courseId) {
         return materialRepository.findByCourseId(courseId).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
-    public CourseMaterial getMaterialEntity(Long materialId) {
-        return materialRepository.findById(materialId)
-                .orElseThrow(() -> new RuntimeException("Material not found"));
+    // FIX: Methode umgebaut! Mappt die Entity direkt im Service auf das Download-DTO
+    @Transactional(readOnly = true)
+    public MaterialDownloadResponse getMaterialForDownload(Long materialId) {
+        CourseMaterial material = materialRepository.findById(materialId)
+                .orElseThrow(() -> new MaterialNotFoundException(materialId));
+        
+        return new MaterialDownloadResponse(
+                material.getFileName(),
+                material.getContentType(),
+                material.getData()
+        );
     }
 
     private MaterialResponse mapToResponse(CourseMaterial material) {

@@ -7,6 +7,7 @@ import com.zylos.backend.features.course.SemesterTerm;
 import com.zylos.backend.features.course.material.CourseMaterial;
 import com.zylos.backend.features.course.material.CourseMaterialRepository;
 import com.zylos.backend.features.course.material.CourseMaterialService;
+import com.zylos.backend.features.course.material.dto.MaterialDownloadResponse;
 import com.zylos.backend.features.course.material.dto.MaterialResponse;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -92,7 +93,7 @@ class CourseMaterialServiceTest {
         when(materialRepository.findById(10L)).thenReturn(Optional.of(material));
 
         // Act
-        CourseMaterial result = materialService.getMaterialEntity(10L);
+        MaterialDownloadResponse result = materialService.getMaterialForDownload(10L);
 
         // Assert
         assertNotNull(result);

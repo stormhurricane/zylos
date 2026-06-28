@@ -5,6 +5,7 @@ import com.zylos.backend.features.course.dto.CourseRequest;
 import com.zylos.backend.features.course.dto.CourseResponse;
 import com.zylos.backend.features.course.material.CourseMaterial; // Vorerst behalten
 import com.zylos.backend.features.course.material.CourseMaterialService;
+import com.zylos.backend.features.course.material.dto.MaterialDownloadResponse;
 import com.zylos.backend.features.course.material.dto.MaterialResponse;
 
 import jakarta.validation.Valid;
@@ -79,19 +80,19 @@ public class CourseController {
         return ResponseEntity.ok(materialService.uploadMaterial(id, title, file));
     }
 
-    // Baustelle eingefroren: Nutzt vorerst weiter die Entity, bis wir hierfür bereit sind
     @GetMapping("/materials/{materialId}/download")
     public ResponseEntity<byte[]> downloadMaterial(@PathVariable Long materialId) {
-        CourseMaterial material = materialService.getMaterialEntity(materialId);
+        // FIX: Nutzt jetzt das saubere DTO statt der nackten Entity!
+        MaterialDownloadResponse material = materialService.getMaterialForDownload(materialId);
         
         ContentDisposition contentDisposition = ContentDisposition.attachment()
-                .filename(material.getFileName())
+                .filename(material.fileName())
                 .build();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
-                .header(HttpHeaders.CONTENT_TYPE, material.getContentType())
-                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(material.getData().length))
-                .body(material.getData());
+                .header(HttpHeaders.CONTENT_TYPE, material.contentType())
+                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(material.data().length))
+                .body(material.data());
     }
 }
