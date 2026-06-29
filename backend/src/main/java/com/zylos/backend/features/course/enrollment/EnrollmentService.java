@@ -4,7 +4,9 @@ import com.zylos.backend.features.course.Course;
 import com.zylos.backend.features.course.CourseRepository;
 import com.zylos.backend.features.course.CourseUserClient;
 import com.zylos.backend.features.course.dto.CourseResponse;
+import com.zylos.backend.features.course.exceptions.CourseNotFoundException; // FIX: Import
 import com.zylos.backend.features.course.enrollment.dto.CourseParticipantsResponse;
+import com.zylos.backend.features.course.enrollment.exceptions.EnrollmentUserNotFoundException; // FIX: Neue Exception
 import com.zylos.backend.features.user.dto.UserResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -25,39 +27,46 @@ public class EnrollmentService {
     
     private final EnrollmentRepository enrollmentRepository;
     private final CourseRepository courseRepository;
-    private final CourseUserClient courseUserClient; // Unser neuer Schutzwall zum User-Feature
+    private final CourseUserClient courseUserClient;
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void enrollUser(Long courseId, long userId) {
         if (enrollmentRepository.findByCourseIdAndUserId(courseId, userId).isPresent()) {
-            return;
+            return; // Bereits eingeschrieben -> Idempotent abfangen
         }
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
         
-        // Validation by the interface
+        // FIX: Nutzt existierende Business-Exception
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException(courseId));
+        
+        // FIX: Nutzt neue dedizierte Exception
         if (!courseUserClient.existsById(userId)) {
-            throw new RuntimeException("User not found");
+            throw new EnrollmentUserNotFoundException(userId);
         }
 
         enrollmentRepository.save(new Enrollment(userId, course));
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void unenrollUser(Long courseId, long userId) {
         enrollmentRepository.deleteByCourseIdAndUserId(courseId, userId);
     }
 
+    @Transactional(readOnly = true) // FIX: Read-only Performance
     public CourseParticipantsResponse getCategorizedParticipants(Long courseId) {
         logger.info("Processing categorized participants for course: {}", courseId);
+        
+        // Checken ob Kurs überhaupt existiert, bevor wir ins Leere laufen
+        if (!courseRepository.existsById(courseId)) {
+            throw new CourseNotFoundException(courseId);
+        }
+
         List<Enrollment> enrollments = enrollmentRepository.findByCourseId(courseId);
         
-        // 1: Get user ids from enrollments
         List<Long> userIds = enrollments.stream()
                 .map(Enrollment::getUserId)
                 .collect(Collectors.toList());
 
-        // Get Users by the interface
         Map<String, List<UserResponse>> categorized = courseUserClient.categorizeUsersByIds(userIds);
 
         return new CourseParticipantsResponse(
@@ -66,6 +75,7 @@ public class EnrollmentService {
         );
     }
 
+    @Transactional(readOnly = true) // FIX: Read-only Performance
     public List<CourseResponse> getEnrolledCourses(long userId) {
         return enrollmentRepository.findByUserId(userId).stream()
                 .map(e -> mapToCourseResponse(e.getCourse()))

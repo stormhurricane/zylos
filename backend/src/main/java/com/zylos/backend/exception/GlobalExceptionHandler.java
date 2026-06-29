@@ -13,6 +13,7 @@ import org.springframework.web.context.request.WebRequest;
 import com.zylos.backend.features.course.exceptions.CourseAlreadyExistsException;
 import com.zylos.backend.features.course.exceptions.CourseNotFoundException;
 import com.zylos.backend.features.course.material.exceptions.MaterialNotFoundException;
+import com.zylos.backend.features.course.enrollment.exceptions.EnrollmentUserNotFoundException;
 import com.zylos.backend.features.user.exceptions.BadCredentialsException;
 import com.zylos.backend.features.user.exceptions.EmailAlreadyExistsException;
 import com.zylos.backend.features.user.exceptions.UserNotFoundException;
@@ -29,7 +30,7 @@ public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // FIX: Matcht jetzt perfekt deinen ApiError-Record für 404 Fehler
-    @ExceptionHandler({CourseNotFoundException.class, MaterialNotFoundException.class, UserNotFoundException.class}) 
+    @ExceptionHandler({CourseNotFoundException.class, MaterialNotFoundException.class, UserNotFoundException.class, EnrollmentUserNotFoundException.class}) 
     public ResponseEntity<ApiError> handleNotFoundException(RuntimeException ex) {
         ApiError error = new ApiError(
                 ex.getMessage(),
