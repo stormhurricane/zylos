@@ -90,6 +90,7 @@ export interface UserResponse {
     firstName: string;
     lastName: string;
     email: string;
+    role: 'STUDENT' | 'INSTRUCTOR';
 }
 
 export interface ParticipantsResponse {

@@ -25,7 +25,7 @@ public class EnrollmentController {
 
     @PostMapping("/{courseId}/enroll")
     public ResponseEntity<Void> enrollCurrentUser(@PathVariable Long courseId, @CurrentUserId long currentUserId) { // FIX: Authentication gelöscht
-        enrollmentService.enrollUser(courseId, currentUserId);
+        enrollmentService.enrollStudent(courseId, currentUserId);
         return ResponseEntity.status(HttpStatus.CREATED).build(); // FIX: Status 201 für Erstellung
     }
 
@@ -38,7 +38,11 @@ public class EnrollmentController {
     @PostMapping("/{courseId}/participants")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<Void> addParticipant(@PathVariable Long courseId, @Valid @RequestBody EnrollmentRequest request) {
-        enrollmentService.enrollUser(courseId, request.userId());
+        if (request.role().toUpperCase().contains("INSTRUCTOR")) {
+            enrollmentService.assignInstructor(courseId, request.userId());
+        } else {
+            enrollmentService.enrollStudent(courseId, request.userId());
+        }        
         return ResponseEntity.status(HttpStatus.CREATED).build(); // FIX: Status 201 für Erstellung
     }
 

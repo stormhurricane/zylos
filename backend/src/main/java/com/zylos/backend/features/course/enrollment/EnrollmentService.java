@@ -4,9 +4,10 @@ import com.zylos.backend.features.course.Course;
 import com.zylos.backend.features.course.CourseRepository;
 import com.zylos.backend.features.course.CourseUserClient;
 import com.zylos.backend.features.course.dto.CourseResponse;
-import com.zylos.backend.features.course.exceptions.CourseNotFoundException; // FIX: Import
+import com.zylos.backend.features.course.exceptions.CourseNotFoundException;
 import com.zylos.backend.features.course.enrollment.dto.CourseParticipantsResponse;
-import com.zylos.backend.features.course.enrollment.exceptions.EnrollmentUserNotFoundException; // FIX: Neue Exception
+import com.zylos.backend.features.course.enrollment.exceptions.EnrollmentUserNotFoundException;
+import com.zylos.backend.features.course.enrollment.exceptions.InvalidRoleForEnrollmentException; // NEU
 import com.zylos.backend.features.user.dto.UserResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -29,22 +30,52 @@ public class EnrollmentService {
     private final CourseRepository courseRepository;
     private final CourseUserClient courseUserClient;
 
+    /**
+     * Schreibt einen Studenten in einen Kurs ein.
+     */
     @Transactional(rollbackFor = Exception.class)
-    public void enrollUser(Long courseId, long userId) {
-        if (enrollmentRepository.findByCourseIdAndUserId(courseId, userId).isPresent()) {
-            return; // Bereits eingeschrieben -> Idempotent abfangen
+    public void enrollStudent(Long courseId, long studentId) {
+        if (enrollmentRepository.findByCourseIdAndUserId(courseId, studentId).isPresent()) {
+            return;
         }
         
-        // FIX: Nutzt existierende Business-Exception
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
         
-        // FIX: Nutzt neue dedizierte Exception
-        if (!courseUserClient.existsById(userId)) {
-            throw new EnrollmentUserNotFoundException(userId);
+        if (!courseUserClient.existsById(studentId)) {
+            throw new EnrollmentUserNotFoundException(studentId);
         }
 
-        enrollmentRepository.save(new Enrollment(userId, course));
+        // FIX: Strikte Rollenprüfung für Studenten
+        if (!courseUserClient.isStudent(studentId)) {
+            throw new InvalidRoleForEnrollmentException(studentId, "STUDENT");
+        }
+
+        enrollmentRepository.save(new Enrollment(studentId, course));
+    }
+
+    /**
+     * Ordnet einem Kurs einen Lehrenden (Instructor) zu.
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void assignInstructor(Long courseId, long instructorId) {
+        if (enrollmentRepository.findByCourseIdAndUserId(courseId, instructorId).isPresent()) {
+            return;
+        }
+        
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException(courseId));
+        
+        if (!courseUserClient.existsById(instructorId)) {
+            throw new EnrollmentUserNotFoundException(instructorId);
+        }
+
+        // FIX: Strikte Rollenprüfung für Instructors
+        if (!courseUserClient.isInstructor(instructorId)) {
+            throw new InvalidRoleForEnrollmentException(instructorId, "INSTRUCTOR");
+        }
+
+        enrollmentRepository.save(new Enrollment(instructorId, course));
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -52,11 +83,10 @@ public class EnrollmentService {
         enrollmentRepository.deleteByCourseIdAndUserId(courseId, userId);
     }
 
-    @Transactional(readOnly = true) // FIX: Read-only Performance
+    @Transactional(readOnly = true)
     public CourseParticipantsResponse getCategorizedParticipants(Long courseId) {
         logger.info("Processing categorized participants for course: {}", courseId);
         
-        // Checken ob Kurs überhaupt existiert, bevor wir ins Leere laufen
         if (!courseRepository.existsById(courseId)) {
             throw new CourseNotFoundException(courseId);
         }
@@ -75,7 +105,7 @@ public class EnrollmentService {
         );
     }
 
-    @Transactional(readOnly = true) // FIX: Read-only Performance
+    @Transactional(readOnly = true)
     public List<CourseResponse> getEnrolledCourses(long userId) {
         return enrollmentRepository.findByUserId(userId).stream()
                 .map(e -> mapToCourseResponse(e.getCourse()))

@@ -23,7 +23,7 @@ public class CourseCreationOrchestrator {
     @Transactional(rollbackFor = Exception.class)
     public CourseResponse createCourseWithInstructor(CourseRequest request, long instructorId) {
         CourseResponse course = courseService.createCourse(request);
-        enrollmentService.enrollUser(course.id(), instructorId);
+        enrollmentService.assignInstructor(course.id(), instructorId);        
         return course;
     }
 
@@ -35,7 +35,7 @@ public class CourseCreationOrchestrator {
         List<CourseResponse> importedCourses = courseService.importFromCsv(file);
         
         for (CourseResponse course : importedCourses) {
-            enrollmentService.enrollUser(course.id(), instructorId);
+            enrollmentService.assignInstructor(course.id(), instructorId);
         }
         
         return importedCourses;

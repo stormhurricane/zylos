@@ -26,6 +26,22 @@ public class CourseUserClientImpl implements CourseUserClient {
     }
 
     @Override
+    public boolean isStudent(long userId) {
+        // FIX: Nutzt die OOP-Vererbung statt eines Enums!
+        return userRepository.findById(userId)
+                .map(user -> user instanceof Student)
+                .orElse(false);
+    }
+
+    @Override
+    public boolean isInstructor(long userId) {
+        // FIX: Nutzt die OOP-Vererbung statt eines Enums!
+        return userRepository.findById(userId)
+                .map(user -> user instanceof Teacher)
+                .orElse(false);
+    }
+
+    @Override
     public Map<String, List<UserResponse>> categorizeUsersByIds(List<Long> userIds) {
         Map<String, List<UserResponse>> result = new HashMap<>();
         List<UserResponse> instructors = new ArrayList<>();

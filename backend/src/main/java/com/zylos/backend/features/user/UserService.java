@@ -107,7 +107,10 @@ public class UserService { // FIX: Sichtbarkeit auf public gesetzt, falls Contro
                 user.getLastName(),
                 user.getProfilePicture(),
                 (user instanceof Student student) ? student.getStudySubject() : 
-                (user instanceof Teacher teacher) ? teacher.getChair() : null
+                (user instanceof Teacher teacher) ? teacher.getChair() : null,
+                (user instanceof Teacher ? "INSTRUCTOR" :
+                    (user instanceof Student ? "STUDENT" : "UNKNOWN")
+                ) 
             ))
             .toList();
     }

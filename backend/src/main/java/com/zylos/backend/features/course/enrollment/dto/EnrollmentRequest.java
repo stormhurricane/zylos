@@ -1,5 +1,10 @@
 package com.zylos.backend.features.course.enrollment.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 public record EnrollmentRequest(
-    Integer userId
+    @NotNull(message = "User ID must not be null")
+    Long userId,
+    @NotBlank String role
 ) {}

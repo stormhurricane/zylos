@@ -5,5 +5,6 @@ public record UserSearchResponse(
     String firstName,
     String lastName,
     String profilePicture,
-    String subInfo 
+    String subInfo,
+    String role
 ) {}

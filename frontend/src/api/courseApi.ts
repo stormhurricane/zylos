@@ -36,8 +36,8 @@ export const courseApi = {
         api.get(`/courses/${courseId}/participants`),
 
     /** Adds a user to the course */
-    addParticipant: (courseId: number, userId: number): Promise<void> =>
-        api.post(`/courses/${courseId}/participants`, { userId }),
+    addParticipant: (courseId: number, userId: number, role: 'STUDENT' | 'INSTRUCTOR'): Promise<void> =>
+        api.post(`/courses/${courseId}/participants`, { userId, role }),
 
     /** Gets all material from a course */
     getMaterials: (courseId: number): Promise<Material[]> => 

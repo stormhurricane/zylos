@@ -14,6 +14,7 @@ import com.zylos.backend.features.course.exceptions.CourseAlreadyExistsException
 import com.zylos.backend.features.course.exceptions.CourseNotFoundException;
 import com.zylos.backend.features.course.material.exceptions.MaterialNotFoundException;
 import com.zylos.backend.features.course.enrollment.exceptions.EnrollmentUserNotFoundException;
+import com.zylos.backend.features.course.enrollment.exceptions.InvalidRoleForEnrollmentException;
 import com.zylos.backend.features.user.exceptions.BadCredentialsException;
 import com.zylos.backend.features.user.exceptions.EmailAlreadyExistsException;
 import com.zylos.backend.features.user.exceptions.UserNotFoundException;
@@ -41,7 +42,7 @@ public class GlobalExceptionHandler {
     }
 
     // FIX: Matcht jetzt perfekt deinen ApiError-Record für 409 Konflikte
-    @ExceptionHandler({CourseAlreadyExistsException.class, EmailAlreadyExistsException.class})
+    @ExceptionHandler({CourseAlreadyExistsException.class, EmailAlreadyExistsException.class, InvalidRoleForEnrollmentException.class})
     public ResponseEntity<ApiError> handleConflictException(RuntimeException ex) {
         ApiError error = new ApiError(
                 ex.getMessage(),

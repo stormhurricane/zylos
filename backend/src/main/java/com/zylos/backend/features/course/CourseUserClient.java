@@ -7,6 +7,9 @@ import java.util.Map;
 public interface CourseUserClient {
     boolean existsById(long userId);
 
+    boolean isStudent(long userId);
+    boolean isInstructor(long userId);
+
     // categorizes userIds with their roles
     Map<String, List<UserResponse>> categorizeUsersByIds(List<Long> userIds);
 }

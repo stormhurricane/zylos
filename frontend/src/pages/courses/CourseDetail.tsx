@@ -127,7 +127,7 @@ export const CourseDetail = () => {
                                         {searchResults.map(s => (
                                             <div key={s.id} className={styles.searchResultItem}>
                                                 <span className={styles.searchResultName}>{s.firstName} {s.lastName}</span>
-                                                <button onClick={() => handleAddStudent(s.id)} className={styles.addButton}>+</button>
+                                                <button onClick={() => handleAddStudent(s.id, s.role)} className={styles.addButton}>+</button>
                                             </div>
                                         ))}
                                     </div>

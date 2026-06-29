@@ -80,17 +80,18 @@ export const useCourseDetail = () => {
                 !participants?.students?.some(s => s.id === u.id) &&
                 !participants?.instructors?.some(i => i.id === u.id)
             );
+            console.log(filtered);
             setSearchResults(filtered);
         } catch (err) {
             console.error("Suche fehlgeschlagen", err);
         }
     };
 
-    const handleAddStudent = async (studentId: number) => {
+    const handleAddStudent = async (studentId: number, role: 'STUDENT' | 'INSTRUCTOR') => {
         if (isNaN(courseId)) return;
         
         try {
-            await courseApi.addParticipant(courseId, studentId);
+            await courseApi.addParticipant(courseId, studentId, role);
             setStudentSearch('');
             setSearchResults([]);
             await loadData();
