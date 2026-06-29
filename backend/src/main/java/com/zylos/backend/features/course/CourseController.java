@@ -3,21 +3,24 @@ package com.zylos.backend.features.course;
 import com.zylos.backend.config.web.CurrentUserId;
 import com.zylos.backend.features.course.dto.CourseRequest;
 import com.zylos.backend.features.course.dto.CourseResponse;
-import com.zylos.backend.features.course.material.CourseMaterial; // Vorerst behalten
 import com.zylos.backend.features.course.material.CourseMaterialService;
 import com.zylos.backend.features.course.material.dto.MaterialDownloadResponse;
 import com.zylos.backend.features.course.material.dto.MaterialResponse;
 
 import jakarta.validation.Valid;
+
+import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
@@ -68,7 +71,7 @@ public class CourseController {
 
     @GetMapping("/{id}/materials")
     public ResponseEntity<List<MaterialResponse>> getMaterials(@PathVariable Long id) {
-        return ResponseEntity.ok(materialService.getMaterialsByCourse(id));
+        return ResponseEntity.ok(materialService.getMaterialsForCourse(id));
     }
 
     @PostMapping("/{id}/materials")
@@ -76,23 +79,21 @@ public class CourseController {
     public ResponseEntity<MaterialResponse> uploadMaterial(
             @PathVariable Long id,
             @RequestParam("title") String title,
-            @RequestPart("file") MultipartFile file) throws IOException {
-        return ResponseEntity.ok(materialService.uploadMaterial(id, title, file));
+            @RequestParam("file") MultipartFile file) throws IOException { 
+        return ResponseEntity.ok(materialService.uploadMaterial(id, file, title));
     }
 
     @GetMapping("/materials/{materialId}/download")
-    public ResponseEntity<byte[]> downloadMaterial(@PathVariable Long materialId) {
-        // FIX: Nutzt jetzt das saubere DTO statt der nackten Entity!
-        MaterialDownloadResponse material = materialService.getMaterialForDownload(materialId);
+    public ResponseEntity<Resource> downloadMaterial(@PathVariable Long materialId) {
+        MaterialDownloadResponse material = materialService.downloadMaterial(materialId);
         
         ContentDisposition contentDisposition = ContentDisposition.attachment()
-                .filename(material.fileName())
+                .filename(material.fileName(), StandardCharsets.UTF_8)
                 .build();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
-                .header(HttpHeaders.CONTENT_TYPE, material.contentType())
-                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(material.data().length))
-                .body(material.data());
+                .contentType(MediaType.parseMediaType(material.contentType())) 
+                .body(material.resource());
     }
 }

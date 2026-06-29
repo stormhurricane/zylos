@@ -1,7 +1,6 @@
 package com.zylos.backend.features.course.enrollment;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -19,7 +18,5 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
     Optional<Enrollment> findByCourseIdAndUserId(Long courseId, long userId);
 
-    @Modifying
-    @Query("DELETE FROM Enrollment e WHERE e.course.id = :courseId AND e.userId = :userId")
-    void deleteByCourseIdAndUserId(@Param("courseId") Long courseId, @Param("userId") long userId);
+    void deleteByCourseIdAndUserId(Long courseId, long userId);
 }

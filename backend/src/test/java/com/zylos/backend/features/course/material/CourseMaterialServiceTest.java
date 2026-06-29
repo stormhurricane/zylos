@@ -58,7 +58,7 @@ class CourseMaterialServiceTest {
         });
 
         // Act
-        MaterialResponse response = materialService.uploadMaterial(courseId, "Script", file);
+        MaterialResponse response = materialService.uploadMaterial(courseId, file, "Script");
 
         // Assert
         assertNotNull(response.id());
@@ -74,21 +74,26 @@ class CourseMaterialServiceTest {
         MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "text/plain", "data".getBytes());
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> materialService.uploadMaterial(1L, "Title", file));
+        assertThrows(RuntimeException.class, () -> materialService.uploadMaterial(1L, file, "Title"));
     }
 
-    @Test
+   @Test
     void shouldReturnMaterialsForCourse() {
         // Arrange
-        Course course = new Course();
-        course.setId(1L);
-        CourseMaterial m1 = new CourseMaterial("M1", "f1.pdf", "pdf", new byte[0], course);
-        when(materialRepository.findByCourseId(1L)).thenReturn(List.of(m1));
+        // FIX 1: Der Service prüft jetzt zuerst, ob der Kurs existiert. Das müssen wir mocken!
+        when(courseRepository.existsById(1L)).thenReturn(true);
+
+        // FIX 2: Der Service ruft NICHT mehr findByCourseId auf, sondern die neue Projektions-Query!
+        List<MaterialResponse> projectedResponses = List.of(
+            new MaterialResponse(1L, "M1", "f1.pdf", "application/pdf", 0L, java.time.LocalDateTime.now())
+        );
+        when(materialRepository.findAllProjectedByCourseId(1L)).thenReturn(projectedResponses);
 
         // Act
-        List<MaterialResponse> materials = materialService.getMaterialsByCourse(1L);
+        List<MaterialResponse> materials = materialService.getMaterialsForCourse(1L);
 
         // Assert
+        assertNotNull(materials);
         assertEquals(1, materials.size());
         assertEquals("M1", materials.get(0).title());
     }
@@ -96,13 +101,19 @@ class CourseMaterialServiceTest {
     @Test
     void shouldGetMaterialEntity() {
         // Arrange
-        CourseMaterial material = new CourseMaterial();
+        Course course = new Course();
+        // FIX: Nutze den echten Konstruktor mit validen Dummy-Bytes (nicht null!)
+        byte[] dummyBytes = "pdf-content".getBytes();
+        CourseMaterial material = new CourseMaterial("Titel", "test.pdf", "application/pdf", dummyBytes, course);
+        
         when(materialRepository.findById(10L)).thenReturn(Optional.of(material));
 
         // Act
-        MaterialDownloadResponse result = materialService.getMaterialForDownload(10L);
+        MaterialDownloadResponse result = materialService.downloadMaterial(10L);
 
         // Assert
         assertNotNull(result);
+        assertEquals("test.pdf", result.fileName());
+        assertEquals("application/pdf", result.contentType());
     }
 }

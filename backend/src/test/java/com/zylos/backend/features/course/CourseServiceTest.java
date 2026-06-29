@@ -9,6 +9,8 @@ import com.zylos.backend.features.course.dto.CourseRequest;
 import com.zylos.backend.features.course.dto.CourseResponse;
 import com.zylos.backend.features.course.enrollment.EnrollmentService;
 
+import jakarta.validation.Validator;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -26,11 +28,13 @@ class CourseServiceTest {
     private CourseRepository courseRepository;
     private EnrollmentService enrollmentService;
     private CourseService courseService;
+    private Validator validator;
 
     @BeforeEach
     void setUp() {
         courseRepository = Mockito.mock(CourseRepository.class);
-        courseService = new CourseService(courseRepository);
+        validator = Mockito.mock(Validator.class);
+        courseService = new CourseService(courseRepository, validator);
     }
 
     @Test

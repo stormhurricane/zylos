@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -122,7 +123,7 @@ class CourseControllerIntegrationTest {
         mockMvc.perform(get("/api/courses/materials/" + materialId + "/download")
                 .with(mockUser(generatedTeacherId, "instructor@test.com", "INSTRUCTOR")))
                 .andExpect(status().isOk())
-                .andExpect(header().string("Content-Disposition", "attachment; filename=\"test.txt\""))
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"=?UTF-8?Q?test.txt?=\"; filename*=UTF-8''test.txt"))
                 .andExpect(content().bytes("Hello World".getBytes()));
     }
 

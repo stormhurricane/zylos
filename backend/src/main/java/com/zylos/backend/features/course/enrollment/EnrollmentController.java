@@ -25,7 +25,6 @@ public class EnrollmentController {
 
     @PostMapping("/{courseId}/enroll")
     public ResponseEntity<Void> enrollCurrentUser(@PathVariable Long courseId, @CurrentUserId long currentUserId) {
-        // FIX: Wir übergeben die implizite Rolle STUDENT direkt an die verallgemeinerte Methode
         enrollmentService.addEnrollment(courseId, currentUserId, EnrollmentRole.STUDENT);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -39,7 +38,6 @@ public class EnrollmentController {
     @PostMapping("/{courseId}/participants")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<Void> addParticipant(@PathVariable Long courseId, @Valid @RequestBody EnrollmentRequest request) {
-        // FIX: Kein hässliches if/else mehr im Controller! Die Rolle kommt direkt aus dem DTO.
         enrollmentService.addEnrollment(courseId, request.userId(), request.role());       
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

@@ -1,7 +1,8 @@
 package com.zylos.backend.features.course.material;
 
+import java.time.LocalDateTime;
+import org.hibernate.annotations.CreationTimestamp;
 import com.zylos.backend.features.course.Course;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -31,6 +32,12 @@ public class CourseMaterial {
     @NotNull
     private Course course;
 
+    private long fileSize; 
+
+    @CreationTimestamp 
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
     public CourseMaterial() {
     }
 
@@ -40,6 +47,7 @@ public class CourseMaterial {
         this.contentType = contentType;
         this.data = data;
         this.course = course;
+        this.fileSize = data != null ? data.length : 0; 
     }
 
     public Long getId() {
@@ -80,6 +88,7 @@ public class CourseMaterial {
 
     public void setData(byte[] data) {
         this.data = data;
+        this.fileSize = data != null ? data.length : 0; // FIX: Synchronisiert die Größe bei manuellem Tausch
     }
 
     public Course getCourse() {
@@ -88,5 +97,15 @@ public class CourseMaterial {
 
     public void setCourse(Course course) {
         this.course = course;
+    }
+
+    // FIX: Fehlender Getter für fileSize
+    public long getFileSize() {
+        return fileSize;
+    }
+
+    // FIX: Fehlender Getter für createdAt (Kein Setter nötig, da @CreationTimestamp)
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }
