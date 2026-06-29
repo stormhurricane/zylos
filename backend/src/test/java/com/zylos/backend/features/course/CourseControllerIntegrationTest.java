@@ -92,7 +92,7 @@ class CourseControllerIntegrationTest {
 
     @Test
     void shouldCreateCourseAndUploadMaterial() throws Exception {
-        CourseRequest request = new CourseRequest("Integration Test Course", CourseType.LECTURE, SemesterTerm.WINTER, "2024/25");
+        CourseRequest request = new CourseRequest("Integration Test Course", CourseType.LECTURE, SemesterTerm.WINTER, "2024/2025");
         
         // 1. Create Course - Wir hängen den mockUser direkt mit der dynamischen ID an den Request!
         String courseJson = mockMvc.perform(post("/api/courses")

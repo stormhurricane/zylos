@@ -30,53 +30,30 @@ public class EnrollmentService {
     private final CourseRepository courseRepository;
     private final CourseUserClient courseUserClient;
 
-    /**
-     * Schreibt einen Studenten in einen Kurs ein.
-     */
     @Transactional(rollbackFor = Exception.class)
-    public void enrollStudent(Long courseId, long studentId) {
-        if (enrollmentRepository.findByCourseIdAndUserId(courseId, studentId).isPresent()) {
+    public void addEnrollment(Long courseId, long userId, EnrollmentRole role) {
+        if (enrollmentRepository.findByCourseIdAndUserId(courseId, userId).isPresent()) {
             return;
         }
         
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
         
-        if (!courseUserClient.existsById(studentId)) {
-            throw new EnrollmentUserNotFoundException(studentId);
+        if (!courseUserClient.existsById(userId)) {
+            throw new EnrollmentUserNotFoundException(userId);
         }
 
-        // FIX: Strikte Rollenprüfung für Studenten
-        if (!courseUserClient.isStudent(studentId)) {
-            throw new InvalidRoleForEnrollmentException(studentId, "STUDENT");
+        // Typsichere Rollen-Validierung gegen den Client
+        if (role == EnrollmentRole.STUDENT && !courseUserClient.isStudent(userId)) {
+            throw new InvalidRoleForEnrollmentException(userId, "STUDENT");
+        } else if (role == EnrollmentRole.INSTRUCTOR && !courseUserClient.isInstructor(userId)) {
+            throw new InvalidRoleForEnrollmentException(userId, "INSTRUCTOR");
         }
 
-        enrollmentRepository.save(new Enrollment(studentId, course));
+        // FIX: Übergibt die Rolle an den korrigierten Entity-Konstruktor
+        enrollmentRepository.save(new Enrollment(userId, course, role));
     }
 
-    /**
-     * Ordnet einem Kurs einen Lehrenden (Instructor) zu.
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public void assignInstructor(Long courseId, long instructorId) {
-        if (enrollmentRepository.findByCourseIdAndUserId(courseId, instructorId).isPresent()) {
-            return;
-        }
-        
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new CourseNotFoundException(courseId));
-        
-        if (!courseUserClient.existsById(instructorId)) {
-            throw new EnrollmentUserNotFoundException(instructorId);
-        }
-
-        // FIX: Strikte Rollenprüfung für Instructors
-        if (!courseUserClient.isInstructor(instructorId)) {
-            throw new InvalidRoleForEnrollmentException(instructorId, "INSTRUCTOR");
-        }
-
-        enrollmentRepository.save(new Enrollment(instructorId, course));
-    }
 
     @Transactional(rollbackFor = Exception.class)
     public void unenrollUser(Long courseId, long userId) {
@@ -108,17 +85,8 @@ public class EnrollmentService {
     @Transactional(readOnly = true)
     public List<CourseResponse> getEnrolledCourses(long userId) {
         return enrollmentRepository.findByUserId(userId).stream()
-                .map(e -> mapToCourseResponse(e.getCourse()))
+                .map(e -> new CourseResponse(e.getCourse())) 
                 .collect(Collectors.toList());
     }
 
-    private CourseResponse mapToCourseResponse(Course course) {
-        return new CourseResponse(
-            course.getId(),
-            course.getTitle(),
-            course.getType(),
-            course.getTerm(),
-            course.getAcademicYear()
-        );
-    }
 }

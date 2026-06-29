@@ -24,13 +24,14 @@ public class EnrollmentController {
     }
 
     @PostMapping("/{courseId}/enroll")
-    public ResponseEntity<Void> enrollCurrentUser(@PathVariable Long courseId, @CurrentUserId long currentUserId) { // FIX: Authentication gelöscht
-        enrollmentService.enrollStudent(courseId, currentUserId);
-        return ResponseEntity.status(HttpStatus.CREATED).build(); // FIX: Status 201 für Erstellung
+    public ResponseEntity<Void> enrollCurrentUser(@PathVariable Long courseId, @CurrentUserId long currentUserId) {
+        // FIX: Wir übergeben die implizite Rolle STUDENT direkt an die verallgemeinerte Methode
+        enrollmentService.addEnrollment(courseId, currentUserId, EnrollmentRole.STUDENT);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/{courseId}/unenroll")
-    public ResponseEntity<Void> unenrollCurrentUser(@PathVariable Long courseId, @CurrentUserId long currentUserId) { // FIX: Authentication gelöscht
+    public ResponseEntity<Void> unenrollCurrentUser(@PathVariable Long courseId, @CurrentUserId long currentUserId) {
         enrollmentService.unenrollUser(courseId, currentUserId);
         return ResponseEntity.noContent().build();
     }
@@ -38,12 +39,9 @@ public class EnrollmentController {
     @PostMapping("/{courseId}/participants")
     @PreAuthorize("hasRole('INSTRUCTOR')")
     public ResponseEntity<Void> addParticipant(@PathVariable Long courseId, @Valid @RequestBody EnrollmentRequest request) {
-        if (request.role().toUpperCase().contains("INSTRUCTOR")) {
-            enrollmentService.assignInstructor(courseId, request.userId());
-        } else {
-            enrollmentService.enrollStudent(courseId, request.userId());
-        }        
-        return ResponseEntity.status(HttpStatus.CREATED).build(); // FIX: Status 201 für Erstellung
+        // FIX: Kein hässliches if/else mehr im Controller! Die Rolle kommt direkt aus dem DTO.
+        enrollmentService.addEnrollment(courseId, request.userId(), request.role());       
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/{courseId}/participants")
@@ -52,7 +50,7 @@ public class EnrollmentController {
     }
 
     @GetMapping("/my-enrollments")
-    public ResponseEntity<List<CourseResponse>> getMyCourses(@CurrentUserId long currentUserId) { // FIX: Authentication gelöscht
+    public ResponseEntity<List<CourseResponse>> getMyCourses(@CurrentUserId long currentUserId) {
         return ResponseEntity.ok(enrollmentService.getEnrolledCourses(currentUserId));
     }
 }

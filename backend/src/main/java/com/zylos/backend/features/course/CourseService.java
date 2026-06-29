@@ -102,7 +102,8 @@ public class CourseService {
             course.getTitle(),
             course.getType(),
             course.getTerm(),
-            course.getAcademicYear()
+            course.getAcademicYear(),
+            course.getEnrollments().size()
         );
     }
     // FIX: isDatabaseEmpty() restlos eliminiert

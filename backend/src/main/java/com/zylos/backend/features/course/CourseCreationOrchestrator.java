@@ -3,6 +3,7 @@ package com.zylos.backend.features.course;
 import com.zylos.backend.features.course.dto.CourseRequest;
 import com.zylos.backend.features.course.dto.CourseResponse;
 import com.zylos.backend.features.course.enrollment.EnrollmentService;
+import com.zylos.backend.features.course.enrollment.EnrollmentRole; // FIX: Import nachziehen!
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +24,8 @@ public class CourseCreationOrchestrator {
     @Transactional(rollbackFor = Exception.class)
     public CourseResponse createCourseWithInstructor(CourseRequest request, long instructorId) {
         CourseResponse course = courseService.createCourse(request);
-        enrollmentService.assignInstructor(course.id(), instructorId);        
+        // FIX: Auf die neue, vereinheitlichte Methode umgestellt
+        enrollmentService.addEnrollment(course.id(), instructorId, EnrollmentRole.INSTRUCTOR);        
         return course;
     }
 
@@ -35,7 +37,8 @@ public class CourseCreationOrchestrator {
         List<CourseResponse> importedCourses = courseService.importFromCsv(file);
         
         for (CourseResponse course : importedCourses) {
-            enrollmentService.assignInstructor(course.id(), instructorId);
+            // FIX: Auf die neue, vereinheitlichte Methode umgestellt
+            enrollmentService.addEnrollment(course.id(), instructorId, EnrollmentRole.INSTRUCTOR);
         }
         
         return importedCourses;

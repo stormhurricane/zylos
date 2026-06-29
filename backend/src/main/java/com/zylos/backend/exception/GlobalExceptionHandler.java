@@ -30,7 +30,6 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // FIX: Matcht jetzt perfekt deinen ApiError-Record für 404 Fehler
     @ExceptionHandler({CourseNotFoundException.class, MaterialNotFoundException.class, UserNotFoundException.class, EnrollmentUserNotFoundException.class}) 
     public ResponseEntity<ApiError> handleNotFoundException(RuntimeException ex) {
         ApiError error = new ApiError(
@@ -41,7 +40,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    // FIX: Matcht jetzt perfekt deinen ApiError-Record für 409 Konflikte
     @ExceptionHandler({CourseAlreadyExistsException.class, EmailAlreadyExistsException.class, InvalidRoleForEnrollmentException.class})
     public ResponseEntity<ApiError> handleConflictException(RuntimeException ex) {
         ApiError error = new ApiError(
@@ -52,7 +50,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
-    // 3. HTTP 401 Unauthorized - Für falsche Login-Daten
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex) {
         ApiError error = new ApiError(

@@ -17,9 +17,9 @@ import lombok.NoArgsConstructor;
 @Table(
     name = "enrollments", 
     uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"user_id", "course_id"}
-    )
-})
+        @UniqueConstraint(columnNames = {"user_id", "course_id"}) 
+    }
+)
 @Getter @Setter @NoArgsConstructor
 public class Enrollment {
 
@@ -34,7 +34,7 @@ public class Enrollment {
     @JoinColumn(
         name = "course_id", 
         nullable = false, 
-        foreignKey = @ForeignKey(name = "fk_enrollments_course") // FIX: Der Name ist jetzt permanent und sicher!
+        foreignKey = @ForeignKey(name = "fk_enrollments_course") 
     )    
     @NotNull
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -42,7 +42,7 @@ public class Enrollment {
 
     private LocalDateTime enrolledAt = LocalDateTime.now();
 
-    public Enrollment(long userId, Course course) {
+    public Enrollment(long userId, Course course, EnrollmentRole role) {
         this.userId = userId;
         this.course = course;
     }
