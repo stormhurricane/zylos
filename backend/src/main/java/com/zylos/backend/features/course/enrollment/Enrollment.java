@@ -31,7 +31,11 @@ public class Enrollment {
     private long userId; 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id")
+    @JoinColumn(
+        name = "course_id", 
+        nullable = false, 
+        foreignKey = @ForeignKey(name = "fk_enrollments_course") // FIX: Der Name ist jetzt permanent und sicher!
+    )    
     @NotNull
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Course course;
