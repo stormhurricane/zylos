@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.zylos.backend.features.course.Course;
 
 import lombok.Getter;
@@ -11,8 +14,11 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "enrollments", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"user_id", "course_id"})
+@Table(
+    name = "enrollments", 
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "course_id"}
+    )
 })
 @Getter @Setter @NoArgsConstructor
 public class Enrollment {
@@ -27,6 +33,7 @@ public class Enrollment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     @NotNull
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Course course;
 
     private LocalDateTime enrolledAt = LocalDateTime.now();

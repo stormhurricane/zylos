@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 class CourseMaterialServiceTest {
@@ -40,7 +41,13 @@ class CourseMaterialServiceTest {
     void shouldUploadMaterialSuccessfully() throws IOException {
         // Arrange
         Long courseId = 1L;
-        Course course = new Course(courseId, "Java", CourseType.LECTURE, SemesterTerm.SUMMER, "2024");
+        Course course = Course.builder()
+            .id(courseId)
+            .title("Java")
+            .type(CourseType.LECTURE)
+            .term(SemesterTerm.SUMMER)
+            .academicYear("2024")
+            .build();
         MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "application/pdf", "content".getBytes());
         
         when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));

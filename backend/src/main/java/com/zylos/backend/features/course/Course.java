@@ -1,5 +1,10 @@
 package com.zylos.backend.features.course;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.zylos.backend.features.course.enrollment.Enrollment;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -7,12 +12,14 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 @Entity
 @Table(name = "courses")
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Course {
 
     public Course(String title, CourseType type, SemesterTerm term, String academicYear) {
@@ -36,4 +43,7 @@ public class Course {
 
     @NotBlank
     private String academicYear;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Enrollment> enrollments = new ArrayList<>();
 }

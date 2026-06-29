@@ -6,13 +6,16 @@ import com.zylos.backend.features.user.Teacher;
 import com.zylos.backend.features.user.User;
 import com.zylos.backend.features.user.UserRepository;
 import com.zylos.backend.features.user.dto.UserResponse;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor 
@@ -27,46 +30,31 @@ public class CourseUserClientImpl implements CourseUserClient {
 
     @Override
     public boolean isStudent(long userId) {
-        // FIX: Nutzt die OOP-Vererbung statt eines Enums!
-        return userRepository.findById(userId)
-                .map(user -> user instanceof Student)
-                .orElse(false);
+        return userRepository.isStudent(userId);
     }
 
     @Override
     public boolean isInstructor(long userId) {
-        // FIX: Nutzt die OOP-Vererbung statt eines Enums!
-        return userRepository.findById(userId)
-                .map(user -> user instanceof Teacher)
-                .orElse(false);
+        return userRepository.isInstructor(userId);
     }
 
     @Override
+    @Transactional(readOnly = true) // FIX: Performance durch Read-Only Kontext
     public Map<String, List<UserResponse>> categorizeUsersByIds(List<Long> userIds) {
-        Map<String, List<UserResponse>> result = new HashMap<>();
-        List<UserResponse> instructors = new ArrayList<>();
-        List<UserResponse> students = new ArrayList<>();
-
         if (userIds == null || userIds.isEmpty()) {
-            result.put("instructors", instructors);
-            result.put("students", students);
-            return result;
+            return Map.of("instructors", List.of(), "students", List.of());
         }
-
         List<User> users = userRepository.findAllByIdWithSubtypes(userIds);
 
-        for (User user : users) {
-            UserResponse responseDto = new UserResponse(user);
+        Map<Boolean, List<UserResponse>> partitioned = users.stream()
+                .collect(Collectors.partitioningBy(
+                        user -> user instanceof Teacher,
+                        Collectors.mapping(UserResponse::new, Collectors.toList())
+                ));
 
-            if (user instanceof Teacher) {
-                instructors.add(responseDto);
-            } else if (user instanceof Student) {
-                students.add(responseDto);
-            }
-        }
-
-        result.put("instructors", instructors);
-        result.put("students", students);
-        return result;
+        return Map.of(
+                "instructors", partitioned.getOrDefault(true, List.of()),
+                "students", partitioned.getOrDefault(false, List.of())
+        );
     }
 }
