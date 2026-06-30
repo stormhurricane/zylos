@@ -1,6 +1,7 @@
 package com.zylos.backend.features.user.client;
 
 import com.zylos.backend.features.course.CourseUserClient;
+import com.zylos.backend.features.course.enrollment.dto.CourseParticipantsResponse;
 import com.zylos.backend.features.user.Student;
 import com.zylos.backend.features.user.Teacher;
 import com.zylos.backend.features.user.User;
@@ -40,9 +41,9 @@ public class CourseUserClientImpl implements CourseUserClient {
 
     @Override
     @Transactional(readOnly = true) // FIX: Performance durch Read-Only Kontext
-    public Map<String, List<UserResponse>> categorizeUsersByIds(List<Long> userIds) {
+    public CourseParticipantsResponse categorizeUsersByIds(List<Long> userIds) {
         if (userIds == null || userIds.isEmpty()) {
-            return Map.of("instructors", List.of(), "students", List.of());
+            return new CourseParticipantsResponse(List.of(), List.of());
         }
         List<User> users = userRepository.findAllByIdWithSubtypes(userIds);
 
@@ -52,9 +53,9 @@ public class CourseUserClientImpl implements CourseUserClient {
                         Collectors.mapping(UserResponse::new, Collectors.toList())
                 ));
 
-        return Map.of(
-                "instructors", partitioned.getOrDefault(true, List.of()),
-                "students", partitioned.getOrDefault(false, List.of())
+        return new CourseParticipantsResponse(
+            partitioned.getOrDefault(true, List.of()), 
+            partitioned.getOrDefault(false, List.of())
         );
     }
 }

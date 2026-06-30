@@ -8,7 +8,6 @@ import com.zylos.backend.features.course.exceptions.CourseNotFoundException;
 import com.zylos.backend.features.course.enrollment.dto.CourseParticipantsResponse;
 import com.zylos.backend.features.course.enrollment.exceptions.EnrollmentUserNotFoundException;
 import com.zylos.backend.features.course.enrollment.exceptions.InvalidRoleForEnrollmentException; // NEU
-import com.zylos.backend.features.user.dto.UserResponse;
 
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,14 +41,12 @@ public class EnrollmentService {
             throw new EnrollmentUserNotFoundException(userId);
         }
 
-        // Typsichere Rollen-Validierung gegen den Client
         if (role == EnrollmentRole.STUDENT && !courseUserClient.isStudent(userId)) {
             throw new InvalidRoleForEnrollmentException(userId, "STUDENT");
         } else if (role == EnrollmentRole.INSTRUCTOR && !courseUserClient.isInstructor(userId)) {
             throw new InvalidRoleForEnrollmentException(userId, "INSTRUCTOR");
         }
 
-        // FIX: Übergibt die Rolle an den korrigierten Entity-Konstruktor
         enrollmentRepository.save(new Enrollment(userId, course, role));
     }
 
@@ -74,12 +70,7 @@ public class EnrollmentService {
                 .map(Enrollment::getUserId)
                 .collect(Collectors.toList());
 
-        Map<String, List<UserResponse>> categorized = courseUserClient.categorizeUsersByIds(userIds);
-
-        return new CourseParticipantsResponse(
-                categorized.getOrDefault("instructors", List.of()),
-                categorized.getOrDefault("students", List.of())
-        );
+        return courseUserClient.categorizeUsersByIds(userIds);
     }
 
     @Transactional(readOnly = true)
