@@ -18,7 +18,6 @@ public class Student extends User {
 
     private String studySubject;
 
-    // Für die Registrierung (Datenbank generiert die Nummer)
     public Student(String firstName, String lastName, String email, String privateAddress, String password, String profilePicture, Long matriculationNumber, String studySubject) {
         super(firstName, lastName, email, privateAddress, password, profilePicture);
         this.studySubject = studySubject;

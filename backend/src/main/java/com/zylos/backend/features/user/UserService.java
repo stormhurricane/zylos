@@ -16,7 +16,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserService { // FIX: Sichtbarkeit auf public gesetzt, falls Controller in anderem Package
+public class UserService { 
 
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
@@ -69,13 +69,13 @@ public class UserService { // FIX: Sichtbarkeit auf public gesetzt, falls Contro
             return new AuthResponse(token, user.getId(), role, user.getFirstName(), user.getLastName());
         }
 
-        throw new BadCredentialsException("Invalid credentials"); // FIX: 401 statt 400/500
+        throw new BadCredentialsException("Invalid credentials");
     }
 
     @Transactional
     public void updateProfile(long userId, ProfileUpdateRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId)); // FIX: 404 Exception
+                .orElseThrow(() -> new UserNotFoundException(userId)); 
         
         if (request.password() != null && !request.password().isBlank()) {
             user.setPassword(passwordEncoder.encode(request.password()));
@@ -94,7 +94,7 @@ public class UserService { // FIX: Sichtbarkeit auf public gesetzt, falls Contro
 
     public ProfileResponse getUserProfile(long userId, boolean isFullProfile) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId)); // FIX: 404 Exception
+                .orElseThrow(() -> new UserNotFoundException(userId)); 
         return convertToResponse(user, isFullProfile);
     }
 

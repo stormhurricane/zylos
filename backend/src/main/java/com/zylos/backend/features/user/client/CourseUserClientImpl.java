@@ -2,7 +2,6 @@ package com.zylos.backend.features.user.client;
 
 import com.zylos.backend.features.course.CourseUserClient;
 import com.zylos.backend.features.course.enrollment.dto.CourseParticipantsResponse;
-import com.zylos.backend.features.user.Student;
 import com.zylos.backend.features.user.Teacher;
 import com.zylos.backend.features.user.User;
 import com.zylos.backend.features.user.UserRepository;
@@ -12,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

@@ -49,7 +49,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProfileResponse> getPublicProfile(@PathVariable("id") long id) { // FIX: int -> long
+    public ResponseEntity<ProfileResponse> getPublicProfile(@PathVariable("id") long id) { 
         return ResponseEntity.ok(userService.getUserProfile(id, false));
     }
 
