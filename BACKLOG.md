@@ -59,3 +59,43 @@ Das Backend liefert bei Fehlern nun ein standardisiertes `ApiError`-Format mit p
    - **409 Conflict:** Die Fehlermeldung (z. B. "Email already exists") wird als rotes Banner direkt über dem Registrierungsformular angezeigt.
    - **404 Not Found:** Weiterleitung auf eine `/404` Error-Page oder Anzeige eines "Ressource nicht gefunden"-Toasts.
 4. [ ] **Globales Toast-System:** - Integration einer Notification-Library (z. B. react-toastify, HotToasts oder UI-Framework-Toasts) für generische Fehler (HTTP 500 etc.).
+
+## 🎫 TASK-042: Umstellung Local-Dev-Infrastruktur auf Spring Boot Testcontainers
+
+### 📝 Beschreibung
+Die aktuelle lokale Entwicklungsumgebung weicht architektonisch von der Produktionsdatenbank ab (H2 vs. MySQL). Um Schemadivergenzen und inkompatible Flyway-Migrationen (z.B. bei nativen MySQL-Enums) frühzeitig abzufangen, soll die lokale Anwendung vollautomatisch eine echte MySQL-Instanz via Testcontainers starten. Das manuelle Starten eines lokalen Docker-Containers entfällt dadurch.
+
+---
+
+### 🛠️ Technische To-Dos
+
+#### 1. Build-Konfiguration (`pom.xml`)
+- [ ] Testcontainers-Dependencies hinzufügen mit `<scope>development</scope>`:
+  - `org.springframework.boot:spring-boot-testcontainers`
+  - `org.testcontainers:mysql`
+- [ ] Maven-Reload durchführen und Classpath verifizieren.
+
+#### 2. Infrastruktur-Code
+- [ ] `com.zylos.backend.core.config.LocalDevContainerConfig` anlegen.
+  - `@TestConfiguration(proxyBeanMethods = false)` deklarieren.
+  - `MySQLContainer<?>`-Bean mit `@ServiceConnection` konfigurieren.
+  - **Wichtig:** `@RestartScope` hinzufügen, um Container-Restarts bei Spring DevTools-Änderungen zu verhindern.
+- [ ] `com.zylos.backend.TestBackendApplication` im Haupt-Quellordner anlegen.
+  - `SpringApplication.from(BackendApplication::main).with(LocalDevContainerConfig.class).run(args);` implementieren.
+
+#### 3. Properties-Anpassung (`application.properties`)
+- [ ] Sicherstellen, dass für den Dev-Modus gilt:
+  - `spring.jpa.hibernate.ddl-auto=validate`
+  - `spring.flyway.enabled=true`
+- [ ] H2-In-Memory-Altlasten aus der lokalen Dev-Konfiguration entfernen.
+
+---
+
+### ✅ Akzeptanzkriterien (Definition of Done)
+1. Die Applikation lässt sich fehlerfrei über das Ausführen der `TestBackendApplication.main()` starten.
+2. Im Start-Log ist sichtbar, dass ein Docker-Container für `mysql:8.0` sowie der Testcontainers-Müllschlucker (`org.testcontainers.utility.Ryuk`) hochfahren.
+3. Flyway führt die Migration (`V1___INIT_SCHEMA.sql`) erfolgreich auf der dynamischen Container-Instanz aus.
+4. Änderungen an Java-Dateien lösen über DevTools einen schnellen Context-Reload aus, **ohne** dass der Docker-Container neu gestartet wird oder Testdaten verloren gehen.
+5. Beim Beenden der Applikation in der IDE wird der Docker-Container automatisch gestoppt und bereinigt.
+
+⚠️ **Achtung Stolperfalle:** Falls der Start fehlschlägt, prüfen, ob der Docker-Daemon auf dem Linux-Host läuft und der aktuelle Benutzer Lese-/Schreibrechte auf `/var/run/docker.sock` besitzt.
