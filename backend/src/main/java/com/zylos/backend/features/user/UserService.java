@@ -20,6 +20,7 @@ public class UserService {
 
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
+    private final CounterRepository counterRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
@@ -38,7 +39,9 @@ public class UserService {
     @Transactional
     public void registerStudent(StudentRegistrationRequest request) {
         validateEmailUniqueness(request.email());
-        Long nextMatriculationNumber = studentRepository.getNextMatriculationNumber();
+
+        Long nextMatriculationNumber = counterRepository.getAndLockCounter();
+        counterRepository.incrementCounter();
 
         Student student = new Student(
             request.firstName(), request.lastName(), request.email(),
@@ -62,7 +65,6 @@ public class UserService {
         }
 
         if (user != null && passwordEncoder.matches(request.password(), user.getPassword())) {
-            // FIX: "instanceof" schützt vor Hibernate-Proxy-Fehlern
             Role role = (user instanceof Teacher) ? Role.INSTRUCTOR : Role.STUDENT;
 
             String token = jwtService.generateToken(user.getEmail(), user.getId(), List.of(role));
