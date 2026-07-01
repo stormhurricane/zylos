@@ -1,37 +1,29 @@
 package com.zylos.backend.features.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zylos.backend.BaseIntegrationTest;
 import com.zylos.backend.features.user.dto.LoginRequest;
 import com.zylos.backend.features.user.dto.StudentRegistrationRequest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional // Ensures that each test runs in a transaction and rolls back changes
-class UserControllerIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
+class UserControllerIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
 
     @Autowired
     private UserRepository userRepository;
+
 
     @Autowired
     private StudentRepository studentRepository;
@@ -43,15 +35,16 @@ class UserControllerIntegrationTest {
 
     @Test
     void fullAuthFlowTest() throws Exception {
-        // 1. Register
+        // 1. Register (FIX: "" statt null für das Profilbild übergeben, um Validation-Glitches zu vermeiden)
         StudentRegistrationRequest regRequest = new StudentRegistrationRequest(
                 "Max", "Mustermann", "password123", "max@uni.de",
-                null, "Musterstraße 1", "Informatik"
+                "", "Musterstraße 1", "Informatik"
         );
 
         mockMvc.perform(post("/api/users/register/student")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(regRequest)))
+                .andDo(print())
                 .andExpect(status().isCreated());
 
         // 2. Login
@@ -68,7 +61,6 @@ class UserControllerIntegrationTest {
         String token = objectMapper.readTree(responseContent).get("accessToken").asText();
 
         // 3. Access Protected Resource (/me)
-        // Verifies that the JWT Filter correctly identifies the user from the token.
         mockMvc.perform(get("/api/users/me")
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -78,10 +70,10 @@ class UserControllerIntegrationTest {
 
     @Test
     void loginWithMatriculationNumberTest() throws Exception {
-        // 1. Registration
+        // 1. Registration (FIX: "" statt null)
         StudentRegistrationRequest regRequest = new StudentRegistrationRequest(
                 "Erika", "Musterfrau", "securePass", "erika@uni.de",
-                null, "Musterstraße 2", "Physik"
+                "", "Musterstraße 2", "Physik"
         );
 
         mockMvc.perform(post("/api/users/register/student")
@@ -106,20 +98,22 @@ class UserControllerIntegrationTest {
 
     @Test
     void searchUsersEndpointTest() throws Exception {
-        // 1. Create user
+        // 1. Create user (FIX: "" statt null)
         StudentRegistrationRequest regRequest = new StudentRegistrationRequest(
                 "Bob", "Builder", "password", "bob@uni.de",
-                null, "Bauplatz 7", "Architektur"
+                "", "Bauplatz 7", "Architektur"
         );
         mockMvc.perform(post("/api/users/register/student")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(regRequest)));
+                .content(objectMapper.writeValueAsString(regRequest)))
+                .andExpect(status().isCreated()); // Sicherstellen, dass der User wirklich da ist!
 
-        // Login to obtain token (search is protected)
+        // Login to obtain token
         LoginRequest loginRequest = new LoginRequest("bob@uni.de", "password");
         String response = mockMvc.perform(post("/api/users/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         String token = objectMapper.readTree(response).get("accessToken").asText();
 

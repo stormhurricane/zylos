@@ -13,8 +13,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.w3c.dom.css.Counter;
 
 import java.util.Optional;
 
@@ -34,6 +36,8 @@ class UserServiceTest {
     private StudentRepository studentRepository;
     @Mock
     private TeacherRepository teacherRepository;
+    @Mock 
+    private CounterRepository counterRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
@@ -48,6 +52,7 @@ class UserServiceTest {
         StudentRegistrationRequest request = new StudentRegistrationRequest(
             "Max", "Mustermann", "max@stud.de", "Musterstraße 1", "password123", "pic.png", "Informatik"
         );
+        Mockito.when(counterRepository.getAndLockCounter()).thenReturn(10000000L);
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         // Act
@@ -56,6 +61,9 @@ class UserServiceTest {
         // Assert
         ArgumentCaptor<Student> studentCaptor = ArgumentCaptor.forClass(Student.class);
         verify(userRepository).save(studentCaptor.capture());
+
+        Mockito.verify(counterRepository).getAndLockCounter();
+        Mockito.verify(counterRepository).incrementCounter();
         
         Student savedStudent = studentCaptor.getValue();
         assertEquals("Max", savedStudent.getFirstName());

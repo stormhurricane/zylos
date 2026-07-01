@@ -8,6 +8,7 @@ import com.zylos.backend.features.course.SemesterTerm;
 import com.zylos.backend.features.course.dto.CourseRequest;
 import com.zylos.backend.features.course.enrollment.EnrollmentRepository;
 import com.zylos.backend.features.course.material.CourseMaterialRepository;
+import com.zylos.backend.BaseIntegrationTest;
 import com.zylos.backend.config.security.UserPrincipal; // Dein Record
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class CourseControllerIntegrationTest {
+class CourseControllerIntegrationTest extends BaseIntegrationTest{
 
     @Autowired
     private MockMvc mockMvc;
