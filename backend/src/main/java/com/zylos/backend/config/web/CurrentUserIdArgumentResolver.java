@@ -2,6 +2,7 @@ package com.zylos.backend.config.web;
 
 import com.zylos.backend.config.security.UserPrincipal;
 import org.springframework.core.MethodParameter;
+import org.springframework.security.authentication.InsufficientAuthenticationException; // NEU
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -22,9 +23,11 @@ public class CurrentUserIdArgumentResolver implements HandlerMethodArgumentResol
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
         if (authentication != null && authentication.getPrincipal() instanceof UserPrincipal principal) {
             return principal.id();
         }
-        throw new IllegalStateException("No valid UserPrincipal found in SecurityContext for @CurrentUserId");
+        
+        throw new InsufficientAuthenticationException("No valid UserPrincipal found in SecurityContext for @CurrentUserId");
     }
 }
