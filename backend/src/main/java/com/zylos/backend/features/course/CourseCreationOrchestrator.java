@@ -2,8 +2,8 @@ package com.zylos.backend.features.course;
 
 import com.zylos.backend.features.course.dto.CourseRequest;
 import com.zylos.backend.features.course.dto.CourseResponse;
-import com.zylos.backend.features.course.enrollment.EnrollmentService;
-import com.zylos.backend.features.course.enrollment.EnrollmentRole; // FIX: Import nachziehen!
+import com.zylos.backend.features.course.staff.CourseStaffService;
+import com.zylos.backend.features.course.staff.StaffRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,12 +16,12 @@ import java.util.List;
 public class CourseCreationOrchestrator {
 
     private final CourseService courseService;
-    private final EnrollmentService enrollmentService;
+    private final CourseStaffService courseStaffService;
 
     @Transactional(rollbackFor = Exception.class)
     public CourseResponse createCourseWithInstructor(CourseRequest request, long instructorId) {
         CourseResponse course = courseService.createCourse(request);
-        enrollmentService.addEnrollment(course.id(), instructorId, EnrollmentRole.INSTRUCTOR);        
+        courseStaffService.addStaff(course.id(), instructorId, StaffRole.OWNER);        
         return course;
     }
 
@@ -30,7 +30,7 @@ public class CourseCreationOrchestrator {
         List<CourseResponse> importedCourses = courseService.importFromCsv(file);
         
         for (CourseResponse course : importedCourses) {
-            enrollmentService.addEnrollment(course.id(), instructorId, EnrollmentRole.INSTRUCTOR);
+            courseStaffService.addStaff(course.id(), instructorId, StaffRole.OWNER);
         }
         
         return importedCourses;

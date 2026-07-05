@@ -23,8 +23,6 @@ describe('Profile Component', () => {
         '/profile/:id'     
     );
 
-        screen.logTestingPlaygroundURL();
-
         expect(await screen.findByText('Jojen Doe')).toBeInTheDocument();
         expect(screen.getByText('own@uni.de')).toBeInTheDocument();
         expect(screen.getByText('Musterstraße 1')).toBeInTheDocument();

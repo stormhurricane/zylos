@@ -1,5 +1,5 @@
 import api from './axios';
-import { Course, ParticipantsResponse, Material } from './types';
+import { Course, ParticipantsResponse, Material, UserCoursesSummaryResponse } from './types';
 
 export const courseApi = {
     /** Gets all available courses */
@@ -15,8 +15,8 @@ export const courseApi = {
         api.post(`/courses`, data),
     
     /** Gets all courses, in which current user is enrolled */
-    getMyCourses: (): Promise<Course[]> => 
-        api.get(`/courses/my-enrollments`),
+    getMyCourses: (): Promise<UserCoursesSummaryResponse> => 
+        api.get(`/courses/my-courses`),
 
     /** Imports courses via csv */
     importCsv: (file: File): Promise<Course[]> => {

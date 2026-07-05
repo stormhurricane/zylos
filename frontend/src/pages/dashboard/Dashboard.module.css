@@ -63,3 +63,39 @@
     cursor: pointer;
     color: var(--text-main);
 }
+
+.avatarImg {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto var(--spacing-sm);
+}
+
+.searchResultTitle {
+    margin: 5px 0;
+}
+
+.searchResultSub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.loadingText, .emptyText {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.sectionHeading {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    margin-bottom: var(--spacing-xs);
+}
+
+.courseGroup {
+    margin-top: var(--spacing-md);
+}
+
+.courseItemMeta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}

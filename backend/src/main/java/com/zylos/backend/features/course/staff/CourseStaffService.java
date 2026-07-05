@@ -1,4 +1,4 @@
-package com.zylos.backend.features.course.enrollment;
+package com.zylos.backend.features.course.staff;
 
 import com.zylos.backend.features.course.Course;
 import com.zylos.backend.features.course.CourseRepository;
@@ -7,57 +7,57 @@ import com.zylos.backend.features.course.dto.CourseResponse;
 import com.zylos.backend.features.course.exceptions.CourseNotFoundException;
 import com.zylos.backend.features.course.enrollment.exceptions.EnrollmentUserNotFoundException;
 import com.zylos.backend.features.course.enrollment.exceptions.InvalidRoleForEnrollmentException;
-
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 @RequiredArgsConstructor
-public class EnrollmentService {
-    
-    private final EnrollmentRepository enrollmentRepository;
+public class CourseStaffService {
+
+    private final CourseStaffRepository courseStaffRepository;
     private final CourseRepository courseRepository;
     private final CourseUserClient courseUserClient;
 
     @Transactional(rollbackFor = Exception.class)
-    public void addEnrollment(Long courseId, long userId) {
-        if (enrollmentRepository.findByCourseIdAndUserId(courseId, userId).isPresent()) {
+    public void addStaff(Long courseId, long userId, StaffRole role) {
+        if (courseStaffRepository.findByCourseIdAndUserId(courseId, userId).isPresent()) {
             return;
         }
-        
+
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException(courseId));
-        
+
         if (!courseUserClient.existsById(userId)) {
             throw new EnrollmentUserNotFoundException(userId);
         }
 
-        if (!courseUserClient.isStudent(userId)) {
-            throw new InvalidRoleForEnrollmentException(userId, "STUDENT");
+        if (!courseUserClient.isInstructor(userId)) {
+            throw new InvalidRoleForEnrollmentException(userId, "INSTRUCTOR");
         }
 
-        enrollmentRepository.save(new Enrollment(userId, course));
+        courseStaffRepository.save(new CourseStaff(userId, course, role));
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void unenrollUser(Long courseId, long userId) {
-        enrollmentRepository.deleteByCourseIdAndUserId(courseId, userId);
+    public void removeStaff(Long courseId, long userId) {
+        courseStaffRepository.deleteByCourseIdAndUserId(courseId, userId);
     }
 
     @Transactional(readOnly = true)
-    public List<CourseResponse> getEnrolledCourses(long userId) {
-        return enrollmentRepository.findByUserId(userId).stream()
-                .map(e -> new CourseResponse(e.getCourse()))
+    public List<CourseResponse> getCoursesForStaff(long userId) {
+        return courseStaffRepository.findByUserId(userId).stream()
+                .map(staff -> new CourseResponse(staff.getCourse()))
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<Long> getStudentIdsForCourse(Long courseId) {
-        return enrollmentRepository.findByCourseId(courseId).stream()
-                .map(Enrollment::getUserId)
+    public List<Long> getStaffIdsForCourse(Long courseId) {
+        return courseStaffRepository.findByUserId(courseId).stream() // Korrigiert auf Domänen-Feld
+                .map(CourseStaff::getUserId)
                 .toList();
     }
 }

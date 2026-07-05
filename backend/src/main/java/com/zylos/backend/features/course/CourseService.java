@@ -2,8 +2,12 @@ package com.zylos.backend.features.course;
 
 import com.zylos.backend.features.course.dto.CourseRequest;
 import com.zylos.backend.features.course.dto.CourseResponse;
+import com.zylos.backend.features.course.dto.UserCoursesSummaryResponse;
+import com.zylos.backend.features.course.enrollment.EnrollmentService;
+import com.zylos.backend.features.course.enrollment.dto.CourseParticipantsResponse;
 import com.zylos.backend.features.course.exceptions.CourseAlreadyExistsException;
 import com.zylos.backend.features.course.exceptions.CourseNotFoundException;
+import com.zylos.backend.features.course.staff.CourseStaffService;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -26,6 +30,9 @@ import java.util.Set;
 public class CourseService {
 
     private final CourseRepository courseRepository;
+    private final EnrollmentService enrollmentService;
+    private final CourseStaffService courseStaffService;
+    private final CourseUserClient courseUserClient;
     private final Validator validator;
 
     @Transactional(rollbackFor = Exception.class)
@@ -105,5 +112,33 @@ public class CourseService {
         }
         return results;
     }
+
+    @Transactional(readOnly = true)
+    public CourseParticipantsResponse getCategorizedParticipants(Long courseId) {
+        validateCourseExists(courseId);
+
+        List<Long> staffIds = courseStaffService.getStaffIdsForCourse(courseId);
+        List<Long> studentIds = enrollmentService.getStudentIdsForCourse(courseId);
+
+        List<Long> allUserIds = new ArrayList<>();
+        allUserIds.addAll(staffIds);
+        allUserIds.addAll(studentIds);
+
+        return courseUserClient.categorizeUsersByIds(allUserIds);
+    }
+
+    @Transactional(readOnly = true)
+    public UserCoursesSummaryResponse getMyCoursesSummary(long userId) {
+        List<CourseResponse> teaching = courseStaffService.getCoursesForStaff(userId);
+        List<CourseResponse> enrolled = enrollmentService.getEnrolledCourses(userId);
+
+        return new UserCoursesSummaryResponse(teaching, enrolled);
+    }
+
+    public void validateCourseExists(Long courseId) {
+    if (!courseRepository.existsById(courseId)) {
+        throw new CourseNotFoundException(courseId);
+    }
+}
 
 }

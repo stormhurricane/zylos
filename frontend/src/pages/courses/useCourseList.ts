@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { courseApi } from '../../api/courseApi';
 import { Course } from '../../api/types';
+import { useAuth } from '../../context/AuthContext';
 
 export const useCourseList = () => {
     const [courses, setCourses] = useState<Course[]>([]);
@@ -9,6 +10,7 @@ export const useCourseList = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+    const { isInstructor } = useAuth(); // Verhindert falsche Enrollment-Aktionen für Dozenten
 
     useEffect(() => {
         const fetchData = async () => {
@@ -19,8 +21,13 @@ export const useCourseList = () => {
                     courseApi.getAllCourses(),
                     courseApi.getMyCourses()
                 ]);
+                
                 setCourses(allRes);
-                setEnrolledIds(myRes.map(c => c.id));
+
+                const teachingIds = myRes.teachingCourses.map((c: Course) => c.id);
+                const studentIds = myRes.enrolledCourses.map((c: Course) => c.id);
+                
+                setEnrolledIds([...teachingIds, ...studentIds]);
             } catch (err) {
                 console.error("Fehler beim Laden der Kurse", err);
                 setError("Fehler beim Laden der Kurse. Bitte versuche es später erneut.");
@@ -32,6 +39,11 @@ export const useCourseList = () => {
     }, []);
 
     const handleEnroll = async (courseId: number) => {
+        if (isInstructor) {
+            alert('Als Dozent kannst du dich nicht in Kurse einschreiben. Nutze das Kurs-Management, um dich hinzuzufügen.');
+            return;
+        }
+
         try {
             await courseApi.enroll(courseId);
             setEnrolledIds(prev => [...prev, courseId]);

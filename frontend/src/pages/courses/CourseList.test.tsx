@@ -15,7 +15,7 @@ const renderCourseList = () => {
 
 
 
-describe('CourseList Component mit MSW', () => {
+describe('CourseList Component', () => {
 
     beforeEach(() => {
         window.alert = vi.fn();
@@ -30,7 +30,7 @@ describe('CourseList Component mit MSW', () => {
         expect(screen.getByRole("link", {name: "Database Systems"}));
 
 
-        const enrollButtons = screen.getAllByRole('button', { name: /Teilnehmen/i });
+        const enrollButtons = screen.getAllByRole('button', { name: /Einschreiben/i });
         await act(async () => await user.click(enrollButtons[0])); 
 
         await vi.waitFor(() => {
@@ -40,15 +40,15 @@ describe('CourseList Component mit MSW', () => {
 
     it('should show "Ansehen" Button, if already enrolled', async () => {
         server.use(
-            http.get(`${TEST_BASE_URL}/courses/my-enrollments`, () => {
-                return HttpResponse.json([mockCoursesData[0]]);
+            http.get(`${TEST_BASE_URL}/courses/my-courses`, () => {
+                return HttpResponse.json({ teachingCourses: [], enrolledCourses: [mockCoursesData[0]] });
             })
         );
 
         renderCourseList();
 
         expect(await screen.findByRole('button', { name: /Ansehen/i })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /Teilnehmen/i })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Einschreiben/i })).toBeInTheDocument();
     });
 
     it('should show empty if no courses returned by API', async () => {

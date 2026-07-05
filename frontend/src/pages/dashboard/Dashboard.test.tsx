@@ -10,8 +10,8 @@ describe('Dashboard Component Integration', () => {
     
     it('should render courses of the user and show them sorted', async () => {
         server.use(
-            http.get(`${TEST_BASE_URL}/courses/my-enrollments`, () => {
-                    return HttpResponse.json(mockCoursesData);
+            http.get(`${TEST_BASE_URL}/courses/my-courses`, () => {
+                    return HttpResponse.json({ teachingCourses: [], enrolledCourses: mockCoursesData });
                 }),
         );
 

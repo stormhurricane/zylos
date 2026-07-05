@@ -36,7 +36,7 @@ export const CourseList: React.FC = () => {
                                     onClick={() => handleButtonClick(course.id, isEnrolled)}
                                     className={`btn-primary ${styles.enrollBtn} ${isEnrolled ? styles.enrolledBtn : ''}`}
                                 >
-                                    {isEnrolled ? 'Ansehen' : 'Teilnehmen'}
+                                    {isEnrolled ? 'Ansehen' : 'Einschreiben'}
                                 </button>
                             </div>
                         );

@@ -104,3 +104,15 @@ export interface Material {
     fileName: string;
     contentType: string;
 }
+
+export interface UserCoursesSummaryResponse {
+    teachingCourses: Course[];
+    enrolledCourses: Course[];
+}
+
+export type StaffRole = 'OWNER' | 'EDITOR';
+
+export interface CourseStaffResponse {
+    user: UserResponse;
+    role: StaffRole;
+}

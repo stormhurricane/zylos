@@ -42,7 +42,7 @@ public class Enrollment {
 
     private LocalDateTime enrolledAt = LocalDateTime.now();
 
-    public Enrollment(long userId, Course course, EnrollmentRole role) {
+    public Enrollment(long userId, Course course) {
         this.userId = userId;
         this.course = course;
     }

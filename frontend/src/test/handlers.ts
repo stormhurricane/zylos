@@ -67,10 +67,13 @@ export const globalHandlers = [
         });
     }),
 
-    http.get(`${TEST_BASE_URL}/courses/my-enrollments`, () => {
-        return HttpResponse.json([
-            mockCoursesData[0]
-        ]);
+    http.get(`${TEST_BASE_URL}/courses/my-courses`, () => {
+        return HttpResponse.json({
+            teaching: [], 
+            enrolled: [
+                mockCoursesData[0]
+            ]
+        });
     }),
 
     http.get(`${TEST_BASE_URL}/courses/:id`, ({ params }) => {

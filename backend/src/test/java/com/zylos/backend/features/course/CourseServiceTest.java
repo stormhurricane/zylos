@@ -1,13 +1,9 @@
 package com.zylos.backend.features.course;
 
-import com.zylos.backend.features.course.Course;
-import com.zylos.backend.features.course.CourseRepository;
-import com.zylos.backend.features.course.CourseService;
-import com.zylos.backend.features.course.CourseType;
-import com.zylos.backend.features.course.SemesterTerm;
 import com.zylos.backend.features.course.dto.CourseRequest;
 import com.zylos.backend.features.course.dto.CourseResponse;
 import com.zylos.backend.features.course.enrollment.EnrollmentService;
+import com.zylos.backend.features.course.staff.CourseStaffService;
 
 import jakarta.validation.Validator;
 
@@ -27,14 +23,20 @@ class CourseServiceTest {
 
     private CourseRepository courseRepository;
     private EnrollmentService enrollmentService;
+    private CourseStaffService courseStaffService;
+    private CourseUserClient courseUserClient;
     private CourseService courseService;
     private Validator validator;
 
     @BeforeEach
     void setUp() {
         courseRepository = Mockito.mock(CourseRepository.class);
+        enrollmentService = Mockito.mock(EnrollmentService.class);
+        courseStaffService = Mockito.mock(CourseStaffService.class);
+        courseUserClient = Mockito.mock(CourseUserClient.class);
         validator = Mockito.mock(Validator.class);
-        courseService = new CourseService(courseRepository, validator);
+
+        courseService = new CourseService(courseRepository, enrollmentService, courseStaffService, courseUserClient, validator);
     }
 
     @Test

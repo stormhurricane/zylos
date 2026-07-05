@@ -1,12 +1,10 @@
 package com.zylos.backend.features.course.material;
 
+import com.zylos.backend.config.security.CourseSecurityEvaluator;
 import com.zylos.backend.features.course.Course;
 import com.zylos.backend.features.course.CourseRepository;
 import com.zylos.backend.features.course.CourseType;
 import com.zylos.backend.features.course.SemesterTerm;
-import com.zylos.backend.features.course.material.CourseMaterial;
-import com.zylos.backend.features.course.material.CourseMaterialRepository;
-import com.zylos.backend.features.course.material.CourseMaterialService;
 import com.zylos.backend.features.course.material.dto.MaterialDownloadResponse;
 import com.zylos.backend.features.course.material.dto.MaterialResponse;
 
@@ -29,12 +27,15 @@ class CourseMaterialServiceTest {
     private CourseMaterialRepository materialRepository;
     private CourseRepository courseRepository;
     private CourseMaterialService materialService;
+    private CourseSecurityEvaluator courseSecurityEvaluator;
 
     @BeforeEach
     void setUp() {
         materialRepository = Mockito.mock(CourseMaterialRepository.class);
         courseRepository = Mockito.mock(CourseRepository.class);
-        materialService = new CourseMaterialService(materialRepository, courseRepository);
+        courseSecurityEvaluator = Mockito.mock(CourseSecurityEvaluator.class);
+
+        materialService = new CourseMaterialService(materialRepository, courseRepository,courseSecurityEvaluator);
     }
 
     @Test
@@ -56,9 +57,10 @@ class CourseMaterialServiceTest {
             m.setId(10L);
             return m;
         });
+        Mockito.when(courseSecurityEvaluator.hasWriteAccess(1L, 1L)).thenReturn(true);
 
         // Act
-        MaterialResponse response = materialService.uploadMaterial(courseId, file, "Script");
+        MaterialResponse response = materialService.uploadMaterialSecure(courseId, file, "Script", 1L);
 
         // Assert
         assertNotNull(response.id());
@@ -74,16 +76,14 @@ class CourseMaterialServiceTest {
         MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "text/plain", "data".getBytes());
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> materialService.uploadMaterial(1L, file, "Title"));
+        assertThrows(RuntimeException.class, () -> materialService.uploadMaterialSecure(1L, file, "Title", 1L));
     }
 
    @Test
     void shouldReturnMaterialsForCourse() {
         // Arrange
-        // FIX 1: Der Service prüft jetzt zuerst, ob der Kurs existiert. Das müssen wir mocken!
         when(courseRepository.existsById(1L)).thenReturn(true);
 
-        // FIX 2: Der Service ruft NICHT mehr findByCourseId auf, sondern die neue Projektions-Query!
         List<MaterialResponse> projectedResponses = List.of(
             new MaterialResponse(1L, "M1", "f1.pdf", "application/pdf", 0L, java.time.LocalDateTime.now())
         );
@@ -102,14 +102,18 @@ class CourseMaterialServiceTest {
     void shouldGetMaterialEntity() {
         // Arrange
         Course course = new Course();
-        // FIX: Nutze den echten Konstruktor mit validen Dummy-Bytes (nicht null!)
+        course.setId(1L);
+
         byte[] dummyBytes = "pdf-content".getBytes();
         CourseMaterial material = new CourseMaterial("Titel", "test.pdf", "application/pdf", dummyBytes, course);
         
         when(materialRepository.findById(10L)).thenReturn(Optional.of(material));
 
+        Mockito.when(courseSecurityEvaluator.hasReadAccess(1L, 1L)).thenReturn(true);
+        Mockito.when(courseSecurityEvaluator.hasWriteAccess(1L, 1L)).thenReturn(true);
+
         // Act
-        MaterialDownloadResponse result = materialService.downloadMaterial(10L);
+        MaterialDownloadResponse result = materialService.downloadMaterialSecure(10L, 1L);
 
         // Assert
         assertNotNull(result);

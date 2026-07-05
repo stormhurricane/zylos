@@ -69,3 +69,34 @@
     font-size: 0.8rem;
     color: var(--text-muted);
 }
+
+.avatarImg {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.infoBlockLabel {
+    font-weight: bold;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: var(--spacing-xs);
+}
+
+.sectionHeading {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: var(--spacing-sm);
+    letter-spacing: 0.5px;
+}
+
+.courseGroup {
+    margin-bottom: var(--spacing-md);
+}
+
+.emptyText {
+    color: var(--text-muted);
+    font-style: italic;
+}

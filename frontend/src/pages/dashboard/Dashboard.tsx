@@ -7,12 +7,15 @@ export const Dashboard = () => {
     const {
         welcomeName,
         searchResults,
-        myCourses,
+        teachingCourses,
+        enrolledCourses,
         isLoadingCourses,
         searchError,
         handleViewProfile,
         handleViewCourse
     } = useDashboard();
+
+    const hasNoCourses = (!teachingCourses || teachingCourses.length === 0) && (!enrolledCourses ||enrolledCourses.length === 0);
 
     return (
         <div className="app-page">
@@ -35,11 +38,10 @@ export const Dashboard = () => {
                                             <img 
                                                 src={res.profilePicture || `${DEFAULT_AVATAR}${res.firstName}+${res.lastName}`} 
                                                 alt="Avatar"
-                                                className="avatar-img"
-                                                style={{ width: '60px', height: '60px', margin: '0 auto var(--spacing-sm)' }}
+                                                className={styles.avatarImg}
                                             />
-                                            <h4 style={{ margin: '5px 0' }}>{res.firstName} {res.lastName}</h4>
-                                            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                            <h4 className={styles.searchResultTitle}>{res.firstName} {res.lastName}</h4>
+                                            <p className={styles.searchResultSub}>
                                                 {res.subInfo || ''}
                                             </p>
                                             <button 
@@ -63,26 +65,59 @@ export const Dashboard = () => {
                     <aside className={styles.sidebar}>
                         <div className="card">
                             <h3 className="color-primary mb-4">Meine Kurse</h3>
-                            <div className="flex flex-col gap-4">
+                            <div className="flex flex-col">
                                 {isLoadingCourses ? (
-                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Kurse werden geladen...</p>
-                                ) : myCourses.length > 0 ? (
-                                    myCourses.map(course => (
-                                        <div key={course.id} className={styles.courseItem}>
-                                            <div 
-                                                onClick={() => handleViewCourse(course.id)}
-                                                className={styles.courseLink}                                            >
-                                                {course.title}
-                                            </div>
-                                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                                                {course.term} {course.academicYear}
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                                        Du bist noch in keinen Kursen eingeschrieben.
+                                    <p className={styles.loadingText}>Kurse werden geladen...</p>
+                                ) : hasNoCourses ? (
+                                    <p className={styles.emptyText}>
+                                        Du bist noch in keinen Kursen eingetragen.
                                     </p>
+                                ) : (
+                                    <>
+                                        {/* Sektion für Lehrende */}
+                                        {teachingCourses.length > 0 && (
+                                            <div>
+                                                <h4 className={styles.sectionHeading}>MEINE LEHRE</h4>
+                                                <div className="flex flex-col">
+                                                    {teachingCourses.map(course => (
+                                                        <div key={course.id} className={styles.courseItem}>
+                                                            <div 
+                                                                onClick={() => handleViewCourse(course.id)}
+                                                                className={styles.courseLink}
+                                                            >
+                                                                {course.title}
+                                                            </div>
+                                                            <div className={styles.courseItemMeta}>
+                                                                {course.term} {course.academicYear}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Sektion für Belegte Kurse */}
+                                        {enrolledCourses.length > 0 && (
+                                            <div className={teachingCourses.length > 0 ? styles.courseGroup : undefined}>
+                                                <h4 className={styles.sectionHeading}>BELEGTE KURSE</h4>
+                                                <div className="flex flex-col">
+                                                    {enrolledCourses.map(course => (
+                                                        <div key={course.id} className={styles.courseItem}>
+                                                            <div 
+                                                                onClick={() => handleViewCourse(course.id)}
+                                                                className={styles.courseLink}
+                                                            >
+                                                                {course.title}
+                                                            </div>
+                                                            <div className={styles.courseItemMeta}>
+                                                                {course.term} {course.academicYear}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
                                 )}
                             </div>
                         </div>

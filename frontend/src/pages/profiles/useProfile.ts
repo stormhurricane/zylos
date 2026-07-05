@@ -15,7 +15,8 @@ export const useProfile = () => {
     const targetUserId = urlId ? Number(urlId) : currentUserId;
 
     const [profile, setProfile] = useState<ProfileResponse | null>(null);
-    const [courses, setCourses] = useState<Course[]>([]);
+    const [teachingCourses, setTeachingCourses] = useState<Course[]>([]);
+    const [enrolledCourses, setEnrolledCourses] = useState<Course[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -33,10 +34,13 @@ export const useProfile = () => {
                 setProfile(profileData);
 
                 if (isOwnProfile && profileData) {
-                    const coursesRes = await courseApi.getMyCourses();
-                    setCourses(coursesRes);
+                    const res = await courseApi.getMyCourses();
+                    
+                    setTeachingCourses(res.teachingCourses);
+                    setEnrolledCourses(res.enrolledCourses);
                 } else {
-                    setCourses([]);
+                    setTeachingCourses([]);
+                    setEnrolledCourses([]);
                 }
             } catch (err) {
                 console.error("Schwerwiegender Fehler beim Laden des Profils", err);
@@ -56,7 +60,8 @@ export const useProfile = () => {
 
     return {
         profile,
-        courses,
+        teachingCourses,
+        enrolledCourses,
         loading,
         error,
         isOwnProfile,

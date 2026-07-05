@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.zylos.backend.features.course.exceptions.CourseAccessDeniedException;
 import com.zylos.backend.features.course.exceptions.CourseAlreadyExistsException;
 import com.zylos.backend.features.course.exceptions.CourseNotFoundException;
 import com.zylos.backend.features.course.material.exceptions.MaterialNotFoundException;
@@ -67,6 +68,16 @@ public class GlobalExceptionHandler {
             errors.put(error.getField(), error.getDefaultMessage())
         );
         return createResponse("Validation failed", errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CourseAccessDeniedException.class)
+    public ResponseEntity<ApiError> handleCourseAccessDenied(CourseAccessDeniedException ex) {
+        ApiError error = new ApiError(
+            ex.getMessage(),
+            null, 
+            LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
     // catches errors from SecurityConfig.authenticationEntryPoint (no token or broken)
