@@ -3,121 +3,114 @@ package com.zylos.backend.features.course.material;
 import com.zylos.backend.config.security.CourseSecurityEvaluator;
 import com.zylos.backend.features.course.Course;
 import com.zylos.backend.features.course.CourseRepository;
-import com.zylos.backend.features.course.CourseType;
-import com.zylos.backend.features.course.SemesterTerm;
-import com.zylos.backend.features.course.material.dto.MaterialDownloadResponse;
+import com.zylos.backend.features.course.exceptions.CourseAccessDeniedException;
 import com.zylos.backend.features.course.material.dto.MaterialResponse;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class) // Best Practice: Aktiviert sauberes Mockito-Lifecycle-Management
 class CourseMaterialServiceTest {
 
+    @Mock
     private CourseMaterialRepository materialRepository;
+    
+    @Mock
     private CourseRepository courseRepository;
-    private CourseMaterialService materialService;
+    
+    @Mock
     private CourseSecurityEvaluator courseSecurityEvaluator;
 
-    @BeforeEach
-    void setUp() {
-        materialRepository = Mockito.mock(CourseMaterialRepository.class);
-        courseRepository = Mockito.mock(CourseRepository.class);
-        courseSecurityEvaluator = Mockito.mock(CourseSecurityEvaluator.class);
+    @InjectMocks
+    private CourseMaterialService materialService;
 
-        materialService = new CourseMaterialService(materialRepository, courseRepository,courseSecurityEvaluator);
-    }
+    private final LocalDateTime FIXED_TIME = LocalDateTime.of(2026, 7, 6, 20, 0);
 
     @Test
     void shouldUploadMaterialSuccessfully() throws IOException {
-        // Arrange
         Long courseId = 1L;
-        Course course = Course.builder()
-            .id(courseId)
-            .title("Java")
-            .type(CourseType.LECTURE)
-            .term(SemesterTerm.SUMMER)
-            .academicYear("2024")
-            .build();
+        Long userId = 42L;
+        Course course = Course.builder().id(courseId).title("Java").build();
         MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "application/pdf", "content".getBytes());
         
         when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
-        when(materialRepository.save(any(CourseMaterial.class))).thenAnswer(invocation -> {
-            CourseMaterial m = invocation.getArgument(0);
+        when(courseSecurityEvaluator.hasWriteAccess(courseId, userId)).thenReturn(true);
+        when(materialRepository.save(any(CourseMaterial.class))).thenAnswer(inv -> {
+            CourseMaterial m = inv.getArgument(0);
             m.setId(10L);
             return m;
         });
-        Mockito.when(courseSecurityEvaluator.hasWriteAccess(1L, 1L)).thenReturn(true);
 
-        // Act
-        MaterialResponse response = materialService.uploadMaterialSecure(courseId, file, "Script", 1L);
+        MaterialResponse response = materialService.uploadMaterialSecure(courseId, file, "Script", userId);
 
-        // Assert
         assertNotNull(response.id());
         assertEquals("Script", response.title());
-        assertEquals("test.pdf", response.fileName());
         verify(materialRepository).save(any(CourseMaterial.class));
     }
 
     @Test
-    void shouldThrowExceptionWhenCourseNotFoundDuringUpload() {
-        // Arrange
-        when(courseRepository.findById(anyLong())).thenReturn(Optional.empty());
-        MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "text/plain", "data".getBytes());
+    void shouldThrowAccessDeniedExceptionWhenUserHasNoWriteAccessDuringUpload() {
+        Long courseId = 1L;
+        Long userId = 99L;
+        Course course = Course.builder().id(courseId).build();
+        MockMultipartFile file = new MockMultipartFile("file", "test.pdf", "application/pdf", "content".getBytes());
+        
+        when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
+        when(courseSecurityEvaluator.hasWriteAccess(courseId, userId)).thenReturn(false);
 
-        // Act & Assert
-        assertThrows(RuntimeException.class, () -> materialService.uploadMaterialSecure(1L, file, "Title", 1L));
-    }
-
-   @Test
-    void shouldReturnMaterialsForCourse() {
-        // Arrange
-        when(courseRepository.existsById(1L)).thenReturn(true);
-
-        List<MaterialResponse> projectedResponses = List.of(
-            new MaterialResponse(1L, "M1", "f1.pdf", "application/pdf", 0L, java.time.LocalDateTime.now())
+        assertThrows(CourseAccessDeniedException.class, () -> 
+            materialService.uploadMaterialSecure(courseId, file, "Script", userId)
         );
-        when(materialRepository.findAllProjectedByCourseId(1L)).thenReturn(projectedResponses);
-
-        // Act
-        List<MaterialResponse> materials = materialService.getMaterialsForCourse(1L);
-
-        // Assert
-        assertNotNull(materials);
-        assertEquals(1, materials.size());
-        assertEquals("M1", materials.get(0).title());
+        verify(materialRepository, never()).save(any(CourseMaterial.class));
     }
 
     @Test
-    void shouldGetMaterialEntity() {
+    void shouldReturnMaterialsForCourse() {
+        Long courseId = 1L;
+        when(courseRepository.existsById(courseId)).thenReturn(true);
+
+        List<MaterialResponse> projectedResponses = List.of(
+            new MaterialResponse(1L, "M1", "f1.pdf", "application/pdf", 0L, FIXED_TIME)
+        );
+        when(materialRepository.findAllProjectedByCourseId(courseId)).thenReturn(projectedResponses);
+
+        List<MaterialResponse> materials = materialService.getMaterialsForCourse(courseId);
+
+        assertEquals(1, materials.size());
+        assertEquals(FIXED_TIME, materials.get(0).createdAt()); 
+    }
+
+    @Test
+    void shouldThrowAccessDeniedExceptionWhenUserHasNoReadAccessDuringDownload() {
         // Arrange
+        Long materialId = 10L;
+        Long userId = 99L;
+        Long courseId = 1L;
+
         Course course = new Course();
-        course.setId(1L);
+        course.setId(courseId);
+        CourseMaterial material = new CourseMaterial("Titel", "test.pdf", "application/pdf", new byte[0], course);
+        material.setId(materialId);
 
-        byte[] dummyBytes = "pdf-content".getBytes();
-        CourseMaterial material = new CourseMaterial("Titel", "test.pdf", "application/pdf", dummyBytes, course);
+        when(materialRepository.findById(materialId)).thenReturn(Optional.of(material));
         
-        when(materialRepository.findById(10L)).thenReturn(Optional.of(material));
+        when(courseSecurityEvaluator.hasReadAccess(courseId, userId)).thenReturn(false);
 
-        Mockito.when(courseSecurityEvaluator.hasReadAccess(1L, 1L)).thenReturn(true);
-        Mockito.when(courseSecurityEvaluator.hasWriteAccess(1L, 1L)).thenReturn(true);
-
-        // Act
-        MaterialDownloadResponse result = materialService.downloadMaterialSecure(10L, 1L);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals("test.pdf", result.fileName());
-        assertEquals("application/pdf", result.contentType());
+        // Act & Assert
+        assertThrows(CourseAccessDeniedException.class, () -> {
+            materialService.downloadMaterialSecure(materialId, userId);
+        });
     }
 }

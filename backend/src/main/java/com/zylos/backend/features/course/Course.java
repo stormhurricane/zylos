@@ -6,7 +6,6 @@ import java.util.List;
 import com.zylos.backend.features.course.enrollment.Enrollment;
 import com.zylos.backend.features.course.staff.CourseStaff;
 import com.zylos.backend.features.course.staff.StaffRole;
-import com.zylos.backend.features.user.Teacher;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

@@ -1,161 +1,157 @@
 package com.zylos.backend.features.course;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zylos.backend.features.course.dto.CourseRequest;
-import com.zylos.backend.features.user.User; // Angenommen dein User Model heißt so
 import com.zylos.backend.BaseIntegrationTest;
+import com.zylos.backend.config.security.CourseSecurityEvaluator;
 import com.zylos.backend.config.security.UserPrincipal;
+import com.zylos.backend.config.security.WithMockUserPrincipal;
+import com.zylos.backend.features.course.dto.CourseRequest;
+import com.zylos.backend.features.course.material.CourseMaterial;
+import com.zylos.backend.features.course.material.CourseMaterialRepository;
+import com.zylos.backend.features.user.Teacher;
+import com.zylos.backend.features.user.TeacherRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
-
-import java.util.List;
-import java.util.Map;
-
+import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional // Fixes clean state automatically after every single test!
+@Transactional
 class CourseControllerIntegrationTest extends BaseIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
 
     @Autowired
     private CourseRepository courseRepository;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private CourseMaterialRepository materialRepository;
 
     @Autowired
-    private EntityManager entityManager;
+    private TeacherRepository teacherRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private CourseSecurityEvaluator courseSecurityEvaluator;
 
     private Long generatedTeacherId;
 
     @BeforeEach
-    void setup() throws Exception {
-        // Da User abstrakt ist, nutzen wir einfach deinen funktionierenden API-Weg,
-        // um den Lehrer sauber in die DB zu bringen.
-        Map<String, Object> teacherRequest = Map.of(
-            "firstName", "Test",
-            "lastName", "Instructor",
-            "email", "instructor@test.com",
-            "password", "password",
-            "privateAddress", "Address",
-            "researchArea", "Research",
-            "chair", "Chair"
-        );
-
-        mockMvc.perform(post("/api/users/register/teacher")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(teacherRequest)))
-                .andExpect(status().isCreated());
+    void setUpInstructor() {
+        Teacher teacher = new Teacher();
+        teacher.setEmail("instructor@zylos.com");
+        teacher.setFirstName("Severus");
+        teacher.setLastName("Snape");
+        teacher.setPassword("potions123");
         
-        // Echte ID aus DB holen
-        generatedTeacherId = entityManager.createQuery(
-                "SELECT u.id FROM User u WHERE u.email = :email", Long.class)
-                .setParameter("email", "instructor@test.com")
-                .getSingleResult();
-    }
-
-    private RequestPostProcessor mockUser(Long id, String email, String role) {
-        UserPrincipal principal = new UserPrincipal(id, email);
-        return authentication(new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                principal, "password", List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role))
-        ));
+        teacher = teacherRepository.save(teacher);
+        this.generatedTeacherId = teacher.getId(); 
     }
 
     @Test
-    void shouldCreateCourseAndUploadMaterial() throws Exception {
+    void shouldCreateCourseSuccessfully() throws Exception {
+        var principal = new UserPrincipal(generatedTeacherId, "instructor@zylos.com");
+        var auth = new UsernamePasswordAuthenticationToken(
+                principal, null, java.util.List.of(new SimpleGrantedAuthority("ROLE_INSTRUCTOR"))
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
         CourseRequest request = new CourseRequest("Integration Test Course", CourseType.LECTURE, SemesterTerm.WINTER, "2024/2025");
-        
-        // 1. Create Course
-        String courseJson = mockMvc.perform(post("/api/courses")
-                .with(mockUser(generatedTeacherId, "instructor@test.com", "INSTRUCTOR"))
+
+        mockMvc.perform(post("/api/courses")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
-        
-        Long courseId = objectMapper.readTree(courseJson).get("id").asLong();
-
-        // 2. Upload Material
-        MockMultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "Hello World".getBytes());
-        
-        String materialJson = mockMvc.perform(multipart("/api/courses/" + courseId + "/materials")
-                .file(file)
-                .with(mockUser(generatedTeacherId, "instructor@test.com", "INSTRUCTOR"))
-                .param("title", "My Document"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("My Document"))
-                .andReturn().getResponse().getContentAsString();
-        
-        Long materialId = objectMapper.readTree(materialJson).get("id").asLong();
-
-        // 3. Download Material
-        mockMvc.perform(get("/api/courses/materials/" + materialId + "/download")
-                .with(mockUser(generatedTeacherId, "instructor@test.com", "INSTRUCTOR")))
-                .andExpect(status().isOk())
-                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"=?UTF-8?Q?test.txt?=\"; filename*=UTF-8''test.txt"))
-                .andExpect(content().bytes("Hello World".getBytes()));
+               .andExpect(status().isCreated())
+               .andExpect(jsonPath("$.title").value("Integration Test Course"));
     }
 
     @Test
+    void shouldUploadMaterial_WhenUserIsInstructorAndHasWriteAccess() throws Exception {
+        var principal = new UserPrincipal(generatedTeacherId, "instructor@zylos.com");
+        var auth = new UsernamePasswordAuthenticationToken(
+                principal, null, java.util.List.of(new SimpleGrantedAuthority("ROLE_INSTRUCTOR"))
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        Course course = courseRepository.save(new Course("System Architecture", CourseType.LECTURE, SemesterTerm.SUMMER, "2026"));
+        when(courseSecurityEvaluator.hasWriteAccess(eq(course.getId()), eq(generatedTeacherId))).thenReturn(true);
+
+        MockMultipartFile file = new MockMultipartFile("file", "slides.pdf", MediaType.APPLICATION_PDF_VALUE, "content".getBytes());
+
+        mockMvc.perform(multipart("/api/courses/" + course.getId() + "/materials")
+                .file(file)
+                .param("title", "Lecture 1 Slides"))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.title").value("Lecture 1 Slides"))
+               .andExpect(jsonPath("$.fileName").value("slides.pdf"));
+    }
+
+    @Test
+    @WithMockUserPrincipal(id = 999L, role = "STUDENT")
     void studentShouldNotBeAbleToUploadMaterial() throws Exception {
         Course course = courseRepository.save(new Course("Restricted Course", CourseType.SEMINAR, SemesterTerm.SUMMER, "2024"));
         MockMultipartFile file = new MockMultipartFile("file", "virus.exe", "application/octet-stream", new byte[0]);
 
         mockMvc.perform(multipart("/api/courses/" + course.getId() + "/materials")
                 .file(file)
-                .with(mockUser(999L, "student@test.com", "STUDENT"))
                 .param("title", "Hack"))
-                .andExpect(status().isForbidden());
+               .andExpect(status().isForbidden());
     }
 
     @Test
-    @Disabled("Deaktiviert bis zum Refactoring des Kurs-Besitzmodells") // NEU
+    @WithMockUserPrincipal(id = 888L, role = "INSTRUCTOR")
     void foreignTeacherShouldNotBeAbleToUploadMaterial() throws Exception {
-        // GIVEN: Ein Kurs wird in der DB gespeichert
         Course course = courseRepository.save(new Course("Teacher A Course", CourseType.LECTURE, SemesterTerm.WINTER, "2024"));
-        // Hinweis: Wenn eure Business-Logik im Service prüft, ob der Kurs dem Lehrer gehört,
-        // wird dieser Test fehlschlagen, solange der Kurs nicht mit dem Lehrer verknüpft ist. 
-        // Falls das passiert, bräuchte ich die Datei: Course.java
+        when(courseSecurityEvaluator.hasWriteAccess(eq(course.getId()), eq(888L))).thenReturn(false);
 
         MockMultipartFile file = new MockMultipartFile("file", "lecture.pdf", "application/pdf", "Content".getBytes());
 
-        // WHEN & THEN: Ein ANDERER Lehrer versucht hier hochzuladen -> 403 Forbidden
         mockMvc.perform(multipart("/api/courses/" + course.getId() + "/materials")
                 .file(file)
-                .with(mockUser(888L, "other-teacher@test.com", "INSTRUCTOR"))
                 .param("title", "Sabotage"))
-                .andDo(print())
-                .andExpect(status().isForbidden());
+               .andExpect(status().isForbidden());
     }
 
-    @Test // NEU: Testet den 404 Exception Handler Pfad
+    @Test
+    @WithMockUserPrincipal(id = 777L, role = "STUDENT")
+    void downloadMaterial_ShouldReturnFileResource_WhenUserHasReadAccess() throws Exception {
+        Course course = courseRepository.save(new Course("Security Blueprint", CourseType.LECTURE, SemesterTerm.SUMMER, "2026"));
+        byte[] fileContent = "secret-blueprint-bytes".getBytes();
+        CourseMaterial material = materialRepository.save(new CourseMaterial("Blueprint", "blueprint.pdf", MediaType.APPLICATION_PDF_VALUE, fileContent, course));
+
+        when(courseSecurityEvaluator.hasReadAccess(eq(course.getId()), eq(777L))).thenReturn(true);
+
+        mockMvc.perform(get("/api/courses/materials/" + material.getId() + "/download"))
+               .andExpect(status().isOk())
+               .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("blueprint.pdf")))
+               .andExpect(content().bytes(fileContent));
+    }
+
+    @Test
     void uploadMaterial_WithNonExistentCourse_ShouldReturnNotFound() throws Exception {
+        var principal = new UserPrincipal(generatedTeacherId, "instructor@zylos.com");
+        var auth = new UsernamePasswordAuthenticationToken(
+                principal, null, java.util.List.of(new SimpleGrantedAuthority("ROLE_INSTRUCTOR"))
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
         MockMultipartFile file = new MockMultipartFile("file", "doc.pdf", "application/pdf", "Content".getBytes());
 
         mockMvc.perform(multipart("/api/courses/99999/materials")
                 .file(file)
-                .with(mockUser(generatedTeacherId, "instructor@test.com", "INSTRUCTOR"))
                 .param("title", "Ghost Doc"))
-                .andDo(print())
-                .andExpect(status().isNotFound()); // Erwartet 404 aus eurem GlobalExceptionHandler
+               .andExpect(status().isNotFound());
     }
 }

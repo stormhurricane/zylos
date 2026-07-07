@@ -14,7 +14,6 @@ public class WithMockUserPrincipalSecurityContextFactory implements WithSecurity
     public SecurityContext createSecurityContext(WithMockUserPrincipal annotation) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         
-        // Nutzt deinen echten UserPrincipal Record
         UserPrincipal principal = new UserPrincipal(annotation.id(), annotation.email());
         
         Authentication auth = new UsernamePasswordAuthenticationToken(

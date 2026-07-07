@@ -1,6 +1,7 @@
 package com.zylos.backend.features.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zylos.backend.BaseIntegrationTest;
 import com.zylos.backend.features.user.dto.LoginRequest;
 import com.zylos.backend.features.user.dto.StudentRegistrationRequest;
 
@@ -15,15 +16,13 @@ import org.springframework.transaction.annotation.Transactional; // NEU
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional 
-class UserControllerIntegrationTest {
-
+class UserControllerIntegrationTest extends BaseIntegrationTest { // Erben nicht vergessen!
     @Autowired
     private MockMvc mockMvc;
 
@@ -80,14 +79,12 @@ class UserControllerIntegrationTest {
         mockMvc.perform(post("/api/users/register/student")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(regRequest)))
-                .andDo(print())
                 .andExpect(status().isConflict()); 
     }
 
     @Test
     void getMe_WithoutToken_ShouldReturnUnauthorized() throws Exception {
         mockMvc.perform(get("/api/users/me"))
-                .andDo(print())
                 .andExpect(status().isUnauthorized()); 
     }
 
@@ -102,7 +99,6 @@ class UserControllerIntegrationTest {
         mockMvc.perform(post("/api/users/register/student")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidRequest)))
-                .andDo(print())
                 .andExpect(status().isBadRequest()); 
     }
 
@@ -122,7 +118,6 @@ class UserControllerIntegrationTest {
         mockMvc.perform(post("/api/users/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(wrongLogin)))
-                .andDo(print())
                 .andExpect(status().isUnauthorized()); 
     }
 }
