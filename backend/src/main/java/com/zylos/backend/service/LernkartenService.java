@@ -9,6 +9,7 @@ import com.zylos.backend.repository.LernkartenRepository;
 import java.util.List;
 
 @Service
+@Deprecated(since="2024-06", forRemoval=true)
 public class LernkartenService {
 
     @Autowired

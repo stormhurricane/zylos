@@ -4,6 +4,7 @@ import com.zylos.backend.database.Lehrender;
 import com.zylos.backend.database.Nutzer;
 import com.zylos.backend.database.Student_old;
 
+@Deprecated(since = "2026-04", forRemoval = true)
 public class NutzerWrapper {
 
     private Student_old moeglicherStudent;

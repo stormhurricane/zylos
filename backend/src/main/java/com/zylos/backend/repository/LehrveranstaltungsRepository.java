@@ -8,6 +8,7 @@ import com.zylos.backend.database.Lehrveranstaltung;
 import java.util.List;
 
 @Repository
+@Deprecated(since = "2024-06", forRemoval = true)
 public interface LehrveranstaltungsRepository  extends JpaRepository<Lehrveranstaltung, Integer> {
 
     Lehrveranstaltung findLehrveranstaltungByLehrveranstaltungsID(int id);

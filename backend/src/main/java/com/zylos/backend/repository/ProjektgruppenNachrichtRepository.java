@@ -8,6 +8,7 @@ import com.zylos.backend.database.ProjektgruppenNachricht;
 import java.util.List;
 
 @Repository
+@Deprecated(since = "2024-06", forRemoval = true)
 public interface ProjektgruppenNachrichtRepository extends JpaRepository<ProjektgruppenNachricht, Long> {
 
     List<ProjektgruppenNachricht> findAllByProjektgruppenId(int projekgruppenId);

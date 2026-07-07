@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@Deprecated(since = "2026-04", forRemoval = true)
 @RequestMapping(path="api/v2/calender")
 public class KalenderController {
 

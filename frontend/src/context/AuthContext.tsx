@@ -1,48 +1,72 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AuthResponse, LoginRequest } from '../api/types';
-import api from '../api/axios';
+import { userApi } from '../api/userApi';
+import { sessionService } from '../utils/sessionService';
+
+type UserData = Omit<AuthResponse, 'accessToken'>;
 
 interface AuthContextType {
-    user: AuthResponse | null;
+    user: UserData | null;
     login: (credentials: LoginRequest) => Promise<void>;
     logout: () => void;
     isAuthenticated: boolean;
     loading: boolean;
+    isAuthenticating: boolean;
+    isInstructor: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<AuthResponse | null>(null);
+    const [user, setUser] = useState<UserData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isAuthenticating, setIsAuthenticating] = useState(false);
 
     useEffect(() => {
-        const savedUser = localStorage.getItem('user');
-        const token = localStorage.getItem('token');
+        const savedUser = sessionService.getSavedUser();
+        const token = sessionService.getToken();
+
         if (savedUser && token) {
-            setUser(JSON.parse(savedUser));
+            setUser(savedUser);
+        } else {
+            sessionService.clearSession();
+            setUser(null);
         }
         setLoading(false);
     }, []);
 
+    useEffect(() => {
+        const handleUnauthorized = () => {
+            setUser(null); 
+        };
+
+        window.addEventListener('auth-unauthorized', handleUnauthorized);
+        return () => {
+            window.removeEventListener('auth-unauthorized', handleUnauthorized);
+        };
+    }, []);
+
     const login = async (credentials: LoginRequest) => {
+        setIsAuthenticating(true);
         try {
-            const response = await api.post<AuthResponse>('/users/login', credentials);
-            const authData = response.data;
+            const response = await userApi.login(credentials);
+            const { accessToken, ...userData } = response;
             
-            localStorage.setItem('token', authData.accessToken);
-            localStorage.setItem('user', JSON.stringify(authData));
-            setUser(authData);
+            sessionService.saveSession(accessToken, userData);
+            
+            setIsAuthenticating(false); 
+            setUser(userData); 
         } catch (error) {
-            console.error('Login failed', error);
+            setIsAuthenticating(false);
             throw error;
         }
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        setIsAuthenticating(true);
+        sessionService.clearSession(); 
         setUser(null);
+        setIsAuthenticating(false);
     };
 
     return (
@@ -51,7 +75,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             login, 
             logout, 
             isAuthenticated: !!user,
-            loading 
+            loading,
+            isAuthenticating,
+            isInstructor: user?.role === 'INSTRUCTOR'
         }}>
             {!loading && children}
         </AuthContext.Provider>

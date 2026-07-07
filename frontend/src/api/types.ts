@@ -1,4 +1,4 @@
-export type UserRole = 'STUDENT' | 'TEACHER';
+export type UserRole = 'STUDENT' | 'INSTRUCTOR';
 
 export interface AuthResponse {
     accessToken: string;
@@ -8,6 +8,14 @@ export interface AuthResponse {
     lastName: string;
 }
 
+export interface UserSearchResponse {
+    id: number,
+    firstName: string,
+    lastName: string,
+    profilePicture?: string,
+    subInfo: string
+}
+
 export interface ProfileResponse {
     id: number;
     firstName: string;
@@ -15,14 +23,14 @@ export interface ProfileResponse {
     email: string;
     privateAddress: string;
     profilePicture?: string;
-    matriculationNumber?: string; // Nur für Studenten
-    studySubject?: string;        // Nur für Studenten
-    researchArea?: string;        // Nur für Lehrende
-    chair?: string;               // Nur für Lehrende
+    matriculationNumber?: string; // Only for students
+    studySubject?: string;        // Only for students
+    researchArea?: string;        // Only for instructors
+    chair?: string;               // Only for instructors
 }
 
 export interface LoginRequest {
-    identifier: string; // Email oder Matrikelnummer
+    identifier: string; // Email or matriculation number
     password: string;
 }
 
@@ -36,9 +44,75 @@ export interface StudentRegistrationRequest {
     profilePicture?: string;
 }
 
+export interface TeacherRegistrationRequest {
+    firstName: string;
+    lastName: string;
+    password: string;
+    email: string;
+    privateAddress: string;
+    chair: string;
+    researchArea: string;
+    profilePicture?: string;
+}
+
 export interface ProfileUpdateRequest {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
     password?: string;
     privateAddress?: string;
     profilePicture?: string;
-    // Rollenspezifische Felder weggelassen für Kürze
+    studySubject?: string;
+    researchArea?: string;
+    chair?: string;
+}
+
+export enum CourseType {
+    LECTURE = 'LECTURE',
+    SEMINAR = 'SEMINAR'
+}
+
+export enum SemesterTerm {
+    SUMMER = 'SUMMER',
+    WINTER = 'WINTER'
+}
+
+export interface Course {
+    id: number;
+    title: string;
+    type: CourseType;
+    term: SemesterTerm;
+    academicYear: string;
+}
+
+export interface UserResponse {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: 'STUDENT' | 'INSTRUCTOR';
+}
+
+export interface ParticipantsResponse {
+    instructors: UserResponse[];
+    students: UserResponse[];
+}
+
+export interface Material {
+    id: number;
+    title: string;
+    fileName: string;
+    contentType: string;
+}
+
+export interface UserCoursesSummaryResponse {
+    teachingCourses: Course[];
+    enrolledCourses: Course[];
+}
+
+export type StaffRole = 'OWNER' | 'EDITOR';
+
+export interface CourseStaffResponse {
+    user: UserResponse;
+    role: StaffRole;
 }

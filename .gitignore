@@ -38,14 +38,19 @@ logs/
 *.swp
 *~
 
-# Compiled class files
+# Build Tools & Compiled files
+target/
+build/
+node_modules/
+dist/
+out/
 *.class
-
-# JAR files (generated in build/libs/)
 *.jar
 
-# Application properties (if sensitive, but typically not)
-# application.properties
+# Databases
+*.mv.db
+*.trace.db
+*.sqlite
 
 # Database files (if using embedded DB)
 *.db

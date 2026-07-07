@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.persistence.*;
 
 @MappedSuperclass
+@Deprecated(since = "2024-06", forRemoval = true)
 public abstract class Nutzer {
 
     @Id

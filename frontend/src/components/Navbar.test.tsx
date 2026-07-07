@@ -1,42 +1,65 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Navbar } from './Navbar';
-import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from '../context/AuthContext';
+import * as useNavbarModule from './useNavbar';
+import { renderWithAuthAndRouter } from '../test/testUtils'; 
 
-// Mock für useNavigate
-const mockedUsedNavigate = vi.fn();
-vi.mock('react-router-dom', async () => {
-    const actual = await vi.importActual('react-router-dom');
-    return {
-        ...actual as any,
-        useNavigate: () => mockedUsedNavigate,
-    };
-});
+vi.mock('./useNavbar', () => ({
+    useNavbar: vi.fn()
+}));
 
 describe('Navbar Component', () => {
-    it('should render the brand name Zylos', () => {
-        render(
-            <BrowserRouter>
-                <AuthProvider>
-                    <Navbar />
-                </AuthProvider>
-            </BrowserRouter>
-        );
-        expect(screen.getByText('Zylos')).toBeInTheDocument();
+    const mockUseNavbar = vi.mocked(useNavbarModule.useNavbar);
+    const mockHandleSearchSubmit = vi.fn();
+    const mockLogout = vi.fn();
+    const mockSetSearchQuery = vi.fn();
+
+    beforeEach(() => {
+        mockUseNavbar.mockReturnValue({
+            isInstructor: false,
+            searchQuery: '',
+            setSearchQuery: mockSetSearchQuery,
+            handleSearchSubmit: mockHandleSearchSubmit,
+            logout: mockLogout
+        });
     });
 
-    it('should update search input on change', () => {
-        render(
-            <BrowserRouter>
-                <AuthProvider>
-                    <Navbar />
-                </AuthProvider>
-            </BrowserRouter>
-        );
-        const input = screen.getByPlaceholderText(/Nach Studenten oder Dozenten suchen/i) as HTMLInputElement;
+    it('should render the brand name Zylos', () => {
+        renderWithAuthAndRouter(<Navbar />);
+        
+        expect(screen.getByText('Zylos')).toBeInTheDocument();
+        expect(screen.queryByText('Kurs erstellen')).not.toBeInTheDocument();
+    });
+
+    it('should render "Kurs erstellen" only if user is an instructor', () => {
+        mockUseNavbar.mockReturnValue({
+            isInstructor: true,
+            searchQuery: '',
+            setSearchQuery: mockSetSearchQuery,
+            handleSearchSubmit: mockHandleSearchSubmit,
+            logout: mockLogout
+        });
+
+        renderWithAuthAndRouter(<Navbar />);
+        expect(screen.getByText('Kurs erstellen')).toBeInTheDocument();
+    });
+
+    it('should trigger setSearchQuery on input change', () => {
+        renderWithAuthAndRouter(<Navbar />);
+        const input = screen.getByPlaceholderText(/Nach Studenten oder Dozenten suchen/i);
+        
         fireEvent.change(input, { target: { value: 'Mustermann' } });
-        expect(input.value).toBe('Mustermann');
+        
+        expect(mockSetSearchQuery).toHaveBeenCalledWith('Mustermann');
+    });
+
+    it('should call logout when logout button is clicked', () => {
+        renderWithAuthAndRouter(<Navbar />);
+        const logoutBtn = screen.getByRole('button', { name: /logout/i });
+        
+        fireEvent.click(logoutBtn);
+        
+        expect(mockLogout).toHaveBeenCalledTimes(1);
     });
 });

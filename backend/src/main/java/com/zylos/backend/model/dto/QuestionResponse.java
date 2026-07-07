@@ -6,6 +6,7 @@ import com.zylos.backend.database.Frage; // Annahme: Dies ist die Entitätsklass
 /**
  * DTO für die Rückgabe von Fragen-Details.
  */
+@Deprecated(since = "2024-06", forRemoval = true)
 public record QuestionResponse(
     int id,
     @JsonProperty("frageText") String questionText,

@@ -12,6 +12,7 @@ import com.zylos.backend.repository.VersuchRepository;
 import java.util.List;
 
 @Service
+@Deprecated(since="2024-06", forRemoval=true)
 public class AttemptService {
 
     private final VersuchRepository versuchRepository;

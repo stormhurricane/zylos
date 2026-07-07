@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.zylos.backend.database.Lehrveranstaltung;
 import com.zylos.backend.database.Projektgruppe;
 
+@Deprecated(since = "2026-04", forRemoval = true)
 public class VeranstaltungsWrapper {
 
     @JsonProperty("lehrveranstaltung")

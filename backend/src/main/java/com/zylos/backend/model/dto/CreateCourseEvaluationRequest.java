@@ -7,6 +7,7 @@ import java.util.List;
 /**
  * DTO für die Erstellung einer Lehrveranstaltungs-Bewertung.
  */
+@Deprecated(since = "2024-06", forRemoval = true)
 public record CreateCourseEvaluationRequest(
     @JsonProperty("lvId") int courseId,
     String name,

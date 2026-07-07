@@ -1,71 +1,60 @@
 import api from './axios';
-
-const API_URL = ''; // Base URL is already handled in axios.ts
-
-export interface Course {
-    id: number;
-    title: string;
-    type: 'LECTURE' | 'SEMINAR';
-    term: 'SUMMER' | 'WINTER';
-    academicYear: string;
-}
-
-export interface UserResponse {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-}
-
-export interface ParticipantsResponse {
-    instructors: UserResponse[];
-    students: UserResponse[];
-}
-
-export interface Material {
-    id: number;
-    title: string;
-    fileName: string;
-    contentType: string;
-}
+import { Course, ParticipantsResponse, Material, UserCoursesSummaryResponse } from './types';
 
 export const courseApi = {
-    getAllCourses: () => api.get<Course[]>(`/courses`),
+    /** Gets all available courses */
+    getAllCourses: (): Promise<Course[]> => 
+        api.get('/courses'),
     
-    getCourseById: (id: number) => api.get<Course>(`/courses/${id}`),
+    /** Gets details for a specific course via ID */
+    getCourseById: (id: number): Promise<Course> => 
+        api.get(`/courses/${id}`),
 
-    createCourse: (data: Omit<Course, 'id'>) => 
-        api.post<Course>(`/courses`, data),
+    /** Creates a new Course (Only teachers) */
+    createCourse: (data: Omit<Course, 'id'>): Promise<Course> => 
+        api.post(`/courses`, data),
     
-    getMyCourses: () => api.get<Course[]>(`/courses/my-enrollments`),
+    /** Gets all courses, in which current user is enrolled */
+    getMyCourses: (): Promise<UserCoursesSummaryResponse> => 
+        api.get(`/courses/my-courses`),
 
-    importCsv: (file: File) => {
+    /** Imports courses via csv */
+    importCsv: (file: File): Promise<Course[]> => {
         const formData = new FormData();
         formData.append('file', file);
-        return api.post<Course[]>(`/courses/import`, formData, {
+        return api.post(`/courses/import`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
     },
 
-    enroll: (courseId: number) => 
+    /** Enrolled current user into course */
+    enroll: (courseId: number): Promise<void> => 
         api.post(`/courses/${courseId}/enroll`),
 
-    getParticipants: (courseId: number) => 
-        api.get<ParticipantsResponse>(`/courses/${courseId}/participants`),
+    /** Gets list of participants of a course */
+    getParticipants: (courseId: number): Promise<ParticipantsResponse> => 
+        api.get(`/courses/${courseId}/participants`),
 
-    getMaterials: (courseId: number) => 
-        api.get<Material[]>(`/courses/${courseId}/materials`),
+    /** Adds a user to the course */
+    addParticipant: (courseId: number, userId: number, role: 'STUDENT' | 'INSTRUCTOR'): Promise<void> =>
+        api.post(`/courses/${courseId}/participants`, { userId, role }),
 
-    uploadMaterial: (courseId: number, title: string, file: File) => {
+    /** Gets all material from a course */
+    getMaterials: (courseId: number): Promise<Material[]> => 
+        api.get(`/courses/${courseId}/materials`),
+
+    /** Uploads material to a course */
+    uploadMaterial: (courseId: number, title: string, file: File): Promise<Material> => {
         const formData = new FormData();
         formData.append('title', title);
         formData.append('file', file);
-        return api.post<Material>(`/courses/${courseId}/materials`, formData, {
+        return api.post(`/courses/${courseId}/materials`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
     },
 
-    downloadMaterial: (materialId: number) => 
+    /** Downloads material as a blob */
+    downloadMaterial: (materialId: number): Promise<Blob> => 
         api.get(`/courses/materials/${materialId}/download`, {
             responseType: 'blob'
         })

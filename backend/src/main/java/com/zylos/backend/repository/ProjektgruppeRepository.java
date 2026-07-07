@@ -7,6 +7,7 @@ import com.zylos.backend.database.Lehrveranstaltung;
 import com.zylos.backend.database.Projektgruppe;
 
 @Repository
+@Deprecated(since = "2024-06", forRemoval = true)
 public interface ProjektgruppeRepository extends JpaRepository<Projektgruppe, Integer> {
 
     Projektgruppe findProjektgruppeByLehrveranstaltungsID(int id);

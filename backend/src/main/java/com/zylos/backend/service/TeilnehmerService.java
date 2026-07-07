@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Deprecated(since="2024-06", forRemoval=true)
 public class TeilnehmerService {
 
     private final LehrveranstaltungsService lehrveranstaltungsService;

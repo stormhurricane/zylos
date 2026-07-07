@@ -8,6 +8,7 @@ import com.zylos.backend.database.Termin;
 import java.util.List;
 
 @Repository
+@Deprecated(since = "2024-06", forRemoval = true)
 public interface TerminRepository extends JpaRepository<Termin, Integer> {
     List<Termin> findAllByLvIdAndJahrAndMonatAndTag (int lvId, String jahr, String monat, String tag);
 

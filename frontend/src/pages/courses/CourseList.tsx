@@ -1,76 +1,50 @@
-import React, { useEffect, useState } from 'react';
-import { courseApi, Course } from '../../api/courseApi';
-import { Link, useNavigate } from 'react-router-dom';
-import { Navbar } from '../../components/Navbar';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { PageLoader } from '../../components/PageLoader';
+import { useCourseList } from './useCourseList';
+import styles from './CourseList.module.css';
 
 export const CourseList: React.FC = () => {
-    const [courses, setCourses] = useState<Course[]>([]);
-    const [enrolledIds, setEnrolledIds] = useState<number[]>([]);
-    const navigate = useNavigate();
+    const { courses, enrolledIds, loading, error, handleButtonClick } = useCourseList();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [allRes, myRes] = await Promise.all([
-                    courseApi.getAllCourses(),
-                    courseApi.getMyCourses()
-                ]);
-                setCourses(allRes.data);
-                setEnrolledIds(myRes.data.map(c => c.id));
-            } catch (err) {
-                console.error("Fehler beim Laden der Kurse", err);
-            }
-        };
-        fetchData();
-    }, []);
-
-    const handleEnroll = async (courseId: number) => {
-        try {
-            await courseApi.enroll(courseId);
-            setEnrolledIds(prev => [...prev, courseId]);
-            alert('Erfolgreich eingeschrieben!');
-        } catch (err) {
-            alert('Einschreibung fehlgeschlagen (evtl. bereits eingeschrieben).');
-        }
-    };
+    if (loading) return <PageLoader message="Loading courses..." />;
 
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-light)' }}>
-            <Navbar />
-            <div style={{ padding: '40px', maxWidth: '1200px', margin: '0 auto' }}>
-                <h1 style={{ marginBottom: '30px' }}>Verfügbare Lehrveranstaltungen</h1>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '25px' }}>
+        <div className="app-page">
+            <div className="container">
+                <h1 className={styles.title}>Verfügbare Lehrveranstaltungen</h1>
+                
+                {error && <div className="status-box status-error">{error}</div>}
+
+                <div className={styles.grid}>
                     {courses.map(course => {
                         const isEnrolled = enrolledIds.includes(course.id);
                         return (
-                            <div key={course.id} className="auth-card" style={{ maxWidth: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                                <div style={{ marginBottom: '20px' }}>
-                                    <Link to={`/courses/${course.id}`} style={{ fontSize: '1.4rem', fontWeight: 'bold', color: 'var(--color-primary)', textDecoration: 'none' }}>
+                            <div key={course.id} className={`card ${styles.courseCard}`}>
+                                <div className={styles.courseHeader}>
+                                    <Link to={`/courses/${course.id}`} className={styles.courseLink}>
                                         {course.title}
                                     </Link>
-                                    <p style={{ marginTop: '10px', fontWeight: '600', color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase' }}>
+                                    <p className={styles.courseType}>
                                         {course.type === 'LECTURE' ? 'Vorlesung' : 'Seminar'}
                                     </p>
-                                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                                    <p className={styles.courseMeta}>
                                         {course.term === 'SUMMER' ? 'SoSe' : 'WiSe'} {course.academicYear}
                                     </p>
                                 </div>
                                 <button 
-                                    onClick={() => isEnrolled ? navigate(`/courses/${course.id}`) : handleEnroll(course.id)}
-                                    className="btn-primary"
-                                    style={{ 
-                                        width: '100%', 
-                                        backgroundColor: isEnrolled ? 'var(--color-secondary)' : 'var(--color-primary)' 
-                                    }}
+                                    onClick={() => handleButtonClick(course.id, isEnrolled)}
+                                    className={`btn-primary ${styles.enrollBtn} ${isEnrolled ? styles.enrolledBtn : ''}`}
                                 >
-                                    {isEnrolled ? 'Ansehen' : 'Teilnehmen'}
+                                    {isEnrolled ? 'Ansehen' : 'Einschreiben'}
                                 </button>
                             </div>
                         );
                     })}
                 </div>
+                
                 {courses.length === 0 && (
-                    <div className="auth-card" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                    <div className="card text-center text-muted">
                         Keine Lehrveranstaltungen gefunden.
                     </div>
                 )}

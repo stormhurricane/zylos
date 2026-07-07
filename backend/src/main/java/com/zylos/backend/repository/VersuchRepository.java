@@ -6,6 +6,7 @@ import com.zylos.backend.database.Versuch;
 
 import java.util.List;
 
+@Deprecated(since = "2026-04", forRemoval = true)
 public interface VersuchRepository extends JpaRepository<Versuch, Integer> {
 
     Versuch findVersuchById(int id);

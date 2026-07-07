@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "ZFACODE")
+@Deprecated(since = "2024-06", forRemoval = true)
 public class ZFA {
 
     @Id

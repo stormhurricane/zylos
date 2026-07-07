@@ -10,10 +10,9 @@ import com.zylos.backend.service.FreundschaftService;
 import java.util.List;
 
 @RestController
+@Deprecated(since = "2026-04", forRemoval = true)
 @RequestMapping(path="api/v2/friends")
 public class FreundschaftController {
-
-    // TODO methoden in NutzerController integrieren, im sinne /users/{id}/friends
 
     @Autowired
     FreundschaftService freundschaftService;

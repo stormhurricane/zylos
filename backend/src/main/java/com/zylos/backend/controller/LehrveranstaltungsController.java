@@ -34,71 +34,60 @@ public class LehrveranstaltungsController {
     @Autowired
     LernkartenService lernkartenService;
 
-    // TODO: Map<String, String> durch CourseSearchRequest ersetzen, Rückgabe CourseResponse
     @PostMapping(path="/find", consumes = "application/json", produces = "application/json")
     public VeranstaltungsWrapper findeLehrveranstaltungMitTitel(@RequestBody CourseSearchRequest suchDaten) {
         return lehrveranstaltungsService.findeLehrveranstaltung(suchDaten);
     }
 
-    // --- TODO: Auslagern in ProjektgruppeController ---
 
     @GetMapping(path="/chat/{id}")
     public List<ProjektgruppenNachricht> zeigeGruppenChat(@PathVariable("id") int pgId){
         return projektgruppeService.zeigeGruppenchat(pgId);
     }
 
-    // --- TODO: Auslagern in ProjektgruppeController ---
     @PostMapping(path=("/chat/post"))
     public List<ProjektgruppenNachricht> sendeNachricht(@RequestBody ProjektgruppenNachricht nachricht){
         return projektgruppeService.sendeNachricht(nachricht);
     }
 
-    // --- TODO: Auslagern in ProjektgruppeController ---
     @GetMapping(path="/todo/{id}")
     public List<ToDos> zeigeToDoListe(@PathVariable("id") int pgId){
         return projektgruppeService.zeigeToDoListe(pgId);
     }
 
-    // --- TODO: Auslagern in ProjektgruppeController ---
     @PostMapping(path="/todo/add")
     public boolean neuesToDo(@RequestBody ToDos neuesToDo) {
         return projektgruppeService.fuegeToDoHinzu(neuesToDo);
     }
 
 
-    // --- TODO: Auslagern in ProjektgruppeController ---
     @PutMapping(path="/todo/done")
     public boolean hakeToDoAb(@RequestBody int id){
         return projektgruppeService.hakeToDoAb(id);
     }
 
-    // --- TODO: Auslagern in ProjektgruppeController ---
     @PutMapping(path="/todo/change/{id}")
     public boolean aendereVerantwortlichen(@PathVariable("id") int todoId,
                                            @RequestBody int verantwortlichenId){
         return projektgruppeService.aendereVerantwortung(todoId, verantwortlichenId);
     }
 
-    // --- TODO: Auslagern in LernkartenController ---
     @PostMapping(path="/lernkartenThema/{id}")
     public int lernkartenThemaErstellen(@PathVariable("id") int lvId,
                                         @RequestBody String beschreibung){
         return lernkartenThemaService.LernkartenThemaErstellen(lvId, beschreibung);
     }
 
-    // --- TODO: Auslagern in LernkartenController ---
     @GetMapping(path="/lernkartenThemaListe/{id}")
     public List<LernkartenThema> zeigeLernkartenThemaListe(@PathVariable("id") int lvId){
         return lernkartenThemaService.ListeAllerLernkartenThemen(lvId);
     }
 
-    // --- TODO: Auslagern in LernkartenController ---
     @PostMapping(path="/lernkarte")
     public boolean erstelleLernkarte(@RequestBody Lernkarte lernkarte) {
         return lernkartenService.LernkarteErstellen(lernkarte);
     }
 
-    // --- TODO: Auslagern in LernkartenController ---
     @GetMapping(path="/lernkarten/{id}")
     public List<Lernkarte> zeigeLernkartenEinesThemas(@PathVariable("id") int lernkartenThemaId) {
         return lernkartenService.ListeLernkartenEinesThemas(lernkartenThemaId);

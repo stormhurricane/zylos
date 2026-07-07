@@ -1,0 +1,101 @@
+.main {
+    padding: var(--spacing-xl);
+    max-width: 1600px; /* Erhöhte Breite für mehr Screen-Nutzung */
+    margin: 0 auto;
+}
+
+.header {
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--color-light);
+    padding-bottom: var(--spacing-md);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 320px; /* Suche links (flexibel), Kurse rechts (fest) */
+    gap: var(--spacing-xl);
+    align-items: start;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.resultsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.sidebar {
+    position: sticky;
+    top: 90px; /* Bleibt beim Scrollen unter der Navbar (70px + Puffer) stehen */
+}
+
+.profileBtn {
+    margin-top: var(--spacing-sm);
+    background: none;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    padding: 5px 10px;
+    border-radius: var(--spacing-xs);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.profileBtn:hover {
+    background-color: var(--color-primary-soft);
+}
+
+.courseItem {
+    border-bottom: 1px solid #eee;
+    padding-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.courseLink {
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-main);
+}
+
+.avatarImg {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto var(--spacing-sm);
+}
+
+.searchResultTitle {
+    margin: 5px 0;
+}
+
+.searchResultSub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.loadingText, .emptyText {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.sectionHeading {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    margin-bottom: var(--spacing-xs);
+}
+
+.courseGroup {
+    margin-top: var(--spacing-md);
+}
+
+.courseItemMeta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}

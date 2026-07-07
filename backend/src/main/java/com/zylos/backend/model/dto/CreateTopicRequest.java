@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * DTO für die Erstellung eines Arbeitsthemas.
  */
+@Deprecated(since = "2024-06", forRemoval = true)
 public record CreateTopicRequest(
     @JsonProperty("lehrendenId") int teacherId,
     @JsonProperty("titel") String title,

@@ -1,0 +1,152 @@
+.container {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: var(--spacing-xl);
+    align-items: start;
+}
+
+.leftColumn {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.headerSubtitle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.sectionTitle {
+    margin-bottom: var(--spacing-lg);
+    color: var(--color-primary);
+}
+
+.materialList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.materialItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    background-color: #f9fafb;
+    border-radius: var(--border-radius);
+    border: 1px solid #eee;
+}
+
+.materialInfo p {
+    margin: 0;
+}
+
+.materialTitle {
+    font-weight: 600;
+}
+
+.materialFileName {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.uploadArea {
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    border: 2px dashed #e2e8f0;
+    border-radius: var(--border-radius);
+}
+
+.uploadTitle {
+    font-size: 1rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.uploadForm {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.rightColumn {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+.participantGroupTitle {
+    margin-bottom: var(--spacing-md);
+    border-bottom: 1px solid #eee;
+    padding-bottom: var(--spacing-sm);
+    color: var(--color-primary);
+}
+
+.studentGroupTitle {
+    color: var(--color-secondary);
+}
+
+.participantList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.me {
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+.addParticipantSection {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px dashed #eee;
+}
+
+.addParticipantTitle {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.addParticipantInput {
+    font-size: 0.8rem;
+    padding: 8px;
+}
+
+.searchResults {
+    margin-top: 10px;
+    background-color: white;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.searchResultItem {
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f9f9f9;
+}
+
+.searchResultName {
+    font-size: 0.85rem;
+}
+
+.addButton {
+    background-color: var(--color-secondary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.autoWidthButton {
+    width: auto !important; 
+}

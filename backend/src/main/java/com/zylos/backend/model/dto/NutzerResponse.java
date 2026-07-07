@@ -6,6 +6,7 @@ import com.zylos.backend.database.Nutzer;
 /**
  * DTO für Nutzerinformationen, das den alten NutzerWrapper ersetzt.
  */
+@Deprecated(since = "2024-06", forRemoval = true)
 public record NutzerResponse(
     int id,
     @JsonProperty("vorname") String firstName,

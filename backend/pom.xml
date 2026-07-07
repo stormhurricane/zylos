@@ -11,10 +11,10 @@
     </parent>
 
     <groupId>com.zylos</groupId>
-    <artifactId>backend</artifactId>
-    <version>v3.01-SNAPSHOT</version>
-    <name>backend</name>
-    <description>Doodle Backend Migration</description>
+    <artifactId>zylos-backend</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <name>Zylos Backend</name>
+    <description>Core backend service for the Zylos learning platform (Refactoring Phase)</description>
 
     <properties>
         <java.version>21</java.version>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- Testing -->
@@ -60,14 +60,13 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Spring Security Starter für Authentifizierung und Autorisierung -->
+        <!-- Spring Security Starter for Authentication and Authorization -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- Für die Arbeit mit JWT (JSON Web Tokens) -->
-        <!-- Wir nutzen hier jjwt, da es sehr verbreitet und einfach zu handhaben ist -->
+        <!-- JWT (JSON Web Tokens) support using jjwt -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -81,24 +80,41 @@
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId> <!-- oder jjwt-gson / jjwt-orgjson -->
+            <artifactId>jjwt-jackson</artifactId>
             <version>0.12.5</version>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Security Test Support (für deine Unit/Integration Tests) -->
+        <!-- Security Test Support for unit and integration tests -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <!-- OpenAPI / Swagger UI für die API-Dokumentation -->
+        <!-- OpenAPI / Swagger UI for API documentation -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.5.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.32</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

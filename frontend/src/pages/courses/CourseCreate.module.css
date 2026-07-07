@@ -1,0 +1,34 @@
+.title {
+    margin-bottom: var(--spacing-xl);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-xl);
+}
+
+.manualTitle {
+    margin-bottom: var(--spacing-lg);
+    color: var(--color-primary);
+}
+
+.csvTitle {
+    margin-bottom: var(--spacing-xs);
+    color: var(--color-secondary);
+}
+
+.csvDescription {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.fileInput {
+    margin-bottom: var(--spacing-lg);
+    width: 100%;
+}
+
+.csvBtn {
+    background-color: var(--color-secondary) !important;
+}

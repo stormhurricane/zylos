@@ -8,6 +8,7 @@ import com.zylos.backend.database.ToDos;
 import java.util.List;
 
 @Repository
+@Deprecated(since = "2024-06", forRemoval = true)
 public interface ToDosRepository extends JpaRepository<ToDos, Integer> {
 
     List<ToDos> findAllByProjektgruppenId(int projektgruppenId);

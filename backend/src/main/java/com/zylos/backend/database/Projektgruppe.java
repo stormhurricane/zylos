@@ -8,6 +8,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "PROJEKTGRUPPE")
+@Deprecated(since = "2024-06", forRemoval = true)
 public class Projektgruppe extends Lehrveranstaltung {
 
     @JsonProperty("sichtbarkeit")

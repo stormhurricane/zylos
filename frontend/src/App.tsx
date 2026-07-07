@@ -1,46 +1,61 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { Login } from './pages/Login';
-import { Register } from './pages/Register';
-import { Dashboard } from './pages/Dashboard';
-import { Profile } from './pages/Profile';
-import { ProfileEdit } from './pages/ProfileEdit';
-import { CourseList } from './pages/courses/CourseList';
-import { CourseCreate } from './pages/courses/CourseCreate';
-import { CourseDetail } from './pages/courses/CourseDetail';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { Navbar } from './components/Navbar';
+import { PageLoader } from './components/PageLoader';
 
-/**
- * Zentrales Routing der Zylos-Plattform.
- * Hier werden alle vertikalen Slices (Auth, Profile, Courses) zusammengeführt.
- */
+// Lazy Loading
+const Login = lazy(() => import('./pages/auth/Login').then(m => ({ default: m.Login })));
+const Register = lazy(() => import('./pages/auth/Register').then(m => ({ default: m.Register })));
+const Dashboard = lazy(() => import('./pages/dashboard/Dashboard').then(m => ({ default: m.Dashboard })));
+const Profile = lazy(() => import('./pages/profiles/Profile').then(m => ({ default: m.Profile })));
+const ProfileEdit = lazy(() => import('./pages/profiles/ProfileEdit').then(m => ({ default: m.ProfileEdit })));
+const CourseList = lazy(() => import('./pages/courses/CourseList').then(m => ({ default: m.CourseList })));
+const CourseCreate = lazy(() => import('./pages/courses/CourseCreate').then(m => ({ default: m.CourseCreate })));
+const CourseDetail = lazy(() => import('./pages/courses/CourseDetail').then(m => ({ default: m.CourseDetail })));
+
+const MainLayout = () => (
+  <div className="app-layout">
+    <Navbar />
+    <main>
+      <Suspense fallback={<PageLoader />}>
+        <Outlet />
+      </Suspense>
+    </main>
+  </div>
+);
+
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Öffentliche Routen */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          {/* Public Routes */}
+          <Route path="/login" element={
+            <Suspense fallback={<PageLoader />}><Login /></Suspense>
+          } />
+          <Route path="/register" element={
+            <Suspense fallback={<PageLoader />}><Register /></Suspense>
+          } />
 
-          {/* Dashboard & Profil */}
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/profile/:id" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/profile/edit" element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} />
+          {/* Protected Area with Layout */}
+          <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/edit" element={<ProfileEdit />} />
+            <Route path="/profile/:id" element={<Profile />} />
+            
+            <Route path="/courses" element={<CourseList />} />
+            <Route 
+              path="/courses/new" 
+              element={<ProtectedRoute requiredRole="INSTRUCTOR"><CourseCreate /></ProtectedRoute>} 
+            />
+            <Route path="/courses/:id" element={<CourseDetail />} />
+          </Route>
 
-          {/* Slice 2: Lehrveranstaltungen & Materialien */}
-          {/* Übersicht aller Kurse */}
-          <Route path="/courses" element={<ProtectedRoute><CourseList /></ProtectedRoute>} />
-          
-          {/* Erstellen einer neuen LV (Manuell/CSV) - Nur für Lehrende gedacht */}
-          <Route path="/courses/new" element={<ProtectedRoute requiredRole="INSTRUCTOR"><CourseCreate /></ProtectedRoute>} />
-          
-          {/* Detailansicht mit Teilnehmerliste und Materialien */}
-          <Route path="/courses/:id" element={<ProtectedRoute><CourseDetail /></ProtectedRoute>} />
-
-          {/* Standard-Weiterleitung */}
+          {/* Standard-Rerouting */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

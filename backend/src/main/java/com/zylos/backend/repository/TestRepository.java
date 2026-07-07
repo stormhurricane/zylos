@@ -6,6 +6,7 @@ import com.zylos.backend.database.Test;
 
 import java.util.List;
 
+@Deprecated(since = "2024-06", forRemoval = true)
 public interface TestRepository extends JpaRepository<Test, Integer> {
 
     Test findTestById(int testId);

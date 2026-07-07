@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 
 @Entity
+@Deprecated(since = "2024-06", forRemoval = true)
 public class Lehrender extends Nutzer {
 
     @Column

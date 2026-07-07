@@ -14,6 +14,7 @@ import java.time.Year;
 import java.util.*;
 
 @Service
+@Deprecated(since="2024-06", forRemoval=true)
 public class StatisticService {
 
     @Autowired

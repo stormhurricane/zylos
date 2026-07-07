@@ -2,8 +2,6 @@ package com.zylos.backend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.zylos.backend.model.dto.CreateReminderRequest;
@@ -22,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Deprecated(since="2024-06", forRemoval=true)
 public class ReminderService {
 
     @Autowired
@@ -76,8 +75,8 @@ public class ReminderService {
     }
 
 
-    @Scheduled(fixedDelay = 60000)
-    @Async
+    // @Scheduled(fixedDelay = 60000)
+    // @Async
     public void sucheFaelligeEmailReminder(){
         LocalDate currentDate = LocalDate.now();
         LocalTime currentTime = LocalTime.now();

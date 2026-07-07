@@ -1,22 +1,34 @@
-# Single-Stage Build für Spring Boot Backend (einfach für Tests)
-FROM eclipse-temurin:8-jdk-alpine
+# Multi-stage build for Spring Boot Backend
 
-# Arbeitsverzeichnis
+# --- Build Stage ---
+# Use a Maven image with JDK 21 for building the application
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
+
+# Set working directory inside the container
 WORKDIR /app
 
-# Alle Dateien kopieren
-COPY . .
+# Copy the Maven project files
+# Copy pom.xml first to leverage Docker cache if dependencies don't change
+COPY pom.xml .
+# Copy source code
+COPY src ./src
 
-# Alpine benötigt ggf. CA-Zertifikate für HTTPS, und wir erzwingen TLS 1.2
-RUN apk add --no-cache ca-certificates && update-ca-certificates
-ENV GRADLE_OPTS="-Dhttps.protocols=TLSv1.2"
-RUN chmod +x gradlew
+# Build the JAR using Maven
+# -DskipTests skips running tests during the Docker build, as tests should ideally run in CI
+RUN mvn clean package -DskipTests
 
-# Build der JAR (ohne Tests)
-RUN ./gradlew bootJar -x test --no-daemon
+# --- Run Stage ---
+# Use a JRE image for running the application (smaller than JDK)
+FROM eclipse-temurin:21-jre-alpine
 
-# Port freigeben
+# Set working directory
+WORKDIR /app
+
+# Copy the built JAR from the builder stage
+COPY --from=builder /app/target/*.jar app.jar
+
+# Expose the port the application runs on
 EXPOSE 8080
 
-# JAR starten
-CMD ["java", "-jar", "build/libs/backend-v3.01-SNAPSHOT.jar"]
+# Command to run the application
+CMD ["java", "-jar", "app.jar"]
