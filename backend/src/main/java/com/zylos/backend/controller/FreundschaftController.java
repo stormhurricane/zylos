@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.zylos.backend.model.dto.FriendshipDecisionRequest;
-import com.zylos.backend.model.dto.NutzerResponse;
 import com.zylos.backend.service.FreundschaftService;
 
 import java.util.List;
@@ -18,7 +17,7 @@ public class FreundschaftController {
     FreundschaftService freundschaftService;
 
     @GetMapping(path="/show/{id}")
-    public List<NutzerResponse> showFriendsOfUser(@PathVariable("id") int userId) {
+    public List<Object> showFriendsOfUser(@PathVariable("id") int userId) {
         return freundschaftService.showFriendsOfUser(userId);
     }
 
@@ -36,7 +35,7 @@ public class FreundschaftController {
     
 
     @GetMapping(path="/openRequests/{id}")
-    public List<NutzerResponse> showOpenFriendRequests(@PathVariable("id") int userId) {
+    public List<Object> showOpenFriendRequests(@PathVariable("id") int userId) {
         return freundschaftService.showOpenFriendRequests(userId);
     }
 }

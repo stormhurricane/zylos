@@ -7,7 +7,6 @@ import com.zylos.backend.controller.communication.QuizWrapper;
 import com.zylos.backend.controller.communication.StatistikWrapper;
 import com.zylos.backend.database.Feedback;
 import com.zylos.backend.database.Frage;
-import com.zylos.backend.database.Lehrveranstaltung;
 import com.zylos.backend.database.Test;
 import com.zylos.backend.model.dto.CreateTestAttemptRequest;
 
@@ -74,9 +73,9 @@ public class TestOberService {
     }
 
     public boolean erzwingeBestehenspruefung(Map<String, String> semesterDaten) {
-        statisticService.pruefeBestehenNachSemesterende(Lehrveranstaltung.zeitEnum
-                        .valueOf(semesterDaten.get("semesterZeit").toUpperCase()),
-                semesterDaten.get("semesterJahr"));
+        // statisticService.pruefeBestehenNachSemesterende(Lehrveranstaltung.zeitEnum
+        //                 .valueOf(semesterDaten.get("semesterZeit").toUpperCase()),
+        //         semesterDaten.get("semesterJahr"));
         return true;
     }
 }

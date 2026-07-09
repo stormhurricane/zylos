@@ -3,14 +3,12 @@ package com.zylos.backend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.zylos.backend.controller.communication.NutzerWrapper;
 import com.zylos.backend.controller.communication.QuizWrapper;
 import com.zylos.backend.model.dto.QuestionResponse;
 import com.zylos.backend.database.Test;
 import com.zylos.backend.model.dto.CreateCourseEvaluationRequest;
 import com.zylos.backend.repository.TestRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -45,14 +43,14 @@ public class TestService {
         return testRepository.findTestById(testId);
     }
 
-    public List<Integer> zeigeAlleTeilnehmerIdsEinesTestsAn(int testId) {
-        List<NutzerWrapper> teilnehmerEinesTests = teilnehmerService.erstelleTeilnehmerListeEinerLV(this.zeigeTestAn(testId).getLvId());
-        List<Integer> teilnehmerIdsEinesTests = new ArrayList<>();
-        for(int i = 0; i < teilnehmerEinesTests.size(); i++) {
-            teilnehmerIdsEinesTests.add(teilnehmerEinesTests.get(i).getMoeglicherStudent().getId());
-        }
-        return teilnehmerIdsEinesTests;
-    }
+    // public List<Integer> zeigeAlleTeilnehmerIdsEinesTestsAn(int testId) {
+    //     List<NutzerWrapper> teilnehmerEinesTests = teilnehmerService.erstelleTeilnehmerListeEinerLV(this.zeigeTestAn(testId).getLvId());
+    //     List<Integer> teilnehmerIdsEinesTests = new ArrayList<>();
+    //     for(int i = 0; i < teilnehmerEinesTests.size(); i++) {
+    //         teilnehmerIdsEinesTests.add(teilnehmerEinesTests.get(i).getMoeglicherStudent().getId());
+    //     }
+    //     return teilnehmerIdsEinesTests;
+    // }
 
     public boolean createCourseEvaluation(CreateCourseEvaluationRequest request) {
         Test test = new Test(request.courseId(), request.name());

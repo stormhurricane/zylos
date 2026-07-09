@@ -5,7 +5,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.zylos.backend.controller.communication.NutzerWrapper;
 import com.zylos.backend.controller.communication.StatistikWrapper;
 import com.zylos.backend.database.*;
 import com.zylos.backend.model.dto.EvaluationStatisticResponse;
@@ -33,9 +32,6 @@ public class StatisticService {
     QuestionService questionService;
 
     @Autowired
-    LehrveranstaltungsService lehrveranstaltungsService;
-
-    @Autowired
     EmailService emailService;
 
     public double bestimmeTeilnahmequote(int testId) {
@@ -44,12 +40,12 @@ public class StatisticService {
 
         double teilgenommeneNutzer = teilgenommeneStudentenIds.stream().count();
         double gesamteNutzer = 0;
-        List<NutzerWrapper> listeAllerTeilnehmerDerZugehoerigenLV = teilnehmerService.erstelleTeilnehmerListeEinerLV(testService.zeigeTestAn(testId).getLvId());
-        for(NutzerWrapper nw: listeAllerTeilnehmerDerZugehoerigenLV){
-            if(nw.getMoeglicherStudent() != null){
-                gesamteNutzer++;
-            }
-        }
+        // List<NutzerWrapper> listeAllerTeilnehmerDerZugehoerigenLV = teilnehmerService.erstelleTeilnehmerListeEinerLV(testService.zeigeTestAn(testId).getLvId());
+        // for(NutzerWrapper nw: listeAllerTeilnehmerDerZugehoerigenLV){
+        //     if(nw.getMoeglicherStudent() != null){
+        //         gesamteNutzer++;
+        //     }
+        // }
         return teilgenommeneNutzer/gesamteNutzer;
     }
 
@@ -121,57 +117,57 @@ public class StatisticService {
     }
 
 
-    @Async
-    public void pruefeBestehenNachSemesterende(Lehrveranstaltung.zeitEnum semesterZeit, String semesterJahr) {
-        List<Lehrveranstaltung> zuPruefendeLV = lehrveranstaltungsService.findeLehrveranstaltungen(semesterZeit, semesterJahr);
-        zuPruefendeLV.removeIf(r -> r instanceof Projektgruppe);
+    // @Async
+    // public void pruefeBestehenNachSemesterende(Lehrveranstaltung.zeitEnum semesterZeit, String semesterJahr) {
+    //     List<Lehrveranstaltung> zuPruefendeLV = lehrveranstaltungsService.findeLehrveranstaltungen(semesterZeit, semesterJahr);
+    //     zuPruefendeLV.removeIf(r -> r instanceof Projektgruppe);
 
-        for (Lehrveranstaltung lv : zuPruefendeLV) {
+    //     for (Lehrveranstaltung lv : zuPruefendeLV) {
 
-            List<Student_old> teilnehmerDerLV = teilnehmerService.erstelleStudentenListeEinerLV(lv.getLehrveranstaltungsID());
+    //         List<Student_old> teilnehmerDerLV = new ArrayList<>();
 
-            if (teilnehmerDerLV.size() == 0) {
-                continue;
-            }
+    //         if (teilnehmerDerLV.size() == 0) {
+    //             continue;
+    //         }
 
-            for (Student_old teilnehmer : teilnehmerDerLV) {
+    //         for (Student_old teilnehmer : teilnehmerDerLV) {
 
-                int nutzerId = teilnehmer.getId();
-                boolean bestanden = this.pruefeBestehenEinesStudenten(nutzerId, lv.getLehrveranstaltungsID());
+    //             int nutzerId = teilnehmer.getId();
+    //             boolean bestanden = this.pruefeBestehenEinesStudenten(nutzerId, lv.getLehrveranstaltungsID());
 
-                emailService.generiereBestehensMail(teilnehmer.getVorname(), teilnehmer.getNachname(), teilnehmer.getEmail(),
-                        lv.getTitel(), bestanden);
+    //             emailService.generiereBestehensMail(teilnehmer.getVorname(), teilnehmer.getNachname(), teilnehmer.getEmail(),
+    //                     lv.getTitel(), bestanden);
 
-                try {
-                    Thread.sleep(1000);
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+    //             try {
+    //                 Thread.sleep(1000);
+    //             }
+    //             catch (InterruptedException e) {
+    //                 e.printStackTrace();
+    //             }
+    //         }
 
 
-        }
-    }
+    //     }
+    // }
 
 
     // second minute hour day month weekday
-    @Scheduled(cron = "0 0 0 1 4 ?")
-    public void pruefeWinterSemester(){
-        Lehrveranstaltung.zeitEnum semesterZeit = Lehrveranstaltung.zeitEnum.WS;
-        int jahr = Year.now().getValue();
-        String semesterJahr = (jahr-1) + "/" + jahr;
+    // @Scheduled(cron = "0 0 0 1 4 ?")
+    // public void pruefeWinterSemester(){
+    //     Lehrveranstaltung.zeitEnum semesterZeit = Lehrveranstaltung.zeitEnum.WS;
+    //     int jahr = Year.now().getValue();
+    //     String semesterJahr = (jahr-1) + "/" + jahr;
 
-        this.pruefeBestehenNachSemesterende(semesterZeit, semesterJahr);
-    }
+    //     this.pruefeBestehenNachSemesterende(semesterZeit, semesterJahr);
+    // }
 
-    @Scheduled(cron = "0 0 0 1 10 ?")
-    public void pruefeSommerSemester() {
-        Lehrveranstaltung.zeitEnum semesterZeit = Lehrveranstaltung.zeitEnum.SS;
-        String semesterJahr = String.valueOf(Year.now().getValue());
+    // @Scheduled(cron = "0 0 0 1 10 ?")
+    // public void pruefeSommerSemester() {
+    //     Lehrveranstaltung.zeitEnum semesterZeit = Lehrveranstaltung.zeitEnum.SS;
+    //     String semesterJahr = String.valueOf(Year.now().getValue());
 
-        this.pruefeBestehenNachSemesterende(semesterZeit, semesterJahr);
-    }
+    //     this.pruefeBestehenNachSemesterende(semesterZeit, semesterJahr);
+    // }
 
 
     private boolean pruefeBestehenEinesStudenten(int studentenId, int lvId) {

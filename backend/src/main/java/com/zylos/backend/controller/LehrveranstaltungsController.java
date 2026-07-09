@@ -4,13 +4,10 @@ package com.zylos.backend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.zylos.backend.controller.communication.VeranstaltungsWrapper;
 import com.zylos.backend.database.Lernkarte;
 import com.zylos.backend.database.LernkartenThema;
 import com.zylos.backend.database.ProjektgruppenNachricht;
 import com.zylos.backend.database.ToDos;
-import com.zylos.backend.model.dto.CourseSearchRequest;
-import com.zylos.backend.service.LehrveranstaltungsService;
 import com.zylos.backend.service.LernkartenService;
 import com.zylos.backend.service.LernkartenThemaService;
 import com.zylos.backend.service.ProjektgruppeService;
@@ -22,8 +19,6 @@ import java.util.List;
 @RequestMapping(path="/api/v1/lehrveranstaltung")
 public class LehrveranstaltungsController {
 
-    @Autowired
-    LehrveranstaltungsService lehrveranstaltungsService;
 
     @Autowired
     ProjektgruppeService projektgruppeService;
@@ -33,11 +28,6 @@ public class LehrveranstaltungsController {
 
     @Autowired
     LernkartenService lernkartenService;
-
-    @PostMapping(path="/find", consumes = "application/json", produces = "application/json")
-    public VeranstaltungsWrapper findeLehrveranstaltungMitTitel(@RequestBody CourseSearchRequest suchDaten) {
-        return lehrveranstaltungsService.findeLehrveranstaltung(suchDaten);
-    }
 
 
     @GetMapping(path="/chat/{id}")

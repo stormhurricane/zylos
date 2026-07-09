@@ -3,8 +3,6 @@ package com.zylos.backend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.zylos.backend.database.Nutzer;
-import com.zylos.backend.model.dto.NutzerResponse;
 import com.zylos.backend.database.FreundesListeID;
 import com.zylos.backend.database.Freundschaft;
 import com.zylos.backend.repository.FreundschaftRepository;
@@ -22,16 +20,16 @@ public class FreundschaftService {
     @Autowired
     NutzerService nutzerService;
 
-    public List<NutzerResponse> showFriendsOfUser(int nutzerId){
+    public List<Object> showFriendsOfUser(int nutzerId){
         //sequentiell, alternative wäre in der Schleife jedes Mal eine If-Abfrage.
         List<Freundschaft> alleFreundschaften = freundschaftRepository.findByFreundesListeID_NutzerId1(nutzerId);
-        List <NutzerResponse> alleFreunde = new ArrayList<>();
+        List <Object> alleFreunde = new ArrayList<>();
         for (Freundschaft freundschaft : alleFreundschaften) {
             if (freundschaft.isAkzeptiert()) {
-                Nutzer nutzer = nutzerService.findeNutzer(freundschaft.getFreundesListID().getNutzerId2());
-                if (nutzer != null) {
-                    alleFreunde.add(new NutzerResponse(nutzer));
-                }
+                // Nutzer nutzer = nutzerService.findeNutzer(freundschaft.getFreundesListID().getNutzerId2());
+                // if (nutzer != null) {
+                //     alleFreunde.add(new NutzerResponse(nutzer));
+                // }
             }
         }
 
@@ -39,10 +37,10 @@ public class FreundschaftService {
 
         for (Freundschaft freundschaft : alleFreundschaften) {
             if (freundschaft.isAkzeptiert()) {
-                Nutzer nutzer = nutzerService.findeNutzer(freundschaft.getFreundesListID().getNutzerId1());
-                if (nutzer != null) {
-                    alleFreunde.add(new NutzerResponse(nutzer));
-                }
+                // Nutzer nutzer = nutzerService.findeNutzer(freundschaft.getFreundesListID().getNutzerId1());
+                // if (nutzer != null) {
+                //     alleFreunde.add(new NutzerResponse(nutzer));
+                // }
             }
         }
 
@@ -93,16 +91,16 @@ public class FreundschaftService {
 
     //Ausnutzen der Datenstruktur, dass neue Freundschaften immer eigene nutzerID als nutzerID 1 anlegen
     //Das ist so dirty.
-    public List<NutzerResponse> showOpenFriendRequests(int userId) {
-        List <NutzerResponse> nochNichtFreunde = new ArrayList<>();
+    public List<Object> showOpenFriendRequests(int userId) {
+        List <Object> nochNichtFreunde = new ArrayList<>();
         List<Freundschaft> alleFreundschaften = freundschaftRepository.findByFreundesListeID_NutzerId2(userId);
 
         for (Freundschaft freundschaft : alleFreundschaften) {
             if (!freundschaft.isAkzeptiert()) {
-                Nutzer nutzer = nutzerService.findeNutzer(freundschaft.getFreundesListID().getNutzerId1());
-                if (nutzer != null) {
-                    nochNichtFreunde.add(new NutzerResponse(nutzer));
-                }
+                // Nutzer nutzer = nutzerService.findeNutzer(freundschaft.getFreundesListID().getNutzerId1());
+                // if (nutzer != null) {
+                //     nochNichtFreunde.add(new NutzerResponse(nutzer));
+                // }
             }
         }
         return nochNichtFreunde;

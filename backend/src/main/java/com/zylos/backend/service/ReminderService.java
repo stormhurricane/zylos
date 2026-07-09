@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service;
 
 import com.zylos.backend.model.dto.CreateReminderRequest;
 import com.zylos.backend.model.dto.TerminResponse;
-import com.zylos.backend.controller.communication.NutzerWrapper;
-import com.zylos.backend.database.Nutzer;
 import com.zylos.backend.database.Reminder;
 import com.zylos.backend.database.Termin;
 import com.zylos.backend.repository.ReminderRepository;
@@ -40,17 +38,17 @@ public class ReminderService {
     EmailService emailService;
 
     public boolean legeReminderFuerAlleNutzerDerLvAn(CreateReminderRequest request){
-        // .courseId() statt .getlvId(), da TerminResponse nun ein Record mit englischen Feldern ist
-        List<NutzerWrapper> listeAllerTeilnehmerEinerLV = teilnehmerService.erstelleTeilnehmerListeEinerLV(terminService.findeTerminMitId(request.appointmentId()).courseId());
-        for(NutzerWrapper nw : listeAllerTeilnehmerEinerLV){
-            Reminder zuSpeichernderReminder = new Reminder(request.appointmentId(), request.year(), request.month(), request.day(), request.time(), request.form());
-            if(nw.getMoeglicherStudent() != null){
-                zuSpeichernderReminder.setNutzerId(nw.getMoeglicherStudent().getId());
-            } else {
-                zuSpeichernderReminder.setNutzerId(nw.getMoeglicherLehrender().getId());
-            }
-            reminderRepository.save(zuSpeichernderReminder);
-        }
+        // // .courseId() statt .getlvId(), da TerminResponse nun ein Record mit englischen Feldern ist
+        // List<NutzerWrapper> listeAllerTeilnehmerEinerLV = teilnehmerService.erstelleTeilnehmerListeEinerLV(terminService.findeTerminMitId(request.appointmentId()).courseId());
+        // for(NutzerWrapper nw : listeAllerTeilnehmerEinerLV){
+        //     Reminder zuSpeichernderReminder = new Reminder(request.appointmentId(), request.year(), request.month(), request.day(), request.time(), request.form());
+        //     if(nw.getMoeglicherStudent() != null){
+        //         zuSpeichernderReminder.setNutzerId(nw.getMoeglicherStudent().getId());
+        //     } else {
+        //         zuSpeichernderReminder.setNutzerId(nw.getMoeglicherLehrender().getId());
+        //     }
+        //     reminderRepository.save(zuSpeichernderReminder);
+        // }
         return true;
     }
 
@@ -90,10 +88,10 @@ public class ReminderService {
 
             for (Reminder reminder : alleEmailReminder) {
                 TerminResponse referenzierterTermin = terminService.findeTerminMitId(reminder.getTerminId());
-                Nutzer nutzer = nutzerService.findeNutzer(reminder.getNutzerId());
-                emailService.generiereReminderEmail(nutzer.getVorname(), nutzer.getNachname(), nutzer.getEmail(), referenzierterTermin.subject(),
-                        LocalDate.of(Integer.parseInt(referenzierterTermin.year()), Integer.parseInt(referenzierterTermin.month()),
-                                Integer.parseInt(referenzierterTermin.day())), referenzierterTermin.time());
+                // Nutzer nutzer = nutzerService.findeNutzer(reminder.getNutzerId());
+                // emailService.generiereReminderEmail(nutzer.getVorname(), nutzer.getNachname(), nutzer.getEmail(), referenzierterTermin.subject(),
+                //         LocalDate.of(Integer.parseInt(referenzierterTermin.year()), Integer.parseInt(referenzierterTermin.month()),
+                //                 Integer.parseInt(referenzierterTermin.day())), referenzierterTermin.time());
                 reminderRepository.delete(reminder);
                 try {
                     //Thread nach jeder Email schlafen schicken, da sonst ein Error vom Mail-Sender kommt.

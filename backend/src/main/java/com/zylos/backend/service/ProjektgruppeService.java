@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.zylos.backend.database.*;
-import com.zylos.backend.repository.ProjektgruppeRepository;
 
 import java.util.List;
 
@@ -12,8 +11,6 @@ import java.util.List;
 @Deprecated(since="2024-06", forRemoval=true)
 public class ProjektgruppeService {
 
-    @Autowired
-    ProjektgruppeRepository projektgruppeRepository;
 
     @Autowired
     ProjektgruppenNachrichtService projektgruppenNachrichtService;
@@ -21,15 +18,6 @@ public class ProjektgruppeService {
     @Autowired
     ToDosService toDosService;
 
-    public Projektgruppe findeProjektGruppe(String titel, Lehrveranstaltung.zeitEnum semesterZeit,
-                                            String semesterJahr) {
-        return projektgruppeRepository.findProjektgruppeByTitelAndSemesterZeitAndSemesterJahr
-                (titel, semesterZeit, semesterJahr);
-    }
-
-    public Projektgruppe erstelleProjektgruppe(Projektgruppe lv) {
-        return projektgruppeRepository.save(lv);
-    }
 
     public List<ProjektgruppenNachricht> zeigeGruppenchat(int pgId) {
         return projektgruppenNachrichtService.zeigeAlleNachrichtenEinerProjektugruppe(pgId);
@@ -40,9 +28,6 @@ public class ProjektgruppeService {
                 nachricht.getSender(), nachricht.getInhalt());
     }
 
-    public List<Projektgruppe> zeigeAlleProjektGruppen() {
-        return projektgruppeRepository.findAll();
-    }
 
     public List<ToDos> zeigeToDoListe(int pgId) {
         return toDosService.listeAllerTodosEinerProjektgruppe(pgId);

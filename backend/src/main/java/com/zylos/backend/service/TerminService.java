@@ -3,7 +3,6 @@ package com.zylos.backend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.zylos.backend.controller.communication.VeranstaltungsWrapper;
 import com.zylos.backend.model.dto.CreateAppointmentRequest;
 import com.zylos.backend.model.dto.TerminResponse;
 import com.zylos.backend.database.Termin;
@@ -33,16 +32,16 @@ public class TerminService {
     }
 
     public List<TerminResponse> terminListeEinesNutzers (int nutzerId, Map<String, Integer> dateMap) {
-        List<VeranstaltungsWrapper> veranstaltungsWrappers = teilnehmerService.erstelleTeilnahmeListeEinesNutzers(nutzerId);
+        // List<Object> veranstaltungsWrappers = teilnehmerService.erstelleTeilnahmeListeEinesNutzers(nutzerId);
         List<Integer> lvIds = new ArrayList<>();
-        for(VeranstaltungsWrapper veranstaltungsWrapper : veranstaltungsWrappers) {
-            if(veranstaltungsWrapper.getLehrveranstaltung()!=null) {
-                lvIds.add(veranstaltungsWrapper.getLehrveranstaltung().getLehrveranstaltungsID());
-            }
-            else {
-                lvIds.add(veranstaltungsWrapper.getProjektgruppe().getLehrveranstaltungsID());
-            }
-        }
+        // for(Object veranstaltungsWrapper : veranstaltungsWrappers) {
+        //     if(veranstaltungsWrapper instanceof Lehrveranstaltung) {
+        //         lvIds.add(((Lehrveranstaltung) veranstaltungsWrapper).getLehrveranstaltungsID());
+        //     }
+        //     else {
+        //         lvIds.add(((Projektgruppe) veranstaltungsWrapper).getLehrveranstaltungsID());
+        //     }
+        // }
         List<Termin> terminList = new ArrayList<>();
         for (int lvId : lvIds) {
             terminList.addAll(terminRepository.findAllByLvIdAndJahrAndMonatAndTag(lvId, dateMap.get("jahr").toString(), dateMap.get("monat").toString(), dateMap.get("tag").toString()));
