@@ -14,6 +14,8 @@ import com.zylos.backend.features.course.exceptions.CourseAccessDeniedException;
 import com.zylos.backend.features.course.exceptions.CourseAlreadyExistsException;
 import com.zylos.backend.features.course.exceptions.CourseNotFoundException;
 import com.zylos.backend.features.course.material.exceptions.MaterialNotFoundException;
+import com.zylos.backend.features.projectgroup.exception.ProjectGroupAlreadyExistsException;
+import com.zylos.backend.features.projectgroup.exception.ProjectGroupNotFoundException;
 import com.zylos.backend.features.course.enrollment.exceptions.EnrollmentUserNotFoundException;
 import com.zylos.backend.features.course.enrollment.exceptions.InvalidRoleForEnrollmentException;
 import com.zylos.backend.features.user.exceptions.BadCredentialsException;
@@ -29,7 +31,7 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler({CourseNotFoundException.class, MaterialNotFoundException.class, UserNotFoundException.class, EnrollmentUserNotFoundException.class}) 
+    @ExceptionHandler({CourseNotFoundException.class, MaterialNotFoundException.class, UserNotFoundException.class, EnrollmentUserNotFoundException.class, ProjectGroupNotFoundException.class}) 
     public ResponseEntity<ApiError> handleNotFoundException(RuntimeException ex) {
         ApiError error = new ApiError(
                 ex.getMessage(),
@@ -39,7 +41,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({CourseAlreadyExistsException.class, EmailAlreadyExistsException.class, InvalidRoleForEnrollmentException.class})
+    @ExceptionHandler({CourseAlreadyExistsException.class, EmailAlreadyExistsException.class, InvalidRoleForEnrollmentException.class, ProjectGroupAlreadyExistsException.class})
     public ResponseEntity<ApiError> handleConflictException(RuntimeException ex) {
         ApiError error = new ApiError(
                 ex.getMessage(),
