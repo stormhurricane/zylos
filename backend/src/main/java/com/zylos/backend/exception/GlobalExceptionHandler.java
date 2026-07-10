@@ -14,6 +14,7 @@ import com.zylos.backend.features.course.exceptions.CourseAccessDeniedException;
 import com.zylos.backend.features.course.exceptions.CourseAlreadyExistsException;
 import com.zylos.backend.features.course.exceptions.CourseNotFoundException;
 import com.zylos.backend.features.course.material.exceptions.MaterialNotFoundException;
+import com.zylos.backend.features.projectgroup.exception.ProjectGroupAccessDeniedException;
 import com.zylos.backend.features.projectgroup.exception.ProjectGroupAlreadyExistsException;
 import com.zylos.backend.features.projectgroup.exception.ProjectGroupNotFoundException;
 import com.zylos.backend.features.course.enrollment.exceptions.EnrollmentUserNotFoundException;
@@ -59,6 +60,16 @@ public class GlobalExceptionHandler {
             LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(ProjectGroupAccessDeniedException.class)
+    public ResponseEntity<ApiError> handleForddiResponseEntity(RuntimeException ex) {
+        ApiError error = new ApiError(
+            ex.getMessage(),
+            null,
+            LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
     // Catches validation errors that occur due to @Valid

@@ -1,9 +1,11 @@
-package com.zylos.backend.features.projectgroup;
+package com.zylos.backend.features.projectgroup.member;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import java.time.LocalDateTime;
+
+import com.zylos.backend.features.projectgroup.ProjectGroup;
 
 @Entity
 @Table(name = "project_group_members")

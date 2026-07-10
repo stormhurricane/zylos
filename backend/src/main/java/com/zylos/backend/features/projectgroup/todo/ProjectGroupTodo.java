@@ -1,11 +1,12 @@
-package com.zylos.backend.features.projectgroup;
+package com.zylos.backend.features.projectgroup.todo;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
 import java.time.LocalDateTime;
+
+import com.zylos.backend.features.projectgroup.ProjectGroup;
 
 @Entity
 @Table(name = "project_group_todos")
@@ -15,7 +16,8 @@ import java.time.LocalDateTime;
 @Builder
 public class ProjectGroupTodo {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -28,9 +30,11 @@ public class ProjectGroupTodo {
 
     private Long assignedToUserId;
 
+    @NotNull
     @Builder.Default
     private boolean isCompleted = false;
 
+    @NotNull
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 }

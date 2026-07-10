@@ -4,6 +4,8 @@ import com.zylos.backend.features.course.Course;
 import com.zylos.backend.features.course.CourseRepository;
 import com.zylos.backend.features.projectgroup.exception.ProjectGroupAlreadyExistsException;
 import com.zylos.backend.features.projectgroup.exception.ProjectGroupNotFoundException;
+import com.zylos.backend.features.projectgroup.member.ProjectGroupMemberService;
+import com.zylos.backend.features.projectgroup.member.ProjectGroupRole;
 import com.zylos.backend.features.projectgroup.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

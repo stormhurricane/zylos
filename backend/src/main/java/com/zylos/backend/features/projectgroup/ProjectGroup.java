@@ -1,6 +1,10 @@
 package com.zylos.backend.features.projectgroup;
 
 import com.zylos.backend.features.course.Course;
+import com.zylos.backend.features.projectgroup.member.ProjectGroupMember;
+import com.zylos.backend.features.projectgroup.member.ProjectGroupRole;
+import com.zylos.backend.features.projectgroup.todo.ProjectGroupTodo;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
