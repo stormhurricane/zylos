@@ -31,4 +31,17 @@ public class ProjectGroupMemberService {
         ProjectGroupMember member = new ProjectGroupMember(group, userId, role);
         projectGroupMemberRepository.save(member);
     }
+
+    public void verifyUserIsAdmin(Long groupId, Long userId) {
+        verifyMemberAccess(groupId, userId);
+        
+        boolean isAdmin = projectGroupMemberRepository.existsByProjectGroupIdAndUserId(groupId, userId) 
+            && projectGroupMemberRepository.findByProjectGroupIdAndUserId(groupId, userId)
+                .map(member -> member.getRole() == ProjectGroupRole.ADMIN)
+                .orElse(false);
+
+        if (!isAdmin) {
+            throw new ProjectGroupAccessDeniedException(groupId, userId); 
+        }
+    }
 }

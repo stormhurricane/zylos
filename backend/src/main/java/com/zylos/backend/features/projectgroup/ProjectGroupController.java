@@ -31,23 +31,26 @@ public class ProjectGroupController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('STUDENT', 'INSTRUCTOR')")
-    public ResponseEntity<List<ProjectGroupResponse>> getAll() {
-        return ResponseEntity.ok(projectGroupService.getAllGroups());
+    public ResponseEntity<List<ProjectGroupResponse>> getAll(@CurrentUserId long currentUserId) {
+        return ResponseEntity.ok(projectGroupService.getAllGroupsForUser(currentUserId));
     }
 
     @PostMapping("/{id}/members")
-    @PreAuthorize("hasRole('INSTRUCTOR')") 
+    @PreAuthorize("hasAnyRole('STUDENT', 'INSTRUCTOR')") // Ermöglicht fachliche Prüfung im Service
     public ResponseEntity<Void> addMember(
             @PathVariable Long id, 
-            @RequestParam Long userId) {
+            @RequestParam Long userId,
+            @CurrentUserId long currentUserId) {
         
-        projectGroupService.addMemberManually(id, userId);
+        projectGroupService.addMemberManually(id, userId, currentUserId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('STUDENT', 'INSTRUCTOR')")
-    public ResponseEntity<List<ProjectGroupResponse>> search(@RequestParam String title) {
-        return ResponseEntity.ok(projectGroupService.searchGroupsByTitle(title));
+    public ResponseEntity<List<ProjectGroupResponse>> search(
+            @RequestParam String title,
+            @CurrentUserId long currentUserId) {
+        return ResponseEntity.ok(projectGroupService.searchGroupsByTitle(title, currentUserId));
     }
 }

@@ -4,6 +4,7 @@ import com.zylos.backend.features.course.Course;
 import com.zylos.backend.features.course.CourseRepository;
 import com.zylos.backend.features.projectgroup.exception.ProjectGroupAlreadyExistsException;
 import com.zylos.backend.features.projectgroup.exception.ProjectGroupNotFoundException;
+import com.zylos.backend.features.projectgroup.exception.ProjectGroupAccessDeniedException;
 import com.zylos.backend.features.projectgroup.member.ProjectGroupMemberService;
 import com.zylos.backend.features.projectgroup.member.ProjectGroupRole;
 import com.zylos.backend.features.projectgroup.dto.*;
@@ -20,6 +21,7 @@ public class ProjectGroupService {
 
     private final ProjectGroupRepository projectGroupRepository;
     private final CourseRepository courseRepository;
+    private final ProjectGroupMemberService projectGroupMemberService;
 
     @Transactional
     public ProjectGroupResponse createProjectGroup(ProjectGroupRequest request, long currentUserId) {
@@ -39,7 +41,6 @@ public class ProjectGroupService {
                 .createdBy(currentUserId)
                 .build();
 
-        // Creator will be ADMIN
         projectGroup.addMember(currentUserId, ProjectGroupRole.ADMIN);
 
         ProjectGroup savedGroup = projectGroupRepository.save(projectGroup);
@@ -47,7 +48,9 @@ public class ProjectGroupService {
     }
 
     @Transactional
-    public void addMemberManually(Long groupId, Long targetUserId) {
+    public void addMemberManually(Long groupId, Long targetUserId, long currentUserId) {
+        projectGroupMemberService.verifyUserIsAdmin(groupId, currentUserId);
+
         ProjectGroup group = projectGroupRepository.findById(groupId)
                 .orElseThrow(() -> new ProjectGroupNotFoundException(groupId));
         
@@ -63,15 +66,17 @@ public class ProjectGroupService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectGroupResponse> searchGroupsByTitle(String title) {
+    public List<ProjectGroupResponse> searchGroupsByTitle(String title, long currentUserId) {
         return projectGroupRepository.findByTitleContainingIgnoreCase(title).stream()
+                .filter(group -> group.getMembers().stream().anyMatch(m -> m.getUserId().equals(currentUserId)))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectGroupResponse> getAllGroups() {
+    public List<ProjectGroupResponse> getAllGroupsForUser(long currentUserId) {
         return projectGroupRepository.findAll().stream()
+                .filter(group -> group.getMembers().stream().anyMatch(m -> m.getUserId().equals(currentUserId)))
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
