@@ -17,6 +17,7 @@ import com.zylos.backend.features.course.material.exceptions.MaterialNotFoundExc
 import com.zylos.backend.features.projectgroup.exception.ProjectGroupAccessDeniedException;
 import com.zylos.backend.features.projectgroup.exception.ProjectGroupAlreadyExistsException;
 import com.zylos.backend.features.projectgroup.exception.ProjectGroupNotFoundException;
+import com.zylos.backend.features.projectgroup.exception.TodoNotFoundException;
 import com.zylos.backend.features.course.enrollment.exceptions.EnrollmentUserNotFoundException;
 import com.zylos.backend.features.course.enrollment.exceptions.InvalidRoleForEnrollmentException;
 import com.zylos.backend.features.user.exceptions.BadCredentialsException;
@@ -32,7 +33,7 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler({CourseNotFoundException.class, MaterialNotFoundException.class, UserNotFoundException.class, EnrollmentUserNotFoundException.class, ProjectGroupNotFoundException.class}) 
+    @ExceptionHandler({CourseNotFoundException.class, MaterialNotFoundException.class, UserNotFoundException.class, EnrollmentUserNotFoundException.class, ProjectGroupNotFoundException.class, TodoNotFoundException.class}) 
     public ResponseEntity<ApiError> handleNotFoundException(RuntimeException ex) {
         ApiError error = new ApiError(
                 ex.getMessage(),
