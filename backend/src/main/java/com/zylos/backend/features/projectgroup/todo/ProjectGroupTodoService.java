@@ -3,12 +3,11 @@ package com.zylos.backend.features.projectgroup.todo;
 import com.zylos.backend.features.projectgroup.ProjectGroup;
 import com.zylos.backend.features.projectgroup.ProjectGroupRepository;
 import com.zylos.backend.features.projectgroup.exception.ProjectGroupNotFoundException;
+import com.zylos.backend.features.projectgroup.exception.TodoNotFoundException; // NEU
 import com.zylos.backend.features.projectgroup.member.ProjectGroupMemberService;
 import com.zylos.backend.features.projectgroup.todo.dto.TodoRequest;
 import com.zylos.backend.features.projectgroup.todo.dto.TodoResponse;
-
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +19,7 @@ public class ProjectGroupTodoService {
 
     private final ProjectGroupTodoRepository projectGroupTodoRepository;
     private final ProjectGroupRepository projectGroupRepository;
-    private final ProjectGroupMemberService projectGroupMemberService; // Hier nutzen wir den neuen Service!
+    private final ProjectGroupMemberService projectGroupMemberService;
 
     @Transactional
     public TodoResponse createTodo(Long groupId, TodoRequest request, Long currentUserId) {
@@ -28,6 +27,10 @@ public class ProjectGroupTodoService {
 
         ProjectGroup group = projectGroupRepository.findById(groupId)
                 .orElseThrow(() -> new ProjectGroupNotFoundException(groupId));
+
+        if (request.assignedToUserId() != null) {
+            projectGroupMemberService.verifyMemberAccess(groupId, request.assignedToUserId());
+        }
 
         ProjectGroupTodo todo = ProjectGroupTodo.builder()
                 .projectGroup(group)
@@ -43,10 +46,10 @@ public class ProjectGroupTodoService {
         projectGroupMemberService.verifyMemberAccess(groupId, currentUserId);
 
         ProjectGroupTodo todo = projectGroupTodoRepository.findById(todoId)
-                .orElseThrow(() -> new RuntimeException("Todo mit ID " + todoId + " nicht gefunden."));
+                .orElseThrow(() -> new TodoNotFoundException(todoId));
 
         if (!todo.getProjectGroup().getId().equals(groupId)) {
-            throw new IllegalArgumentException("Dieses Todo gehört nicht zur angegebenen Gruppe.");
+            throw new TodoNotFoundException("Todo with ID " + todoId + " does not belong to group " + groupId);
         }
 
         todo.setCompleted(!todo.isCompleted());
