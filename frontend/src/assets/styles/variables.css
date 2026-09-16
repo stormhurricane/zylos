@@ -1,0 +1,42 @@
+:root {
+  /* Brand Primitives */
+  --pr-green-500: #2e7d32; /* Adjusted darker for text WCAG AA compliance */
+  --pr-green-100: rgba(46, 125, 50, 0.1);
+  --pr-blue-500: #1b6388;
+  
+  /* Neutral Palette */
+  --pr-slate-900: #0f172a;
+  --pr-slate-700: #334155;
+  --pr-slate-500: #64748b;
+  --pr-slate-200: #e2e8f0;
+  --pr-slate-100: #f1f5f9;
+  --pr-white: #ffffff;
+
+  /* State Primitives */
+  --pr-red-500: #dc2626;
+}
+
+:root {
+  /* Brand Mapping */
+  --color-brand-primary: var(--pr-green-500);
+  --color-brand-primary-soft: var(--pr-green-100);
+  --color-brand-secondary: var(--pr-blue-500);
+
+  /* Surface & Typography Hierarchy */
+  --bg-app: var(--pr-slate-100);
+  --bg-surface: var(--pr-white);
+  --border-subtle: var(--pr-slate-200);
+  
+  --text-primary: var(--pr-slate-900);
+  --text-secondary: var(--pr-slate-700);
+  --text-muted: var(--pr-slate-500);
+
+  /* Functional Feedback States */
+  --status-error: var(--pr-red-500);
+  --status-success: var(--pr-green-500);
+
+  /* Component Properties */
+  --radius-md: 12px;
+  --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  --duration-fast: 150ms ease-in-out;
+}
