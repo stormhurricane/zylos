@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate, } from 'react-router-dom';
-import Login from './features/auth/components/Login';
+import { Login } from './features/auth/components/Login';
 
 const router = createBrowserRouter([
     { 

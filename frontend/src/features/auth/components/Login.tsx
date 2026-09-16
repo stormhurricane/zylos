@@ -1,7 +1,7 @@
-function Login() {
+export const Login =()  => {
     return ( 
       <div >
-        <div >
+        <div>
           <label>Kennung</label>
           <input type="text"></input>
         </div>
@@ -12,6 +12,4 @@ function Login() {
         <button>Login</button>
       </div>
     );
-}
-
-export default Login;
+};
