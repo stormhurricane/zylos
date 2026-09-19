@@ -1,45 +1,8 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import type { RegisterFormData, RegisterFormErrors } from "../../../types/auth";
+import { useRegister } from "../hooks/useRegister";
 
 export const Register = () => {
-    const [formData, setFormData] = useState<RegisterFormData>({
-        firstname: "",
-        lastname: "",
-        email: "",
-        emailCopy: "",
-        username: "",
-        password: ""
-    });
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value
-        }));
-    };
-
-    const errors: RegisterFormErrors = {};
-
-    if(formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        errors.email = "Please enter a valid Email address.";
-    }
-    if(formData.email && formData.emailCopy && formData.email !== formData.emailCopy) {
-        errors.emailCopy = "Email addresses do not match.";
-    }
-    if(formData.password && formData.password.length < 8) {
-        errors.password = "Password must be at least 8 characters long.";
-    }
-    if(formData.username && formData.username.length < 3) {
-        errors.username = "Username must be at least 3 characters long.";
-    }
-    if(formData.firstname && formData.firstname.length < 2) {
-        errors.firstname = "First name must be at least 2 characters long.";
-    }
-    if(formData.lastname && formData.lastname.length < 2) {
-        errors.lastname = "Last name must be at least 2 characters long.";
-    }
+    const { formData, handleChange, handleSubmit, errors } = useRegister();
 
     const inputClasses = "w-full px-3 py-2 border border-border-subtle rounded-brand shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-slate-900 placeholder-slate-400 transition-colors";
     const labelClasses = "block text-sm font-medium text-slate-700 mb-1";
@@ -55,13 +18,15 @@ export const Register = () => {
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="bg-surface py-8 px-4 shadow-card sm:rounded-brand sm:px-10">
-                    <form className="space-y-4">
+                    <form className="space-y-4" onSubmit={handleSubmit}>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label htmlFor="firstName" className={labelClasses}>
+                                <label htmlFor="firstname" className={labelClasses}>
                                     First Name
                                 </label>
-                                <input id="firstname" name="firstname" type="text" autoComplete="given-name" required onChange={handleChange} value={formData.firstname} className={inputClasses}></input>
+                                <input 
+                                    id="firstname" name="firstname" type="text" autoComplete="given-name" required onChange={handleChange} value={formData.firstname} className={inputClasses}
+                                ></input>
                                 {errors.firstname && 
                                     <p role="alert" className={errorClasses}>
                                         {errors.firstname}
@@ -69,10 +34,12 @@ export const Register = () => {
                                 }
                             </div>
                             <div>
-                                <label htmlFor="lastName" className={labelClasses}>
+                                <label htmlFor="lastname" className={labelClasses}>
                                     Last Name
                                     </label>
-                                <input id="lastName" name="lastName" type="text" autoComplete="family-name" required onChange={handleChange} className={inputClasses}></input>
+                                <input 
+                                    id="lastname" name="lastname" type="text" autoComplete="family-name" required onChange={handleChange} value={formData.lastname} className={inputClasses}
+                                ></input>
                                 {errors.lastname && 
                                     <p role="alert" className={errorClasses}>
                                         {errors.lastname}
@@ -86,7 +53,9 @@ export const Register = () => {
                                 <label htmlFor="email" className={labelClasses}>
                                     Email
                                 </label>
-                                <input id="email" name="email" type="email" autoComplete="email" required onChange={handleChange} className={inputClasses}></input>
+                                <input 
+                                    id="email" name="email" type="email" autoComplete="email" required onChange={handleChange} value={formData.email} className={inputClasses}
+                                ></input>
                                 {errors.email && 
                                     <p role="alert" className={errorClasses}>
                                         {errors.email}
@@ -97,7 +66,9 @@ export const Register = () => {
                                 <label htmlFor="emailCopy" className={labelClasses}>
                                     Repeat Email
                                 </label>
-                                <input id="emailCopy" name="emailCopy" type="email" autoComplete="email" required onChange={handleChange} className={inputClasses}></input>
+                                <input 
+                                    id="emailCopy" name="emailCopy" type="email" autoComplete="email" required onChange={handleChange} value={formData.emailCopy} className={inputClasses}
+                                ></input>
                                 {errors.emailCopy && 
                                     <p role="alert" className={errorClasses}>
                                         {errors.emailCopy}
@@ -111,7 +82,9 @@ export const Register = () => {
                                 <label htmlFor="username" className={labelClasses}>
                                     Username
                                 </label>
-                                <input id="username" name="username" type="text" required onChange={handleChange} className={inputClasses}></input>
+                                <input 
+                                    id="username" name="username" type="text" required onChange={handleChange} value={formData.username} className={inputClasses}
+                                ></input>
                                 {errors.username && 
                                     <p role="alert" className={errorClasses}>
                                         {errors.username}
@@ -122,7 +95,9 @@ export const Register = () => {
                                 <label htmlFor="password" className={labelClasses}>
                                     Password
                                 </label>
-                                <input id="password" name="password" type="password" autoComplete="new-password" required minLength={8} onChange={handleChange} className={inputClasses}></input>
+                                <input 
+                                    id="password" name="password" type="password" autoComplete="new-password" required minLength={8} onChange={handleChange} value={formData.password} className={inputClasses}
+                                ></input>
                                 {errors.password && 
                                     <p role="alert" className={errorClasses}>
                                         {errors.password}
