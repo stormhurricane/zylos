@@ -4,8 +4,13 @@ import { useRegister } from "../hooks/useRegister";
 export const Register = () => {
     const { formData, handleChange, handleSubmit, errors } = useRegister();
 
-    const inputClasses = "w-full px-3 py-2 border border-border-subtle rounded-brand shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-slate-900 placeholder-slate-400 transition-colors";
-    const labelClasses = "block text-sm font-medium text-slate-700 mb-1";
+    const inputClasses = 
+    "w-full px-3 py-2 bg-surface text-content-primary placeholder:text-content-muted " +
+    "border border-border-subtle rounded-brand shadow-sm " +
+    "focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary " +
+    "transition-colors";
+
+    const labelClasses = "block text-sm font-medium text-content-secondary mb-1";
     const errorClasses = "mt-1 text-sm text-status-error";
 
     return (

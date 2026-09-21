@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class', 
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -15,6 +16,12 @@ export default {
         surface: {
           app: 'var(--bg-app)',
           DEFAULT: 'var(--bg-surface)',
+          elevated: 'var(--bg-surface-elevated)', 
+        },
+        content: {
+          primary: 'var(--text-primary)',
+          secondary: 'var(--text-secondary)',
+          muted: 'var(--text-muted)',
         },
         border: {
           subtle: 'var(--border-subtle)',
@@ -25,10 +32,10 @@ export default {
         }
       },
       borderRadius: {
-        'brand': 'var(--radius-md)', // Ergibt rounded-brand (12px)
+        'brand': 'var(--radius-md)',
       },
       boxShadow: {
-        'card': 'var(--shadow-card)', // Ergibt shadow-card
+        'card': 'var(--shadow-card)',
       }
     },
   },
