@@ -1,8 +1,37 @@
-import { Link } from "react-router-dom";
-import { useRegister } from "../hooks/useRegister";
+import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+
+import { registerSchema, type RegisterFormData } from "../schemas/register.schema";
+import { registerUser } from "../api/register";
 
 export const Register = () => {
-    const { formData, handleChange, handleSubmit, errors } = useRegister();
+    const navigate = useNavigate();
+
+    const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
+        resolver: zodResolver(registerSchema),
+        mode: "onBlur",
+        defaultValues: {
+            firstname: "",
+            lastname: "",
+            email: "",
+            emailCopy: "",
+            username: "",
+            password: ""
+        }
+    });
+
+    const { mutate, isPending, isError, error } = useMutation({
+        mutationFn: registerUser,
+        onSuccess: () => {
+            navigate("/login");
+        }
+    });
+
+    const onSubmit = (data: RegisterFormData) => {
+        mutate(data);
+    };
 
     const inputClasses = 
     "w-full px-3 py-2 bg-surface text-content-primary placeholder:text-content-muted " +
@@ -23,18 +52,27 @@ export const Register = () => {
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="bg-surface py-8 px-4 shadow-card sm:rounded-brand sm:px-10">
-                    <form className="space-y-4" onSubmit={handleSubmit}>
+                    <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+
+                        {isError && (
+                            <div className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-600">
+                                <p role="alert">
+                                    {error?.message || "An error occurred while registering."}
+                                </p>
+                            </div>
+                        )}
+
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label htmlFor="firstname" className={labelClasses}>
                                     First Name
                                 </label>
                                 <input 
-                                    id="firstname" name="firstname" type="text" autoComplete="given-name" required onChange={handleChange} value={formData.firstname} className={inputClasses}
+                                    id="firstname" type="text" autoComplete="given-name" className={inputClasses} {...register("firstname")}
                                 ></input>
                                 {errors.firstname && 
                                     <p role="alert" className={errorClasses}>
-                                        {errors.firstname}
+                                        {errors.firstname.message}
                                     </p>
                                 }
                             </div>
@@ -43,11 +81,11 @@ export const Register = () => {
                                     Last Name
                                     </label>
                                 <input 
-                                    id="lastname" name="lastname" type="text" autoComplete="family-name" required onChange={handleChange} value={formData.lastname} className={inputClasses}
+                                    id="lastname" type="text" autoComplete="family-name" {...register("lastname")} className={inputClasses}
                                 ></input>
                                 {errors.lastname && 
                                     <p role="alert" className={errorClasses}>
-                                        {errors.lastname}
+                                        {errors.lastname.message}
                                     </p>
                                 }
                             </div>
@@ -59,11 +97,11 @@ export const Register = () => {
                                     Email
                                 </label>
                                 <input 
-                                    id="email" name="email" type="email" autoComplete="email" required onChange={handleChange} value={formData.email} className={inputClasses}
+                                    id="email" type="email" autoComplete="email" required {...register("email")} className={inputClasses}
                                 ></input>
                                 {errors.email && 
                                     <p role="alert" className={errorClasses}>
-                                        {errors.email}
+                                        {errors.email.message}
                                     </p>
                                 }
                             </div>
@@ -72,11 +110,11 @@ export const Register = () => {
                                     Repeat Email
                                 </label>
                                 <input 
-                                    id="emailCopy" name="emailCopy" type="email" autoComplete="email" required onChange={handleChange} value={formData.emailCopy} className={inputClasses}
+                                    id="emailCopy" type="email" autoComplete="email" required {...register("emailCopy")} className={inputClasses}
                                 ></input>
                                 {errors.emailCopy && 
                                     <p role="alert" className={errorClasses}>
-                                        {errors.emailCopy}
+                                        {errors.emailCopy.message}
                                     </p>
                                 }
                             </div>
@@ -88,11 +126,11 @@ export const Register = () => {
                                     Username
                                 </label>
                                 <input 
-                                    id="username" name="username" type="text" required onChange={handleChange} value={formData.username} className={inputClasses}
+                                    id="username" type="text" required {...register("username")} className={inputClasses}
                                 ></input>
                                 {errors.username && 
                                     <p role="alert" className={errorClasses}>
-                                        {errors.username}
+                                        {errors.username.message}
                                     </p>
                                 }
                             </div>
@@ -101,11 +139,11 @@ export const Register = () => {
                                     Password
                                 </label>
                                 <input 
-                                    id="password" name="password" type="password" autoComplete="new-password" required minLength={8} onChange={handleChange} value={formData.password} className={inputClasses}
+                                    id="password" type="password" autoComplete="new-password" className={inputClasses} {...register("password")}
                                 ></input>
                                 {errors.password && 
                                     <p role="alert" className={errorClasses}>
-                                        {errors.password}
+                                        {errors.password.message}
                                     </p>
                                 }
                             </div>
@@ -114,9 +152,10 @@ export const Register = () => {
                         <div className="pt-2">
                             <button 
                                 type="submit"
+                                disabled={isPending}
                                 className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-brand shadow-sm text-sm font-medium text-white bg-brand-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary transition-colors cursor-pointer"
                             >
-                                Register
+                                {isPending ? "Registering..." : "Register"}
                             </button>
                         </div>
                     </form>
