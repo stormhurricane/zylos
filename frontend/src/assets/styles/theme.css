@@ -1,0 +1,94 @@
+:root {
+  /* ==========================================================================
+     1. PRIMITIVES (Raw Brand & Neutral Values)
+     ========================================================================== */
+  /* Dark Mode Accents (Lighter shades for high contrast on dark backgrounds) */
+  --pr-green-400: #4ade80;
+  --pr-green-400-soft: rgba(74, 222, 128, 0.15);
+  --pr-blue-400: #60a5fa;
+
+  /* Light Mode Accents (Darker shades for high contrast on light backgrounds) */
+  --pr-green-600: #2e7d32;
+  --pr-green-600-soft: rgba(46, 125, 50, 0.1);
+  --pr-blue-600: #1b6388;
+
+  /* Neutrals */
+  --pr-slate-950: #020617; /* Root canvas in dark mode */
+  --pr-slate-900: #0f172a; /* Surface background in dark mode */
+  --pr-slate-800: #1e293b; /* Elevated elements in dark mode */
+  --pr-slate-700: #334155;
+  --pr-slate-500: #64748b;
+  --pr-slate-200: #e2e8f0; /* Surface in light mode */
+  --pr-slate-100: #f1f5f9; /* Root canvas in light mode */
+  --pr-white: #ffffff;
+
+  /* Feedback */
+  --pr-red-500: #ef4444;
+
+  /* Static Specs */
+  --radius-md: 12px;
+  --duration-fast: 150ms ease-in-out;
+}
+
+/* ============================================================================
+   2. SEMANTIC TOKENS: DARK MODE (DEFAULT)
+   ============================================================================ */
+:root,
+[data-theme="dark"],
+.dark {
+  color-scheme: dark;
+
+  /* Brand Mapping */
+  --color-brand-primary: var(--pr-green-400);
+  --color-brand-primary-soft: var(--pr-green-400-soft);
+  --color-brand-secondary: var(--pr-blue-400);
+
+  /* Surface & Canvas Hierarchy */
+  --bg-app: var(--pr-slate-900);
+  --bg-surface: var(--pr-slate-800);
+  --bg-surface-elevated: var(--pr-slate-800);
+  --border-subtle: #334155;
+
+  /* Typography (DRASTISCH AUFGEHELLE) */
+  --text-primary: var(--pr-white);
+  --text-secondary: var(--pr-slate-200);
+  --text-muted: var(--pr-slate-400);
+
+  /* Status */
+  --status-error: var(--pr-red-500);
+  --status-success: var(--pr-green-400);
+
+  /* Shadows don't render on dark surfaces; rely on stroke borders instead */
+  --shadow-card: 0 0 0 1px var(--border-subtle);
+}
+
+/* ============================================================================
+   3. SEMANTIC TOKENS: LIGHT MODE OVERRIDE
+   ============================================================================ */
+[data-theme="light"],
+.light {
+  color-scheme: light;
+
+  /* Brand Mapping */
+  --color-brand-primary: var(--pr-green-600);
+  --color-brand-primary-soft: var(--pr-green-600-soft);
+  --color-brand-secondary: var(--pr-blue-600);
+
+  /* Surface & Canvas Hierarchy */
+  --bg-app: var(--pr-slate-100);
+  --bg-surface: var(--pr-white);
+  --bg-surface-elevated: var(--pr-slate-200);
+  --border-subtle: var(--pr-slate-200);
+
+  /* Typography */
+  --text-primary: var(--pr-slate-900);
+  --text-secondary: var(--pr-slate-700);
+  --text-muted: var(--pr-slate-500);
+
+  /* Status */
+  --status-error: var(--pr-red-500);
+  --status-success: var(--pr-green-600);
+
+  /* Shadows for light mode elevation */
+  --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
