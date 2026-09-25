@@ -1,3 +1,9 @@
 spring:
   application:
     name: backend
+
+logging:
+  file:
+    name: logs/backend.log
+  level:
+    com.zylos.backend: DEBUG
