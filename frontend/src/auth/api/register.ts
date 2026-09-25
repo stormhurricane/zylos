@@ -1,4 +1,4 @@
-import type { RegisterFormData } from "../../../types/auth";
+import type { RegisterFormData } from "../../types/auth";
 
 export const registerUser = async (formData: RegisterFormData) => {
     console.log(formData);
