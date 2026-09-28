@@ -1,5 +1,8 @@
 package com.zylos.backend.auth.dto;
 
+import com.zylos.backend.auth.validation.ValidRegistrationRole;
+import com.zylos.backend.features.user.SystemRole;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,5 +31,6 @@ public record RegisterRequest(
     String username,
 
     @NotNull(message = "Role is required")
-    UserRole role
+    @ValidRegistrationRole 
+    SystemRole role
 ) {}
