@@ -2,6 +2,7 @@ package com.zylos.backend.auth.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record RegisterRequest(
@@ -24,5 +25,8 @@ public record RegisterRequest(
     
     @NotBlank(message = "Username is required")
     @Size(min = 3, message = "Username must be at least 3 characters long")
-    String username
+    String username,
+
+    @NotNull(message = "Role is required")
+    UserRole role
 ) {}
