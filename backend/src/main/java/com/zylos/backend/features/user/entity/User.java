@@ -3,7 +3,8 @@ package com.zylos.backend.features.user.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.zylos.backend.features.user.SystemRole;
 import com.zylos.backend.features.user.UserStatus;
@@ -54,10 +55,11 @@ public class User {
     @Column (nullable = false)
     private UserStatus status = UserStatus.PENDING;
 
+    @CreationTimestamp 
     @Column (nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @LastModifiedDate 
+    @UpdateTimestamp  
     @Column (nullable = false)
     private LocalDateTime updatedAt;
 
