@@ -5,11 +5,12 @@ import { useMutation } from "@tanstack/react-query";
 
 import { registerSchema, type RegisterFormData } from "../schemas/register.schema"; 
 import { registerUser } from "../api/register"; 
+import { UserRole } from "../../types/auth";
 
 export const Register = () => { 
     const navigate = useNavigate(); 
 
-    const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({ 
+    const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterFormData>({ 
         resolver: zodResolver(registerSchema), 
         mode: "onBlur", 
         defaultValues: { 
@@ -18,9 +19,12 @@ export const Register = () => {
             email: "", 
             emailCopy: "", 
             username: "", 
-            password: "" 
+            password: "",
+            role: UserRole.STUDENT,
         } 
     }); 
+
+    const selectedRole = watch("role");
 
     const { mutate, isPending, isError, error } = useMutation({ 
         mutationFn: registerUser, 
@@ -42,6 +46,14 @@ export const Register = () => {
     const labelClasses = "block text-sm font-medium text-content-secondary mb-1"; 
     const errorClasses = "mt-1 text-sm text-status-error"; 
 
+    const getCardClasses = (role: UserRole) => {
+        const base = "relative flex flex-col p-4 border rounded-brand cursor-pointer transition-all focus-within:ring-2 focus-within:ring-brand-primary ";
+        const active = selectedRole === role 
+            ? "border-brand-primary bg-brand-soft shadow-sm" 
+            : "border-border-subtle bg-surface hover:border-brand-primary/50";
+        return `${base} ${active}`;
+    };
+
     return ( 
         <div className="min-h-screen bg-surface-app flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8"> 
             <div className="sm:mx-auto sm:w-full sm:max-w-md"> 
@@ -59,6 +71,43 @@ export const Register = () => {
                                 <p>{error?.message || "An error occurred while registering."}</p> 
                             </div> 
                         )} 
+
+                        <fieldset>
+                            <legend className={labelClasses}>Register as a</legend>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+                                <label className={getCardClasses(UserRole.STUDENT)}>
+                                    <input 
+                                        type="radio" 
+                                        value={UserRole.STUDENT} 
+                                        className="sr-only" 
+                                        {...register("role")} 
+                                    />
+                                    <span className="text-sm font-semibold text-content-primary">Student</span>
+                                    <span className="text-xs text-content-muted mt-1">
+                                        Learn and enroll in courses
+                                    </span>
+                                </label>
+
+                                <label className={getCardClasses(UserRole.TEACHER)}>
+                                    <input 
+                                        type="radio" 
+                                        value={UserRole.TEACHER} 
+                                        className="sr-only" 
+                                        {...register("role")} 
+                                    />
+                                    <span className="text-sm font-semibold text-content-primary">Teacher</span>
+                                    <span className="text-xs text-content-muted mt-1">
+                                        Create courses (requires approval)
+                                    </span>
+                                </label>
+                            </div>
+                            {errors.role && (
+                                <p role="alert" className={errorClasses}>
+                                    {errors.role.message}
+                                </p>
+                            )}
+                        </fieldset>
+
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4"> 
                             <div> 
                                 <label htmlFor="firstname" className={labelClasses}> 

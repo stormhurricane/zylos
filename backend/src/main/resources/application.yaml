@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: backend
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+
+app:
+  cors:
+    allowed-origins: ${FRONTEND_URL:http://localhost:3000}
+
+logging:
+  file:
+    name: logs/backend.log
+  level:
+    com.zylos.backend: DEBUG
