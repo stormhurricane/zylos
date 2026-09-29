@@ -57,7 +57,7 @@ public class User {
 
     @CreationTimestamp 
     @Column (nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp  
     @Column (nullable = false)
