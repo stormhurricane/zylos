@@ -5,7 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 
 import { registerSchema, type RegisterFormData } from "../schemas/register.schema"; 
 import { registerUser } from "../api/register"; 
-import { UserRole } from "../../types/auth";
+import { UserRole } from "../../types/index";
 
 export const Register = () => { 
     const navigate = useNavigate(); 
@@ -14,8 +14,8 @@ export const Register = () => {
         resolver: zodResolver(registerSchema), 
         mode: "onBlur", 
         defaultValues: { 
-            firstname: "", 
-            lastname: "", 
+            firstName: "", 
+            lastName: "", 
             email: "", 
             emailCopy: "", 
             username: "", 
@@ -33,8 +33,9 @@ export const Register = () => {
         } 
     }); 
 
-    const onSubmit = (data: RegisterFormData) => { 
-        mutate(data); 
+    const onSubmit = (data: RegisterFormData) => {
+        const {emailCopy, ...payload} = data; 
+        mutate(payload); 
     }; 
 
     const inputClasses =  
@@ -117,14 +118,14 @@ export const Register = () => {
                                     id="firstname" 
                                     type="text" 
                                     autoComplete="given-name" 
-                                    aria-invalid={!!errors.firstname}
-                                    aria-describedby={errors.firstname ? "firstname-error" : undefined}
+                                    aria-invalid={!!errors.firstName}
+                                    aria-describedby={errors.firstName ? "firstname-error" : undefined}
                                     className={inputClasses} 
-                                    {...register("firstname")} 
+                                    {...register("firstName")} 
                                 />
-                                {errors.firstname &&  
+                                {errors.firstName &&  
                                     <p id="firstname-error" role="alert" className={errorClasses}> 
-                                        {errors.firstname.message} 
+                                        {errors.firstName.message} 
                                     </p> 
                                 } 
                             </div> 
@@ -136,14 +137,14 @@ export const Register = () => {
                                     id="lastname" 
                                     type="text" 
                                     autoComplete="family-name" 
-                                    aria-invalid={!!errors.lastname}
-                                    aria-describedby={errors.lastname ? "lastname-error" : undefined}
+                                    aria-invalid={!!errors.lastName}
+                                    aria-describedby={errors.lastName ? "lastname-error" : undefined}
                                     className={inputClasses} 
-                                    {...register("lastname")} 
+                                    {...register("lastName")} 
                                 />
-                                {errors.lastname &&  
+                                {errors.lastName &&  
                                     <p id="lastname-error" role="alert" className={errorClasses}> 
-                                        {errors.lastname.message} 
+                                        {errors.lastName.message} 
                                     </p> 
                                 } 
                             </div> 
