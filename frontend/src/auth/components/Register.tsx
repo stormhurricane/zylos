@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"; 
 import { useMutation } from "@tanstack/react-query"; 
 
+import { UserRole, type ErrorResponse } from "../../types/index";
+import { registerUser } from "../api/authApi";
 import { registerSchema, type RegisterFormData } from "../schemas/register.schema"; 
 import { registerUser } from "../api/register"; 
 import { UserRole } from "../../types/index";
