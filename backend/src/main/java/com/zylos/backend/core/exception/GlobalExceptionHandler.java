@@ -35,13 +35,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ErrorResponse> handleConflictException(ConflictException e){
-        Map<String, String> error = Map.of("error", e.getMessage());
 
         ErrorResponse response = new ErrorResponse(
             HttpStatus.CONFLICT.value(),
             e.getMessage(),
             LocalDateTime.now(),
-            error
+            e.getErrors()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
