@@ -1,5 +1,8 @@
 package com.zylos.backend.auth;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +23,21 @@ public class AuthService {
 
     @Transactional 
     public void register(RegisterRequest request) {
-        if(userRepository.existsByEmail(request.email())){
-            throw new UserAlreadyExistsException("Email is already in use");
+        boolean emailAlreadyTaken = userRepository.existsByEmail(request.email());
+        boolean userNameAlreadyTaken = userRepository.existsByUsername(request.username());
+
+        Map<String,String> errors = new HashMap<>();
+        if(emailAlreadyTaken){
+            errors.put("email", "Email is already in use");
+        }
+        if(userNameAlreadyTaken){
+            errors.put("username", "Username is already in use");
         }
 
-        if(userRepository.existsByUsername(request.username())){
-            throw new UserAlreadyExistsException("Username is already in use");
+        if(!errors.isEmpty()){
+            throw new UserAlreadyExistsException(errors, "Registration failed due to conflicting user data");
         }
+        
 
         String encodedPassword = passwordEncoder.encode(request.password());
 
