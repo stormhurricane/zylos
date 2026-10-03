@@ -11,6 +11,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j 
 @RestControllerAdvice 
 public class GlobalExceptionHandler {
 
@@ -65,6 +68,7 @@ public class GlobalExceptionHandler {
             LocalDateTime.now(),
             null
         );
+        log.error("An unexpected error occured: ", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }
