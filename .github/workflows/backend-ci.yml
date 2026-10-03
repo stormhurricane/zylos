@@ -1,0 +1,50 @@
+name: "CI"
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [ "main", "dev" ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+
+jobs:
+  tests:
+    name: "Spring Boot Tests"
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps: 
+      - name: "Checkout code"
+        uses: actions/checkout@v5
+
+      - name: "Set up JDK 21"
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: maven
+
+      - name: "Run tests"
+        run: ./mvnw clean test
+
+      - name: "Publish test results"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maven-test-results
+          path: backend/target/surefire-reports
+
+      - name: "Publish code coverage"
+        uses: codecov/codecov-action@v4
+        with:
+          files: backend/target/site/jacoco/jacoco.xml
+          flags: backend
+
