@@ -1,21 +1,23 @@
-import { Link, useNavigate } from "react-router-dom"; 
-import { useForm } from "react-hook-form"; 
-import { zodResolver } from "@hookform/resolvers/zod"; 
-import { useMutation } from "@tanstack/react-query"; 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+import { AxiosError } from "axios";
+import { toast } from "sonner";
 
-import { registerSchema, type RegisterFormData } from "../schemas/register.schema"; 
-import { registerUser } from "../api/register"; 
-import { UserRole } from "../../types/auth";
+import { UserRole, type ErrorResponse } from "../../types/index";
+import { registerUser } from "../api/authApi";
+import { registerSchema, type RegisterFormData } from "../schemas/register.schema";
 
 export const Register = () => { 
     const navigate = useNavigate(); 
 
-    const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterFormData>({ 
+    const { register, handleSubmit, watch, setError, formState: { errors } } = useForm<RegisterFormData>({ 
         resolver: zodResolver(registerSchema), 
         mode: "onBlur", 
         defaultValues: { 
-            firstname: "", 
-            lastname: "", 
+            firstName: "", 
+            lastName: "", 
             email: "", 
             emailCopy: "", 
             username: "", 
@@ -26,15 +28,35 @@ export const Register = () => {
 
     const selectedRole = watch("role");
 
-    const { mutate, isPending, isError, error } = useMutation({ 
+    const { mutate, isPending, isError, error } = useMutation<
+        unknown,
+        AxiosError<ErrorResponse>,
+        Omit<RegisterFormData, "emailCopy">
+    >({ 
         mutationFn: registerUser, 
         onSuccess: () => { 
-            navigate("/login"); 
-        } 
+            toast.success("Success! Forwarding to login...");
+                
+            setTimeout(() => {
+                navigate("/login");
+            }, 2000);        },
+        onError: (error) => {
+            const fieldErrors = error.response?.data?.errors;
+            if (fieldErrors && Object.keys(fieldErrors).length > 0) {
+                Object.entries(fieldErrors).forEach(([field, message]) => {
+                    setError(field as keyof RegisterFormData, {
+                        type: "server",
+                        message: message
+                    });
+                })
+            }
+            
+        }
     }); 
 
-    const onSubmit = (data: RegisterFormData) => { 
-        mutate(data); 
+    const onSubmit = (data: RegisterFormData) => {
+        const {emailCopy, ...payload} = data; 
+        mutate(payload); 
     }; 
 
     const inputClasses =  
@@ -54,6 +76,8 @@ export const Register = () => {
         return `${base} ${active}`;
     };
 
+    const hasServerFieldErrors = Boolean(error?.response?.data?.errors && Object.keys(error.response.data.errors).length > 0);
+
     return ( 
         <div className="min-h-screen bg-surface-app flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8"> 
             <div className="sm:mx-auto sm:w-full sm:max-w-md"> 
@@ -66,9 +90,9 @@ export const Register = () => {
                 <div className="bg-surface py-8 px-4 shadow-card sm:rounded-brand sm:px-10"> 
                     <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate> 
 
-                        {isError && ( 
+                        {isError && !hasServerFieldErrors && ( 
                             <div role="alert" className="p-3 bg-status-error/10 border border-status-error/20 rounded text-sm text-status-error"> 
-                                <p>{error?.message || "An error occurred while registering."}</p> 
+                                <p>{error?.response?.data?.message || error?.message || "An error occurred while registering."}</p> 
                             </div> 
                         )} 
 
@@ -117,14 +141,14 @@ export const Register = () => {
                                     id="firstname" 
                                     type="text" 
                                     autoComplete="given-name" 
-                                    aria-invalid={!!errors.firstname}
-                                    aria-describedby={errors.firstname ? "firstname-error" : undefined}
+                                    aria-invalid={!!errors.firstName}
+                                    aria-describedby={errors.firstName ? "firstname-error" : undefined}
                                     className={inputClasses} 
-                                    {...register("firstname")} 
+                                    {...register("firstName")} 
                                 />
-                                {errors.firstname &&  
+                                {errors.firstName &&  
                                     <p id="firstname-error" role="alert" className={errorClasses}> 
-                                        {errors.firstname.message} 
+                                        {errors.firstName.message} 
                                     </p> 
                                 } 
                             </div> 
@@ -136,14 +160,14 @@ export const Register = () => {
                                     id="lastname" 
                                     type="text" 
                                     autoComplete="family-name" 
-                                    aria-invalid={!!errors.lastname}
-                                    aria-describedby={errors.lastname ? "lastname-error" : undefined}
+                                    aria-invalid={!!errors.lastName}
+                                    aria-describedby={errors.lastName ? "lastname-error" : undefined}
                                     className={inputClasses} 
-                                    {...register("lastname")} 
+                                    {...register("lastName")} 
                                 />
-                                {errors.lastname &&  
+                                {errors.lastName &&  
                                     <p id="lastname-error" role="alert" className={errorClasses}> 
-                                        {errors.lastname.message} 
+                                        {errors.lastName.message} 
                                     </p> 
                                 } 
                             </div> 
