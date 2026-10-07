@@ -12,6 +12,7 @@ import { registerSchema, type RegisterFormData } from "../schemas/register.schem
 export const Register = () => { 
     const navigate = useNavigate(); 
 
+    // form is handled by RHF, with given DTO interface
     const { register, handleSubmit, watch, setError, formState: { errors } } = useForm<RegisterFormData>({ 
         resolver: zodResolver(registerSchema), 
         mode: "onBlur", 
@@ -26,8 +27,10 @@ export const Register = () => {
         } 
     }); 
 
+    // watch the role input
     const selectedRole = watch("role");
 
+    // useMutation is used to send requests to send server
     const { mutate, isPending, isError, error } = useMutation<
         unknown,
         AxiosError<ErrorResponse>,
@@ -35,13 +38,15 @@ export const Register = () => {
     >({ 
         mutationFn: registerUser, 
         onSuccess: () => { 
+            // what is called on succes
             toast.success("Success! Forwarding to login...");
                 
             setTimeout(() => {
                 navigate("/login");
             }, 2000);        },
-        onError: (error) => {
-            const fieldErrors = error.response?.data?.errors;
+        onError: (error: ErrorResponse) => {
+            // what happens on error
+            const fieldErrors = error.errors;
             if (fieldErrors && Object.keys(fieldErrors).length > 0) {
                 Object.entries(fieldErrors).forEach(([field, message]) => {
                     setError(field as keyof RegisterFormData, {
