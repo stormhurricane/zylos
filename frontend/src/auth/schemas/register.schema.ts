@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { RegisterBody } from "../../types/schemas.zod";
 
+// extension of openAPI created schema with Frontend only parts
 export const registerSchema = RegisterBody.extend({
     email: z.email("Invalid email address"),
     emailCopy: z.string().min(1, "Please confirm your email address"),

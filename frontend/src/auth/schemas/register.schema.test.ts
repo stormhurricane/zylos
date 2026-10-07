@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { registerSchema, type RegisterFormData } from "./register.schema";
 
+// Factory  Scheme due to multiple RegisterForms
 const buildRegisterFormData = (overrides?: Partial<RegisterFormData>): RegisterFormData => ({
     firstName: "John",
     lastName: "Doe",
@@ -15,11 +16,13 @@ const buildRegisterFormData = (overrides?: Partial<RegisterFormData>): RegisterF
 });
 
 describe("Register Schema", () => {
+    // Happy Path
     it("should validate a valid registration input", () => {
         const result = registerSchema.safeParse(buildRegisterFormData());
         expect(result.success).toBe(true);
     });
 
+    // simplified multiple cases per it.each
     describe("Field Validation", () => {
         it.each([
             {
