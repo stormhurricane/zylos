@@ -1,4 +1,25 @@
 @import './assets/styles/theme.css';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: var(--color-brand-primary);
+  --color-brand-soft: var(--color-brand-primary-soft);
+  --color-brand-secondary: var(--color-brand-secondary);
+
+  --color-surface-app: var(--bg-app);
+  --color-surface: var(--bg-surface);
+  --color-surface-elevated: var(--bg-surface-elevated);
+
+  --color-content-primary: var(--text-primary);
+  --color-content-secondary: var(--text-secondary);
+  --color-content-muted: var(--text-muted);
+
+  --color-border-subtle: var(--border-subtle);
+
+  --color-status-error: var(--status-error);
+  --color-status-success: var(--status-success);
+
+  /* Generiert die Klassen rounded-brand, shadow-card etc. */
+  --radius-brand: var(--radius-md);
+  --shadow-card: var(--shadow-card);
+}
