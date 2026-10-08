@@ -30,6 +30,9 @@ export const Register = () => {
     // watch the role input
     const selectedRole = watch("role");
 
+    const isTest = import.meta.env.MODE === 'test';
+    const REDIRECT_DELAY = isTest ? 0 : 2000;
+
     // useMutation is used to send requests to send server
     const { mutate, isPending, isError, error } = useMutation<
         unknown,
@@ -37,13 +40,15 @@ export const Register = () => {
         Omit<RegisterFormData, "emailCopy">
     >({ 
         mutationFn: registerUser, 
-        onSuccess: () => { 
+        onSuccess: async () => { 
             // what is called on succes
             toast.success("Success! Forwarding to login...");
                 
-            setTimeout(() => {
-                navigate("/login");
-            }, 2000);        },
+            if(REDIRECT_DELAY > 0){
+                await new Promise((resolve) => setTimeout(resolve, REDIRECT_DELAY));
+            }
+            navigate("/login");
+        },
         onError: (error: ErrorResponse) => {
             // what happens on error
             const fieldErrors = error.errors;
