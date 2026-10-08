@@ -1,4 +1,4 @@
-/// <reference types="vitest" />
+import 'vitest/config';
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv } from 'vite'
 
