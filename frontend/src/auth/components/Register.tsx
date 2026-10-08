@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
@@ -13,7 +13,7 @@ export const Register = () => {
     const navigate = useNavigate(); 
 
     // form is handled by RHF, with given DTO interface
-    const { register, handleSubmit, watch, setError, formState: { errors } } = useForm<RegisterFormData>({ 
+    const { register, handleSubmit, setError, control, formState: { errors } } = useForm<RegisterFormData>({ 
         resolver: zodResolver(registerSchema), 
         mode: "onBlur", 
         defaultValues: { 
@@ -28,7 +28,10 @@ export const Register = () => {
     }); 
 
     // watch the role input
-    const selectedRole = watch("role");
+    const selectedRole = useWatch({
+        control,
+        name: 'role'
+    });
 
     const isTest = import.meta.env.MODE === 'test';
     const REDIRECT_DELAY = isTest ? 0 : 2000;
@@ -65,7 +68,7 @@ export const Register = () => {
     }); 
 
     const onSubmit = (data: RegisterFormData) => {
-        const {emailCopy, ...payload} = data; 
+        const {emailCopy: _emailCopy, ...payload} = data; 
         mutate(payload); 
     }; 
 
