@@ -45,7 +45,7 @@ describe("Register Schema", () => {
             },
             {
                 description: "wrong role enum",
-                overrides: { role: "GUEST" as any },
+                overrides: { role: "GUEST" as unknown as "STUDENT" },
             },
             {
                 descripton: "too short username",
