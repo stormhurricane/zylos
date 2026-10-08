@@ -1,5 +1,5 @@
 import { beforeEach, describe, it, vi, expect } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent,render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
@@ -7,7 +7,8 @@ import { toast } from 'sonner';
 import { http, HttpResponse } from "msw";
 import { Register } from "./Register";
 import { server } from "../../test/setup";
-import { type ErrorResponse } from "../../types";
+import { UserRole, type ErrorResponse } from "../../types";
+import type { RegisterFormData } from "../schemas/register.schema";
 
 // MOCKS
 
@@ -23,12 +24,15 @@ vi.mock('sonner', () => ({
     toast: { success: vi.fn(), error: vi.fn() }
 }));
 
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: { retry: false, gcTime: Infinity }, 
+        mutations: { retry: false }
+    }
+});
+
 // render function, queryClient needed for useMutation
 const renderRegister = () => {
-    const queryClient = new QueryClient({
-        defaultOptions: { queries: { retry: false }, mutations: { retry: false}}
-    });
-
     const user = userEvent.setup();
 
     return {
@@ -43,8 +47,53 @@ const renderRegister = () => {
     }
 };
 
+const defaultValues: RegisterFormData = {
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john.doe@example.com',
+    username: 'johndoe',
+    emailCopy: 'john.doe@example.com',
+    password: 'securePassword123',
+    role: UserRole.STUDENT
+}
+
+const fillForm = async (
+    user: ReturnType<typeof userEvent.setup>,
+    getByRole: ReturnType<typeof renderRegister>['getByRole'],
+    getByLabelText: ReturnType<typeof renderRegister>['getByLabelText'],
+    overrides: Partial<RegisterFormData> = {},
+    isFast: boolean = true,
+) => {
+    const data: Required<RegisterFormData> = {...defaultValues, ...overrides};
+
+    const fields = [
+        {element: getByRole('textbox', { name: /^email$/i }), value: data.email},
+        {element: getByRole('textbox', { name: /repeat email/i }), value: data.emailCopy},
+        {element: getByRole('textbox', { name: /first name/i }), value: data.firstName},
+        {element: getByRole('textbox', { name: /last name/i }), value: data.lastName},
+        {element: getByRole('textbox', { name: /username/i }), value: data.username},
+        {element: getByLabelText(/password/i), value: data.password},
+    ];
+
+    for (const { element, value } of fields){
+        if(!value) continue;
+
+        if(isFast){
+            fireEvent.change(element, { target: { value }});
+        } else {
+            await user.type(element, value);
+        }
+    }
+
+    if (data.role === UserRole.TEACHER) {
+        await user.click(getByRole('radio', { name: /teacher/i }));
+    }
+};
+
 beforeEach(() => {
     vi.clearAllMocks();
+    server.resetHandlers();
+    queryClient.clear();
 });
 
 describe("Register Component Test", () => {
@@ -79,15 +128,9 @@ describe("Register Component Test", () => {
         );
 
         const { user, getByRole, getByLabelText } = renderRegister();
-        
-        // Fill the Form
-        await user.type(getByRole('textbox', { name: /^email$/i}), "john.doe@example.com");
-        await user.type(getByRole('textbox', { name: /repeat email/i}), "john.doe@example.com");
-        await user.type(getByRole('textbox', { name: /first name/i}), 'John');
-        await user.type(getByRole('textbox', { name: /last name/i}), 'Doe');
-        await user.type(getByRole('textbox', { name: /username/i}), 'johndoe');
-        await user.type(getByLabelText(/password/i), 'securePassword123');
 
+        await fillForm(user, getByRole, getByLabelText);
+        
         const submitButton = getByRole('button', { name: /register/i });
         
         await user.click(submitButton);
@@ -101,23 +144,22 @@ describe("Register Component Test", () => {
             expect(toast.success).toHaveBeenCalledWith(
                 expect.stringMatching('Success! Forwarding to login...')
             );
+            expect(mockNavigate).toHaveBeenCalledWith('/login');
         });
 
-        await waitFor(() => {
-            expect(mockNavigate).toHaveBeenCalledWith('/login');
-        }, { timeout: 3000 });
     });
 
     describe('Client Form Validation', () => {
         it('should show validation errors on blur', async () => {
-            const { user, getByRole, findByRole } = renderRegister();
+            const { user, getByRole, getByLabelText, findAllByRole } = renderRegister();
+
+            await fillForm(user, getByRole, getByLabelText, { email: 'invalid-email'}, false);
 
             const emailInput = getByRole('textbox', { name: /^email$/i });
-            await user.type(emailInput, "invalid-email");
             await user.tab();
  
-            const emailAlert = await findByRole('alert');
-            expect(emailAlert).toHaveTextContent(/invalid email address/i);
+            const alerts = await findAllByRole('alert');
+            expect(alerts[0]).toHaveTextContent(/invalid email address/i);
             expect(emailInput).toHaveAttribute('aria-invalid', 'true');
         });
 
@@ -151,13 +193,7 @@ describe("Register Component Test", () => {
             );
 
             const { user, getByRole, getByLabelText } = renderRegister();
-            // Fill the Form
-            await user.type(getByRole('textbox', { name: /^email$/i}), "john.doe@example.com");
-            await user.type(getByRole('textbox', { name: /repeat email/i}), "john.doe@example.com");
-            await user.type(getByRole('textbox', { name: /first name/i}), 'John');
-            await user.type(getByRole('textbox', { name: /last name/i}), 'Doe');
-            await user.type(getByRole('textbox', { name: /username/i}), 'johndoe');
-            await user.type(getByLabelText(/password/i), 'securePassword123');
+            await fillForm(user, getByRole, getByLabelText);
 
             const submitButton = getByRole('button', { name: /register/i });
             
@@ -180,18 +216,12 @@ describe("Register Component Test", () => {
                         errors: {
                             username: 'Username is already in use'
                         },
-                    }, { status: 400 });
+                    }, { status: 409 });
                 })
             );
 
             const { user, getByRole, getByLabelText } = renderRegister();
-            // Fill the Form
-            await user.type(getByRole('textbox', { name: /^email$/i}), "john.doe@example.com");
-            await user.type(getByRole('textbox', { name: /repeat email/i}), "john.doe@example.com");
-            await user.type(getByRole('textbox', { name: /first name/i}), 'John');
-            await user.type(getByRole('textbox', { name: /last name/i}), 'Doe');
-            await user.type(getByRole('textbox', { name: /username/i}), 'johndoe');
-            await user.type(getByLabelText(/password/i), 'securePassword123');
+            await fillForm(user, getByRole, getByLabelText);
 
             const submitButton = getByRole('button', { name: /register/i });
             
@@ -212,18 +242,12 @@ describe("Register Component Test", () => {
                         message: 'An unexpected error occured',
                         timestamp: new Date().toISOString(),
                         errors: undefined
-                    }, { status: 400 });
+                    }, { status: 500 });
                 })
             );
 
             const { user, getByRole, getByLabelText } = renderRegister();
-            // Fill the Form
-            await user.type(getByRole('textbox', { name: /^email$/i}), "john.doe@example.com");
-            await user.type(getByRole('textbox', { name: /repeat email/i}), "john.doe@example.com");
-            await user.type(getByRole('textbox', { name: /first name/i}), 'John');
-            await user.type(getByRole('textbox', { name: /last name/i}), 'Doe');
-            await user.type(getByRole('textbox', { name: /username/i}), 'johndoe');
-            await user.type(getByLabelText(/password/i), 'securePassword123');
+            await fillForm(user, getByRole, getByLabelText);
 
             const submitButton = getByRole('button', { name: /register/i });
             
