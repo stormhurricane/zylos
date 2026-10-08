@@ -11,6 +11,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j 
 @RestControllerAdvice 
 public class GlobalExceptionHandler {
 
@@ -35,13 +38,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ErrorResponse> handleConflictException(ConflictException e){
-        Map<String, String> error = Map.of("error", e.getMessage());
 
         ErrorResponse response = new ErrorResponse(
             HttpStatus.CONFLICT.value(),
             e.getMessage(),
             LocalDateTime.now(),
-            error
+            e.getErrors()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
@@ -66,6 +68,7 @@ public class GlobalExceptionHandler {
             LocalDateTime.now(),
             null
         );
+        log.error("An unexpected error occured: ", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }

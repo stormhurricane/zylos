@@ -1,21 +1,14 @@
+import { type components } from "./api.types";
+
+export type RegisterRequest = components['schemas']['RegisterRequest'];
+
 export const UserRole = {
   STUDENT: 'STUDENT',
   TEACHER: 'TEACHER',
-} as const;
+} satisfies Record<string, RegisterRequest['role']>;
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
-export interface RegisterFormData {
-    firstname: string;
-    lastname: string;
-    email: string;
-    emailCopy: string;
-    username: string;
-    password: string;
-    role: UserRole;
-}
-
-export type RegisterFormErrors = Partial<Record<keyof RegisterFormData, string>>;
 
 export interface LoginFormData {
     username: string;
