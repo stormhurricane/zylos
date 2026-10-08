@@ -10,6 +10,6 @@
       "@testing-library/jest-dom"
     ],
     "moduleResolution": "bundler",
-    
+    "module": "esnext"
   }
 }
