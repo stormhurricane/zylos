@@ -33,7 +33,7 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    String getJwtFromCookie(HttpServletRequest request){
+    public String getJwtFromCookie(HttpServletRequest request){
         Cookie[] cookies = request.getCookies();
         if(cookies != null) {
             for (Cookie cookie : cookies) {
@@ -45,7 +45,7 @@ public class JwtUtils {
         return null;
     }
 
-    ResponseCookie generateJwtCookie(UserDetails userPrincipal){
+    public ResponseCookie generateJwtCookie(UserDetails userPrincipal){
         String jwt = generateTokenFromUsername(userPrincipal.getUsername());
         return ResponseCookie.from(jwtTokenName, jwt)
             .path("/")
@@ -56,7 +56,7 @@ public class JwtUtils {
             .build();
     }
 
-    ResponseCookie getCleanJwtCookie(){
+    public ResponseCookie getCleanJwtCookie(){
         return ResponseCookie.from(jwtTokenName, "")
             .path("/")
             .maxAge(0)
@@ -64,7 +64,7 @@ public class JwtUtils {
             .build();
     }
 
-    String generateTokenFromUsername(String username){
+    private String generateTokenFromUsername(String username){
         return Jwts.builder()
             .subject(username)
             .issuedAt(new Date())
@@ -74,7 +74,7 @@ public class JwtUtils {
         
     }
 
-    String getUsernameFromJwtToken(String token){
+    public String getUsernameFromJwtToken(String token){
         return Jwts.parser()
             .verifyWith(getSigningKey())
             .build()
@@ -83,7 +83,7 @@ public class JwtUtils {
             .getSubject();
     }
 
-    boolean validateJwtToken(String token){
+    public boolean validateJwtToken(String token){
         try{
             Jwts.parser()
                 .verifyWith(getSigningKey())
