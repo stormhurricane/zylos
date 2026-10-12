@@ -19,14 +19,18 @@ import jakarta.servlet.http.HttpServletRequest;
 @Component 
 public class JwtUtils {
     
-    @Value("${app.jwt.secret:einSehrLangerUndSichererGeheimerSchluesselMitMindestens32Zeichen}")
     private String jwtSecret;
-
-    @Value("${app.jwt.expiration-ms:86400000}")
     private long jwtExpirationMs; 
-
-    @Value("${app.jwt.cookie-name:jwt}")
     private String jwtTokenName;
+
+    public JwtUtils(
+            @Value("${app.jwt.secret:einSehrLangerUndSichererGeheimerSchluesselMitMindestens32Zeichen}") String jwtSecret, 
+            @Value("${app.jwt.expiration-ms:86400000}") long jwtExpirationMs, 
+            @Value("${app.jwt.cookie-name:jwt}") String jwtTokenName) {
+        this.jwtSecret = jwtSecret;
+        this.jwtExpirationMs = jwtExpirationMs;
+        this.jwtTokenName = jwtTokenName;
+    }
 
     private SecretKey getSigningKey(){
         byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
