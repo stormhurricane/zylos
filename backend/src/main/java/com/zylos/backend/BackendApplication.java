@@ -1,22 +1,20 @@
 package com.zylos.backend;
 
+import jakarta.annotation.PostConstruct;
 import java.util.Locale;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication
 public class BackendApplication {
 
-	@PostConstruct
+    @PostConstruct
     public void init() {
         Locale.setDefault(Locale.ENGLISH);
     }
 
-	public static void main(String[] args) {
-		SpringApplication.run(BackendApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(BackendApplication.class, args);
+    }
 
 }

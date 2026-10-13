@@ -1,13 +1,12 @@
 package com.zylos.backend.auth.validation;
 
-import java.util.Set;
-
 import com.zylos.backend.features.user.SystemRole;
-
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import java.util.Set;
 
-public class RegistrationRoleValidator implements ConstraintValidator<ValidRegistrationRole, SystemRole> {
+public class RegistrationRoleValidator 
+        implements ConstraintValidator<ValidRegistrationRole, SystemRole> {
 
     private static final Set<SystemRole> ALLOWED_ROLES = Set.of(
             SystemRole.STUDENT,
@@ -15,8 +14,8 @@ public class RegistrationRoleValidator implements ConstraintValidator<ValidRegis
     );
 
     @Override 
-    public boolean isValid(SystemRole role, ConstraintValidatorContext context){
-        if(role == null){
+    public boolean isValid(SystemRole role, ConstraintValidatorContext context) {
+        if (role == null) {
             return true;
         }
 

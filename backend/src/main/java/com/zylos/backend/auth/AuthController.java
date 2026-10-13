@@ -1,5 +1,13 @@
 package com.zylos.backend.auth;
 
+import com.zylos.backend.auth.dto.AuthResult;
+import com.zylos.backend.auth.dto.LoginRequest;
+import com.zylos.backend.auth.dto.RegisterRequest;
+import com.zylos.backend.auth.dto.UserResponse;
+import com.zylos.backend.core.security.CustomUserDetails;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -9,16 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.zylos.backend.auth.dto.AuthResult;
-import com.zylos.backend.auth.dto.LoginRequest;
-import com.zylos.backend.auth.dto.RegisterRequest;
-import com.zylos.backend.auth.dto.UserResponse;
-import com.zylos.backend.core.security.CustomUserDetails;
-
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @AllArgsConstructor 
 @Slf4j 
@@ -36,7 +34,7 @@ public class AuthController {
     }
 
     @PostMapping ("/login")
-    public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request){
+    public ResponseEntity<UserResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResult authResult = authService.login(request);
 
         return ResponseEntity.ok()
@@ -45,7 +43,7 @@ public class AuthController {
     }
 
     @PostMapping ("/logout")
-    public ResponseEntity<Void> logout(){
+    public ResponseEntity<Void> logout() {
         ResponseCookie cleanCookie = authService.logout();
 
         return ResponseEntity.ok()
@@ -54,7 +52,8 @@ public class AuthController {
     }
 
     @GetMapping ("/me")
-    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails){
+    public ResponseEntity<UserResponse> 
+            getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(new UserResponse(
             userDetails.getId(),
             userDetails.getUsername(),

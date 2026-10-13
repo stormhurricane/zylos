@@ -1,7 +1,9 @@
 package com.zylos.backend.core.config;
 
+import com.zylos.backend.core.security.CustomAuthenticationEntryPoint;
+import com.zylos.backend.core.security.JwtAuthenticationFilter;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,11 +19,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import com.zylos.backend.core.security.CustomAuthenticationEntryPoint;
-import com.zylos.backend.core.security.JwtAuthenticationFilter;
-
-import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity 
@@ -42,21 +39,28 @@ public class SecurityConfig {
     @Bean 
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf((csrf) -> csrf.disable()) // Disable CSRF
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .exceptionHandling((exception) -> exception.authenticationEntryPoint(authenticationEntryPoint))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests((auth) -> auth
-                .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login").permitAll()
-                .requestMatchers("/v3/api-docs/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf((csrf) -> csrf.disable()) // Disable CSRF
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .exceptionHandling((exception) -> 
+                    exception.authenticationEntryPoint(authenticationEntryPoint)
+                )
+                .sessionManagement(session -> 
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authorizeHttpRequests((auth) -> auth
+                    .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login").permitAll()
+                    .requestMatchers("/v3/api-docs/**").permitAll()
+                    .anyRequest().authenticated()
+                )
+                .addFilterBefore(
+                        jwtAuthenticationFilter, 
+                        UsernamePasswordAuthenticationFilter.class
+                );
         return http.build();
     }
 
     @Bean 
-    public CorsConfigurationSource corsConfigurationSource(){
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOrigins(allowedOrigins);
@@ -72,7 +76,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration 
+            authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 }
