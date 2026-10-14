@@ -1,13 +1,12 @@
 package com;
 
-import io.restassured.RestAssured;
-import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
+@AutoConfigureMockMvc
 public abstract class BaseIntegrationTest {
     
     @ServiceConnection 
@@ -18,11 +17,4 @@ public abstract class BaseIntegrationTest {
         postgresContainer.start();
     }
 
-    @LocalServerPort 
-    protected int port;
-
-    @BeforeEach 
-    void setup() {
-        RestAssured.port = port;
-    }
 }

@@ -1,10 +1,14 @@
 package com.zylos.backend.auth;
 
-import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.containsStringIgnoringCase;
+import static org.hamcrest.Matchers.hasKey;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.BaseIntegrationTest;
 import com.zylos.backend.features.user.SystemRole;
@@ -13,8 +17,10 @@ import com.zylos.backend.features.user.UserStatus;
 import com.zylos.backend.features.user.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.web.servlet.MockMvc;
+
+
 
 public class AuthRegistrationIntegrationTest extends BaseIntegrationTest {
 
@@ -22,9 +28,11 @@ public class AuthRegistrationIntegrationTest extends BaseIntegrationTest {
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired 
+    private MockMvc mockMvc;
 
     @Test 
-    public void shouldRegisterStudentUser_withStatusApproved() {
+    public void shouldRegisterStudentUser_withStatusApproved() throws Exception {
         User user = registerUserAndFetchFromDb("jane.doe@example.com", SystemRole.STUDENT);
         
         assertEquals("Test", user.getFirstName());
@@ -52,7 +60,7 @@ public class AuthRegistrationIntegrationTest extends BaseIntegrationTest {
 
 
     @Test
-    public void shouldRegisterTeacherUser_withStatusPending() {
+    public void shouldRegisterTeacherUser_withStatusPending() throws Exception {
         User user = registerUserAndFetchFromDb("john.smith@example.com", SystemRole.TEACHER);
         
         assertEquals(SystemRole.TEACHER, user.getRole());
@@ -63,7 +71,7 @@ public class AuthRegistrationIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldReturnConflict_whenEmailAlreadyExists() {
+    public void shouldReturnConflict_whenEmailAlreadyExists() throws Exception {
         User user = User.create(
                 "Test", 
                 "User", 
@@ -86,25 +94,24 @@ public class AuthRegistrationIntegrationTest extends BaseIntegrationTest {
             }        
                 """.formatted(SystemRole.STUDENT.name());
 
-        given()
-                .contentType("application/json")
-                .body(requestBody)
-        .when()
-                .post("/api/v1/auth/register")
-        .then()
-                // .log().all()
-                .statusCode(HttpStatus.CONFLICT.value())
-                .body(
-                    "message", 
-                    org.hamcrest.Matchers.containsStringIgnoringCase(
-                        "Registration failed due to conflicting user data"
-                    )
+        mockMvc.perform(
+                post("/api/v1/auth/register")
+                        .contentType("application/json")
+                        .content(requestBody)       
+        )
+                .andExpect(status().isConflict())
+                .andExpect(
+                        jsonPath("$.message", 
+                        containsStringIgnoringCase(
+                                "Registration failed due to conflicting user data"
+                                )
+                        )
                 )
-                .body("errors", org.hamcrest.Matchers.hasKey("email"));
+                .andExpect(jsonPath("$.errors", hasKey("email")));
     }
 
     @Test
-    public void shouldReturnBadRequest_whenValidationFails() {
+    public void shouldReturnBadRequest_whenValidationFails() throws Exception {
         String requestBody = """
             {
                 "firstName": "John",
@@ -113,26 +120,21 @@ public class AuthRegistrationIntegrationTest extends BaseIntegrationTest {
                 "password": "short"
             }        
                 """;
-
-        given()
-                .contentType("application/json")
-                .body(requestBody)
-        .when()
-                .post("/api/v1/auth/register")
-        .then()
-                // .log().all()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body(
-                        "message", 
-                        org.hamcrest.Matchers.containsStringIgnoringCase("Validation failed")
-                )
-                .body("errors", org.hamcrest.Matchers.hasKey("email"))
-                .body("errors", org.hamcrest.Matchers.hasKey("password"))
-                .body("errors", org.hamcrest.Matchers.hasKey("username"));
+        
+        mockMvc.perform(
+                post("/api/v1/auth/register")
+                        .contentType("application/json")
+                        .content(requestBody)       
+        )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsStringIgnoringCase("Validation failed")))
+                .andExpect(jsonPath("$.errors", hasKey("email")))
+                .andExpect(jsonPath("$.errors", hasKey("password")))
+                .andExpect(jsonPath("$.errors", hasKey("username")));
     }
 
 
-    private User registerUserAndFetchFromDb(String email, SystemRole role) {
+    private User registerUserAndFetchFromDb(String email, SystemRole role) throws Exception {
         String username = email.split("@")[0].replace(".", "");
         String requestBody = """
             {
@@ -144,15 +146,14 @@ public class AuthRegistrationIntegrationTest extends BaseIntegrationTest {
                 "role": "%s"
             }        
                 """.formatted(email, username, role.name());
+        
+        mockMvc.perform(
+                post("/api/v1/auth/register")
+                        .contentType("application/json")
+                        .content(requestBody)
+        )
+                        .andExpect(status().isNoContent());
 
-        given()
-                .contentType("application/json")
-                .body(requestBody)
-        .when()
-                .post("/api/v1/auth/register")
-        .then()
-                //.log().all()
-                .statusCode(HttpStatus.NO_CONTENT.value());
 
         return userRepository.findByEmail(email)
             .orElseThrow(() -> new AssertionError("User should exist in database"));
