@@ -6,7 +6,7 @@ import { AxiosError } from "axios";
 import { toast } from "sonner";
 
 import { UserRole, type ErrorResponse } from "../../types/index";
-import { registerUser } from "../api/authApi";
+import { authApi } from "../api/authApi";
 import { registerSchema, type RegisterFormData } from "../schemas/register.schema";
 
 export const Register = () => { 
@@ -42,7 +42,7 @@ export const Register = () => {
         AxiosError<ErrorResponse>,
         Omit<RegisterFormData, "emailCopy">
     >({ 
-        mutationFn: registerUser, 
+        mutationFn: authApi.register, 
         onSuccess: async () => { 
             // what is called on succes
             toast.success("Success! Forwarding to login...");

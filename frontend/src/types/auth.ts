@@ -1,6 +1,8 @@
 import { type components } from "./api.types";
 
 export type RegisterRequest = components['schemas']['RegisterRequest'];
+export type LoginRequest = components['schemas']['LoginRequest'];
+export type UserResponse = components['schemas']['UserResponse'];
 
 export const UserRole = {
   STUDENT: 'STUDENT',
