@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate, } from 'react-router-dom';
 import { Login } from './auth/components/Login';
 import { Register } from './auth/components/Register';
-import { ProtectedRoute } from './auth/guards/ProtectedRoutes';
+import { ProtectedRoute } from './auth/guards/ProtectedRoute';
 import { Dashboard } from './pages/Dashboard';
 
 const router = createBrowserRouter([
