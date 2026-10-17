@@ -2,7 +2,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useForm, useWatch } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { AxiosError } from "axios";
 import { toast } from "sonner";
 
 import { UserRole, type ErrorResponse } from "../../types/index";
@@ -39,7 +38,7 @@ export const Register = () => {
     // useMutation is used to send requests to send server
     const { mutate, isPending, isError, error } = useMutation<
         unknown,
-        AxiosError<ErrorResponse>,
+        ErrorResponse,
         Omit<RegisterFormData, "emailCopy">
     >({ 
         mutationFn: authApi.register, 
@@ -89,7 +88,7 @@ export const Register = () => {
         return `${base} ${active}`;
     };
 
-    const hasServerFieldErrors = Boolean(error?.response?.data?.errors && Object.keys(error.response.data.errors).length > 0);
+    const hasServerFieldErrors = Boolean(error?.errors && Object.keys(error.errors).length > 0);
 
     return ( 
         <div className="min-h-screen bg-surface-app flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8"> 
@@ -105,7 +104,7 @@ export const Register = () => {
 
                         {isError && !hasServerFieldErrors && ( 
                             <div role="alert" className="p-3 bg-status-error/10 border border-status-error/20 rounded text-sm text-status-error"> 
-                                <p>{error?.response?.data?.message || error?.message || "An error occurred while registering."}</p> 
+                                <p>{error?.message || "An error occurred while registering."}</p> 
                             </div> 
                         )} 
 
