@@ -88,7 +88,7 @@ export const Register = () => {
         return `${base} ${active}`;
     };
 
-    const hasServerFieldErrors = Boolean(error?.errors && Object.keys(error.errors).length > 0);
+    // const hasServerFieldErrors = Boolean(error?.errors && Object.keys(error.errors).length > 0);
 
     return ( 
         <div className="min-h-screen bg-surface-app flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8"> 
@@ -102,7 +102,7 @@ export const Register = () => {
                 <div className="bg-surface py-8 px-4 shadow-card sm:rounded-brand sm:px-10"> 
                     <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate> 
 
-                        {isError && !hasServerFieldErrors && ( 
+                        {isError && ( 
                             <div role="alert" className="p-3 bg-status-error/10 border border-status-error/20 rounded text-sm text-status-error"> 
                                 <p>{error?.message || "An error occurred while registering."}</p> 
                             </div> 
