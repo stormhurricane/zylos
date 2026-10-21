@@ -1,5 +1,5 @@
 import { beforeEach, describe, it, vi, expect } from "vitest";
-import { fireEvent,render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
@@ -24,7 +24,7 @@ vi.mock('sonner', () => ({
     toast: { success: vi.fn(), error: vi.fn() }
 }));
 
-const queryClient = new QueryClient({
+const createTestQueryClient = () => new QueryClient({
     defaultOptions: {
         queries: { retry: false, gcTime: Infinity }, 
         mutations: { retry: false }
@@ -34,6 +34,7 @@ const queryClient = new QueryClient({
 // render function, queryClient needed for useMutation
 const renderRegister = () => {
     const user = userEvent.setup();
+    const queryClient = createTestQueryClient();
 
     return {
         user,
@@ -92,8 +93,6 @@ const fillForm = async (
 
 beforeEach(() => {
     vi.clearAllMocks();
-    server.resetHandlers();
-    queryClient.clear();
 });
 
 describe("Register Component Test", () => {
