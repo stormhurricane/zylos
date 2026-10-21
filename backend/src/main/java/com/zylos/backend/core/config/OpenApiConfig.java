@@ -1,11 +1,5 @@
 package com.zylos.backend.core.config;
 
-import java.util.List;
-
-import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.IntegerSchema;
@@ -14,14 +8,18 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import java.util.List;
+import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration 
 public class OpenApiConfig {
     
     @Bean 
-    public GlobalOpenApiCustomizer globalErrorResponseCustomizer(){
+    public GlobalOpenApiCustomizer globalErrorResponseCustomizer() {
         return openApi -> {
-            if (openApi.getComponents() == null){
+            if (openApi.getComponents() == null) {
                 openApi.setComponents(new Components());
             }
 
@@ -30,7 +28,9 @@ public class OpenApiConfig {
                     .type("object")
                     .addProperty("status", new IntegerSchema().example(400))
                     .addProperty("message", new StringSchema().example("An Error occured"))
-                    .addProperty("timestamp", new StringSchema().format("date-time").example("2026-09-30T21:49:00Z"))
+                    .addProperty(
+                        "timestamp", 
+                        new StringSchema().format("date-time").example("2026-09-30T21:49:00Z"))
                     .addProperty("errors", new MapSchema().additionalProperties(new StringSchema()))
             );
 
@@ -43,9 +43,9 @@ public class OpenApiConfig {
                 pathItem.readOperations().forEach(operation -> {
                     for (String statusCode : errorCodes) {
                         ApiResponse errorResponse = new ApiResponse()
-                            .description("Error Response (" + statusCode + ")")
-                            .content(new Content().addMediaType("application/json", 
-                                new MediaType().schema(errorSchemaRef)));
+                                .description("Error Response (" + statusCode + ")")
+                                .content(new Content().addMediaType("application/json", 
+                                    new MediaType().schema(errorSchemaRef)));
 
                         operation.getResponses().addApiResponse(statusCode, errorResponse);
                     }

@@ -1,14 +1,7 @@
 package com.zylos.backend.features.user.entity;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import com.zylos.backend.features.user.SystemRole;
 import com.zylos.backend.features.user.UserStatus;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,15 +10,20 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Table(name = "users") 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Getter @Setter
+@Getter 
+@Setter
 public class User {
 
     @Id 
@@ -63,7 +61,10 @@ public class User {
     @Column (nullable = false)
     private LocalDateTime updatedAt;
 
-    private User(String firstName, String lastName, String email, String username, String password, SystemRole role, UserStatus status) {
+    private User(
+            String firstName, String lastName, String email, String username, 
+            String password, SystemRole role, UserStatus status) {
+        
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -73,12 +74,15 @@ public class User {
         this.status = status;
     }
 
-    public static User create(String firstName, String lastName, String email, String username, String password, SystemRole role) {
+    public static User create(
+            String firstName, String lastName, String email, 
+            String username, String password, SystemRole role) {
         if (role == SystemRole.ADMIN) {
             throw new IllegalArgumentException("Cannot create a user with ADMIN role");
         }
 
-        UserStatus initialStatus = (role == SystemRole.TEACHER) ? UserStatus.PENDING : UserStatus.APPROVED;
+        UserStatus initialStatus = 
+                (role == SystemRole.TEACHER) ? UserStatus.PENDING : UserStatus.APPROVED;
         return new User(firstName, lastName, email, username, password, role, initialStatus);
     }
     

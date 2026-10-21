@@ -30,3 +30,17 @@ export const RegisterBody = zod.object({
 })
 
 export const RegisterResponse = zod.unknown()
+
+
+export const LogoutResponse = zod.unknown()
+
+
+export const LoginBody = zod.object({
+  "identifier": zod.string(),
+  "password": zod.string()
+})
+
+export const LoginResponse = zod.unknown()
+
+
+export const GetCurrentUserResponse = zod.unknown()

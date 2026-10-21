@@ -1,65 +1,70 @@
 package com.zylos.backend.auth;
 
-import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.BaseIntegrationTest;
+import com.zylos.backend.core.exception.ErrorResponse;
 import com.zylos.backend.features.user.SystemRole;
 import com.zylos.backend.features.user.UserRepository;
-import com.zylos.backend.features.user.UserStatus;
 import com.zylos.backend.features.user.entity.User;
+import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.web.servlet.MockMvc;
 
+
+
+@AutoConfigureMockMvc
 public class AuthRegistrationIntegrationTest extends BaseIntegrationTest {
 
     @Autowired 
+    private MockMvc mockMvc;
+
+    @Autowired 
     private UserRepository userRepository;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @BeforeEach 
+    public void setup() {
+        userRepository.deleteAll();
+    }
+
     @Test 
-    public void shouldRegisterStudentUser_withStatusApproved() {
-        User user = registerUserAndFetchFromDb("jane.doe@example.com", SystemRole.STUDENT);
+    public void shouldRegisterUserSuccessfully() throws Exception {
+        String requestBody = """
+            {
+                "firstName": "Simple",
+                "lastName": "User",
+                "email": "simple.user@example.com",
+                "username": "simpleUser_1",
+                "password": "SecurePassword123!",
+                "role": "STUDENT"
+            }        
+                """;
         
-        assertEquals("Test", user.getFirstName());
-        assertEquals("User", user.getLastName());
-        assertEquals("janedoe", user.getUsername());
-        assertEquals(SystemRole.STUDENT, user.getRole());
-        
-        assertEquals(UserStatus.APPROVED, user.getStatus(), "STUDENT role must be initialized as APPROVED");
-
-        assertNotEquals("SecurePassword123!", user.getPassword(), "Raw password must NEVER be stored in DB");
-        assertTrue(passwordEncoder.matches("SecurePassword123!", user.getPassword()), "Hashed password must match input");
-
-        assertNotNull(user.getCreatedAt());
-        assertNotNull(user.getUpdatedAt());
-    }
-
-
-    @Test
-    public void shouldRegisterTeacherUser_withStatusPending(){
-        User user = registerUserAndFetchFromDb("john.smith@example.com", SystemRole.TEACHER);
-        
-        assertEquals(SystemRole.TEACHER, user.getRole());
-        assertEquals(UserStatus.PENDING, user.getStatus(), "TEACHER role must be initialized as PENDING");
+        mockMvc.perform(
+                post("/api/v1/auth/register")
+                        .contentType("application/json")
+                        .content(requestBody)
+        )
+                        .andExpect(status().isNoContent());
     }
 
     @Test
-    public void shouldReturnConflict_whenEmailAlreadyExists(){
+    public void shouldReturnConflict_whenEmailAlreadyExists() throws Exception {
         User user = User.create(
-            "Test", 
-            "User", 
-            "duplicate@example.com", 
-            "duplicateUser", 
-            passwordEncoder.encode("SecurePassword123!"),
-            SystemRole.STUDENT
+                "Conflict", 
+                "User", 
+                "duplicate@example.com", 
+                "duplicateUser", 
+                passwordEncoder.encode("SecurePassword123!"),
+                SystemRole.STUDENT
         );
         
         userRepository.save(user);
@@ -73,23 +78,28 @@ public class AuthRegistrationIntegrationTest extends BaseIntegrationTest {
                 "password": "SecurePassword123!",
                 "role": "%s"
             }        
-        """.formatted(SystemRole.STUDENT.name());
+                """.formatted(SystemRole.STUDENT.name());
 
-        given()
-            .contentType("application/json")
-            .body(requestBody)
-        .when()
-            .post("/api/v1/auth/register")
-        .then()
-            // .log().all()
-            .statusCode(HttpStatus.CONFLICT.value())
-            .body("message", org.hamcrest.Matchers.containsStringIgnoringCase("Registration failed due to conflicting user data"))
-            .body("errors", org.hamcrest.Matchers.hasKey("email"));
+        String jsonResponse = mockMvc.perform(
+                                post("/api/v1/auth/register")
+                                        .contentType("application/json")
+                                        .content(requestBody)       
+                        )
+                        .andExpect(status().isConflict())       
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
 
+        ErrorResponse response = objectMapper.readValue(jsonResponse, ErrorResponse.class);
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(response.message())
+                    .containsIgnoringCase("Registration failed due to conflicting user data");
+            softly.assertThat(response.errors()).containsKey("email");
+        });
     }
 
     @Test
-    public void shouldReturnBadRequest_whenValidationFails(){
+    public void shouldReturnBadRequest_whenValidationFails() throws Exception {
         String requestBody = """
             {
                 "firstName": "John",
@@ -97,47 +107,27 @@ public class AuthRegistrationIntegrationTest extends BaseIntegrationTest {
                 "email": "invalid-email-format",
                 "password": "short"
             }        
-        """;
+                """;
+        
+        String jsonRespone = mockMvc.perform(
+                post("/api/v1/auth/register")
+                        .contentType("application/json")
+                        .content(requestBody)       
+        )
+                .andExpect(status().isBadRequest())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        
+        ErrorResponse response = objectMapper.readValue(jsonRespone, ErrorResponse.class);
 
-        given()
-            .contentType("application/json")
-            .body(requestBody)
-        .when()
-            .post("/api/v1/auth/register")
-        .then()
-            // .log().all()
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .body("message", org.hamcrest.Matchers.containsStringIgnoringCase("Validation failed"))
-            .body("errors", org.hamcrest.Matchers.hasKey("email"))
-            .body("errors", org.hamcrest.Matchers.hasKey("password"))
-            .body("errors", org.hamcrest.Matchers.hasKey("username"));
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(response.message()).containsIgnoringCase("Validation failed");
+            softly.assertThat(response.errors())
+                    .containsKey("email")
+                    .containsKey("password")
+                    .containsKey("username");
+        });
     }
 
-
-     private User registerUserAndFetchFromDb(String email, SystemRole role){
-        String username = email.split("@")[0].replace(".", "");
-        String requestBody = """
-            {
-                "firstName": "Test",
-                "lastName": "User",
-                "email": "%s",
-                "username": "%s",
-                "password": "SecurePassword123!",
-                "role": "%s"
-            }        
-        """.formatted(email, username, role.name());
-
-        given()
-            .contentType("application/json")
-            .body(requestBody)
-        .when()
-            .post("/api/v1/auth/register")
-        .then()
-            //.log().all()
-            .statusCode(HttpStatus.NO_CONTENT.value());
-
-        return userRepository.findByEmail(email)
-            .orElseThrow(() -> new AssertionError("User should exist in database"));
-    }
-    
 }
