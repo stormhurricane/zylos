@@ -1,12 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { QueryClient, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from "sonner";
+import { useMutation } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import { type LoginFormData, LoginSchema } from '../schemas/login.schema';
 import { type ErrorResponse } from '../../types';
-import { useAuth } from '../context/AuthContext';
-import { authApi } from '../api/authApi';
+import { useAuth } from '../hooks/useAuth';
 
 export const Login =()  => {
 	const location = useLocation();
