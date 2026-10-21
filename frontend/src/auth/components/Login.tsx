@@ -9,13 +9,11 @@ import { useAuth } from '../context/AuthContext';
 import { authApi } from '../api/authApi';
 
 export const Login =()  => {
-	const navigate = useNavigate();
 	const location = useLocation();
-	const queryClient = useQueryClient();
 
 	const { user, login } = useAuth();
 
-	const { register, handleSubmit, setError, formState: { errors} } = useForm<LoginFormData>({
+	const { register, handleSubmit, formState: { errors} } = useForm<LoginFormData>({
 		resolver: zodResolver(LoginSchema),
 		mode: "onBlur",
 		defaultValues: {
@@ -23,9 +21,6 @@ export const Login =()  => {
 			password: ""
 		}
 	});
-	
-	const isTest = import.meta.env.MODE === 'test';
-    const REDIRECT_DELAY = isTest ? 0 : 2000;
 	
 	const from = (location.state as { from?: { pathname: string }})?.from?.pathname || "/dashboard"; 
 	
@@ -35,14 +30,6 @@ export const Login =()  => {
 		LoginFormData
 	>({
 		mutationFn: login,
-		onSuccess: async (userData) => {
-			toast.success("Login successful");
-
-			navigate(from, { replace: true });
-		},
-		onError: (error: ErrorResponse) => {
-
-		}
 	});
 
 	const onSubmit = (data: LoginFormData) => {
@@ -50,7 +37,7 @@ export const Login =()  => {
 	}
 
 	if(user){
-		return <Navigate to="/dashboard" replace />;
+		return <Navigate to={from} replace />;
 	}
 
 	const inputClasses =
