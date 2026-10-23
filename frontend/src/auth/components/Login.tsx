@@ -20,7 +20,7 @@ export const Login =()  => {
 		}
 	});
 	
-	const from = (location.state as { from?: { pathname: string }})?.from?.pathname || "/dashboard"; 
+	const from = (location.state as { from?: { pathname: string }})?.from?.pathname || "/home"; 
 	
 	const { mutate, isPending, isError, error } = useMutation<
 		unknown,

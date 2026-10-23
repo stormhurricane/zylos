@@ -34,7 +34,7 @@ const renderLogin = (initialEntries: InitialEntry[] = ["/login"]) => {
                     <AuthProvider>
                         <Routes>
                             <Route path="/login" element={<Login/>}/>
-                            <Route path="/dashboard" element={<div>Dashboard Page</div>} />
+                            <Route path="/home" element={<div>Dashboard Page</div>} />
                             <Route path="/settings" element={<div>Settings Page</div>} />
                         </Routes>
                     </AuthProvider>
