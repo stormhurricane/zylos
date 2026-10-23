@@ -36,16 +36,16 @@ public class AuthService {
 
         Map<String, String> errors = new HashMap<>();
         if (emailAlreadyTaken) {
-            errors.put("email", "Email is already in use");
+            errors.put("email", "Email is already in use.");
         }
         if (userNameAlreadyTaken) {
-            errors.put("username", "Username is already in use");
+            errors.put("username", "Username is already in use.");
         }
 
         if (!errors.isEmpty()) {
             throw new UserAlreadyExistsException(
                 errors, 
-                "Registration failed due to conflicting user data"
+                "Registration failed due to conflicting user data."
             );
         }
         
