@@ -3,6 +3,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useForm, useWatch } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useLocation, Navigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 import { UserRole, type ErrorResponse } from "../../types/index";
 import { authApi } from "../api/authApi";
@@ -10,6 +12,8 @@ import { registerSchema, type RegisterFormData } from "../schemas/register.schem
 
 export const Register = () => { 
     const navigate = useNavigate(); 
+    const location = useLocation();
+	const { user } = useAuth();
 
     // form is handled by RHF, with given DTO interface
     const { register, handleSubmit, setError, control, formState: { errors } } = useForm<RegisterFormData>({ 
@@ -25,6 +29,9 @@ export const Register = () => {
             role: UserRole.STUDENT,
         } 
     }); 
+
+    const from = (location.state as { from?: { pathname: string }})?.from?.pathname || "/home"; 
+
 
     // watch the role input
     const selectedRole = useWatch({
@@ -65,6 +72,10 @@ export const Register = () => {
             
         }
     }); 
+
+    if(user){
+		return <Navigate to={from} replace />;
+	}
 
     const onSubmit = (data: RegisterFormData) => {
         const {emailCopy: _emailCopy, ...payload} = data; 
