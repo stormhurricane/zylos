@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import logo from '../../assets/logo_round.webp'; 
+import logo from '../assets/logo_round.webp'; 
 
 export const AuthLayout = () => {
 

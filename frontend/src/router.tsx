@@ -2,8 +2,9 @@ import { createBrowserRouter, Navigate, } from 'react-router-dom';
 import { Login } from './auth/components/Login';
 import { Register } from './auth/components/Register';
 import { ProtectedRoute } from './auth/guards/ProtectedRoute';
-import { Dashboard } from './pages/Dashboard';
-import { AuthLayout } from './auth/layouts/AuthLayout';
+import { Dashboard } from './features/dashboard/pages/Dashboard';
+import { AuthLayout } from './layouts/AuthLayout';
+import { AppLayout } from './layouts/AppLayout';
 
 const router = createBrowserRouter([
     { 
@@ -21,7 +22,12 @@ const router = createBrowserRouter([
             {
                 element: <ProtectedRoute/>,
                 children: [
-                    { path: "dashboard", element: <Dashboard/>}
+                    {
+                        element: <AppLayout/>,
+                        children: [
+                            { path: "home", element: <Dashboard/>}
+                        ]
+                    },
                 ]
             }
         ]
