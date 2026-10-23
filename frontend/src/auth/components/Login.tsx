@@ -20,7 +20,7 @@ export const Login =()  => {
 		}
 	});
 	
-	const from = (location.state as { from?: { pathname: string }})?.from?.pathname || "/dashboard"; 
+	const from = (location.state as { from?: { pathname: string }})?.from?.pathname || "/home"; 
 	
 	const { mutate, isPending, isError, error } = useMutation<
 		unknown,
@@ -48,14 +48,13 @@ export const Login =()  => {
     const errorClasses = "mt-1 text-sm text-status-error";
 
     return ( 
-      <div className="min-h-screen bg-surface-app flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-content-primary">
+      	<div className="w-full">
+            <div className="text-center mb-8">
+                <h2 className="text-3xl font-extrabold text-content-primary">
                     Welcome back
                 </h2>
             </div>
 
-			<div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="bg-surface py-8 px-4 shadow-card sm:rounded-brand sm:px-10">
                     <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
 					
@@ -124,9 +123,8 @@ export const Login =()  => {
 						Register Now
 					</Link>
 				</p>
-			</div>
 			
-		</div>
-      </div>
+			</div>
+      	</div>
     );
 };

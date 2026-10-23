@@ -9,6 +9,7 @@ import { Register } from "./Register";
 import { server } from "../../test/setup";
 import { UserRole, type ErrorResponse } from "../../types";
 import type { RegisterFormData } from "../schemas/register.schema";
+import { AuthProvider } from "../context/AuthProvider";
 
 // MOCKS
 
@@ -40,12 +41,30 @@ const renderRegister = () => {
         user,
         ...render(
             <QueryClientProvider client = {queryClient}>
-                <MemoryRouter>
-                    <Register />
-                </MemoryRouter>
+                <AuthProvider>
+                    <MemoryRouter>
+                        <Register />
+                    </MemoryRouter>
+
+                </AuthProvider>
             </QueryClientProvider>
         ),
     }
+};
+
+const mockNotLoggedIn = () => {
+    server.use(
+        http.get('**/api/v1/auth/me',
+            () => {
+                const errorResponse: ErrorResponse = {
+                    status: 401,
+                    message: "Unauthorized",
+                    timestamp: new Date().toISOString()
+                }
+                return HttpResponse.json(errorResponse, { status: 401 });
+            }
+        )
+    );
 };
 
 const defaultValues: RegisterFormData = {
@@ -93,6 +112,7 @@ const fillForm = async (
 
 beforeEach(() => {
     vi.clearAllMocks();
+    mockNotLoggedIn();
 });
 
 describe("Register Component Test", () => {
