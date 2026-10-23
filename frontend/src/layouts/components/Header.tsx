@@ -1,6 +1,6 @@
 import { Link, NavLink } from 'react-router-dom';
 import logo from '../../assets/logo_round.webp'; 
-import { useAuth } from '../../auth/hooks/useAuth';
+// import { useAuth } from '../../auth/hooks/useAuth';
 
 export const Header = () => {
     // const { user, logout } = useAuth();
