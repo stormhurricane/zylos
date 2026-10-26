@@ -1,0 +1,300 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { useForm, useWatch } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { useLocation, Navigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+
+import { UserRole, type ErrorResponse } from "../../types/index";
+import { authApi } from "../api/authApi";
+import { registerSchema, type RegisterFormData } from "../schemas/register.schema";
+
+export const Register = () => { 
+    const navigate = useNavigate(); 
+    const location = useLocation();
+	const { user } = useAuth();
+
+    // form is handled by RHF, with given DTO interface
+    const { register, handleSubmit, setError, control, formState: { errors } } = useForm<RegisterFormData>({ 
+        resolver: zodResolver(registerSchema), 
+        mode: "onBlur", 
+        defaultValues: { 
+            firstName: "", 
+            lastName: "", 
+            email: "", 
+            emailCopy: "", 
+            username: "", 
+            password: "",
+            role: UserRole.STUDENT,
+        } 
+    }); 
+
+    const from = (location.state as { from?: { pathname: string }})?.from?.pathname || "/home"; 
+
+
+    // watch the role input
+    const selectedRole = useWatch({
+        control,
+        name: 'role'
+    });
+
+    const isTest = import.meta.env.MODE === 'test';
+    const REDIRECT_DELAY = isTest ? 0 : 2000;
+
+    // useMutation is used to send requests to send server
+    const { mutate, isPending, isError, error } = useMutation<
+        unknown,
+        ErrorResponse,
+        Omit<RegisterFormData, "emailCopy">
+    >({ 
+        mutationFn: authApi.register, 
+        onSuccess: async () => { 
+            // what is called on succes
+            toast.success("Success! Forwarding to login...");
+                
+            if(REDIRECT_DELAY > 0){
+                await new Promise((resolve) => setTimeout(resolve, REDIRECT_DELAY));
+            }
+            navigate("/login");
+        },
+        onError: (error: ErrorResponse) => {
+            // what happens on error
+            const fieldErrors = error.errors;
+            if (fieldErrors && Object.keys(fieldErrors).length > 0) {
+                Object.entries(fieldErrors).forEach(([field, message]) => {
+                    setError(field as keyof RegisterFormData, {
+                        type: "server",
+                        message: message
+                    });
+                })
+            }
+            
+        }
+    }); 
+
+    if(user){
+		return <Navigate to={from} replace />;
+	}
+
+    const onSubmit = (data: RegisterFormData) => {
+        const {emailCopy: _emailCopy, ...payload} = data; 
+        mutate(payload); 
+    }; 
+
+    const inputClasses =  
+        "w-full px-3 py-2 bg-surface text-content-primary placeholder:text-content-muted " + 
+        "border border-border-subtle rounded-brand shadow-sm " + 
+        "focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary " + 
+        "transition-colors aria-[invalid=true]:border-status-error"; 
+
+    const labelClasses = "block text-sm font-medium text-content-secondary mb-1"; 
+    const errorClasses = "mt-1 text-sm text-status-error"; 
+
+    const getCardClasses = (role: UserRole) => {
+        const base = "relative flex flex-col p-4 border rounded-brand cursor-pointer transition-all focus-within:ring-2 focus-within:ring-brand-primary ";
+        const active = selectedRole === role 
+            ? "border-brand-primary bg-brand-soft shadow-sm" 
+            : "border-border-subtle bg-surface hover:border-brand-primary/50";
+        return `${base} ${active}`;
+    };
+
+    // const hasServerFieldErrors = Boolean(error?.errors && Object.keys(error.errors).length > 0);
+
+    return ( 
+        <div className="w-full"> 
+            <div className="text-center mb-8"> 
+                <h2 className="text-3xl font-extrabold text-content-primary"> 
+                    Create an account 
+                </h2> 
+            </div> 
+
+            <div className="bg-surface py-8 px-4 shadow-card sm:rounded-brand sm:px-10 border border-border-subtle">
+                <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate> 
+
+                {isError && ( 
+                    <div role="alert" className="p-3 bg-status-error/10 border border-status-error/20 rounded text-sm text-status-error"> 
+                        <p>{error?.message || "An error occurred while registering."}</p> 
+                    </div> 
+                )} 
+
+                    <fieldset>
+                        <legend className={labelClasses}>Register as a</legend>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+                            <label className={getCardClasses(UserRole.STUDENT)}>
+                                <input 
+                                    type="radio" 
+                                    value={UserRole.STUDENT} 
+                                    className="sr-only" 
+                                    {...register("role")} 
+                                />
+                                <span className="text-sm font-semibold text-content-primary">Student</span>
+                                <span className="text-xs text-content-muted mt-1">
+                                    Learn and enroll in courses
+                                </span>
+                            </label>
+
+                            <label className={getCardClasses(UserRole.TEACHER)}>
+                                <input 
+                                    type="radio" 
+                                    value={UserRole.TEACHER} 
+                                    className="sr-only" 
+                                    {...register("role")} 
+                                />
+                                <span className="text-sm font-semibold text-content-primary">Teacher</span>
+                                <span className="text-xs text-content-muted mt-1">
+                                    Create courses (requires approval)
+                                </span>
+                            </label>
+                        </div>
+                        {errors.role && (
+                            <p role="alert" className={errorClasses}>
+                                {errors.role.message}
+                            </p>
+                        )}
+                    </fieldset>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4"> 
+                        <div> 
+                            <label htmlFor="firstname" className={labelClasses}> 
+                                First Name 
+                            </label> 
+                            <input  
+                                id="firstname" 
+                                type="text" 
+                                autoComplete="given-name" 
+                                aria-invalid={!!errors.firstName}
+                                aria-describedby={errors.firstName ? "firstname-error" : undefined}
+                                className={inputClasses} 
+                                {...register("firstName")} 
+                            />
+                            {errors.firstName &&  
+                                <p id="firstname-error" role="alert" className={errorClasses}> 
+                                    {errors.firstName.message} 
+                                </p> 
+                            } 
+                        </div> 
+                        <div> 
+                            <label htmlFor="lastname" className={labelClasses}> 
+                                Last Name 
+                            </label> 
+                            <input  
+                                id="lastname" 
+                                type="text" 
+                                autoComplete="family-name" 
+                                aria-invalid={!!errors.lastName}
+                                aria-describedby={errors.lastName ? "lastname-error" : undefined}
+                                className={inputClasses} 
+                                {...register("lastName")} 
+                            />
+                            {errors.lastName &&  
+                                <p id="lastname-error" role="alert" className={errorClasses}> 
+                                    {errors.lastName.message} 
+                                </p> 
+                            } 
+                        </div> 
+                    </div> 
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4"> 
+                        <div> 
+                            <label htmlFor="email" className={labelClasses}> 
+                                Email 
+                            </label> 
+                            <input  
+                                id="email" 
+                                type="email" 
+                                autoComplete="email" 
+                                aria-invalid={!!errors.email}
+                                aria-describedby={errors.email ? "email-error" : undefined}
+                                className={inputClasses} 
+                                {...register("email")} 
+                            />
+                            {errors.email &&  
+                                <p id="email-error" role="alert" className={errorClasses}> 
+                                    {errors.email.message} 
+                                </p> 
+                            } 
+                        </div> 
+                        <div> 
+                            <label htmlFor="emailCopy" className={labelClasses}> 
+                                Repeat Email 
+                            </label> 
+                            <input  
+                                id="emailCopy" 
+                                type="email" 
+                                autoComplete="email" 
+                                aria-invalid={!!errors.emailCopy}
+                                aria-describedby={errors.emailCopy ? "emailCopy-error" : undefined}
+                                className={inputClasses} 
+                                {...register("emailCopy")} 
+                            />
+                            {errors.emailCopy &&  
+                                <p id="emailCopy-error" role="alert" className={errorClasses}> 
+                                    {errors.emailCopy.message} 
+                                </p> 
+                            } 
+                        </div> 
+                    </div> 
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4"> 
+                        <div> 
+                            <label htmlFor="username" className={labelClasses}> 
+                                Username 
+                            </label> 
+                            <input  
+                                id="username" 
+                                type="text" 
+                                autoComplete="username" 
+                                aria-invalid={!!errors.username}
+                                aria-describedby={errors.username ? "username-error" : undefined}
+                                className={inputClasses} 
+                                {...register("username")} 
+                            />
+                            {errors.username &&  
+                                <p id="username-error" role="alert" className={errorClasses}> 
+                                    {errors.username.message} 
+                                </p> 
+                            } 
+                        </div> 
+                        <div> 
+                            <label htmlFor="password" className={labelClasses}> 
+                                Password 
+                            </label> 
+                            <input  
+                                id="password" 
+                                type="password" 
+                                autoComplete="new-password" 
+                                aria-invalid={!!errors.password}
+                                aria-describedby={errors.password ? "password-error" : undefined}
+                                className={inputClasses} 
+                                {...register("password")} 
+                            />
+                            {errors.password &&  
+                                <p id="password-error" role="alert" className={errorClasses}> 
+                                    {errors.password.message} 
+                                </p> 
+                            } 
+                        </div> 
+                    </div> 
+
+                    <div className="pt-2"> 
+                        <button  
+                            type="submit" 
+                            disabled={isPending} 
+                            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-brand shadow-sm text-sm font-medium text-white bg-brand-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+                        > 
+                            {isPending ? "Registering..." : "Register"} 
+                        </button> 
+                    </div> 
+                </form> 
+
+                <p className="mt-6 text-center text-sm text-content-secondary"> 
+                    Already have an account?{" "} 
+                    <Link to="/login" className="font-medium text-brand-primary hover:underline"> 
+                        Login 
+                    </Link> 
+                </p> 
+            </div> 
+        </div> 
+    ); 
+};
